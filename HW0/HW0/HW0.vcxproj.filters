@@ -18,5 +18,8 @@
     <ClCompile Include="HW0_P1.c">
       <Filter>資源檔</Filter>
     </ClCompile>
+    <ClCompile Include="Source.c">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
