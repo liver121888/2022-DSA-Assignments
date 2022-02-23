@@ -1,5 +1,25 @@
 //#include <iostream>
 #include<stdio.h>
+
+
+unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[]) {
+
+
+    return NULL;
+}
+
+unsigned char* BigIntsMultiplication(unsigned char a[], int k) {
+
+
+    return NULL;
+}
+
+unsigned char* BigIntsDivision(unsigned char a[], int k) {
+
+
+    return NULL;
+}
+
 int main()
 {
     printf("Hello HWK0\n");
@@ -11,9 +31,6 @@ int main()
         *q++ = i;
     for (int i = 0; i < row * col; i++)
         printf("%d=%d\n", i, p[i]);
-
-    printf("pointer p = %d\n", p);
-    printf("pointer p+1 = %d\n", p + 1);
 
     q = p;
     int** z = malloc(row * sizeof(int*));
@@ -35,28 +52,6 @@ int main()
     for (int r = 0; r < 3; r++)
         for (int c = 0; c < 10; c++)
             ary[r][c] = r * 10 + c;
-
-    printf("ary = %d\n", ary);
-    printf("ary[0] = %d\n", ary[0]);
-    printf("ary[1]  = %d\n", ary[1]);
-    printf("ary[2] = %d\n", ary[2]);
-
-    printf("ary = %d\n", ary);
-    printf("ary+1 = %d\n", ary + 1);
-    printf("ary+2  = %d\n", ary + 2);
-    printf("ary+3  = %d\n", ary + 3);
-
-    printf("(ary+1)+1 = %d\n", (ary + 1) + 1);
-    printf("(ary+1)[1] = %d\n", (ary + 1)[1]);
-    printf("ary[1][1] = %d\n", ary[1][1]);
-    printf("((ary+1)[1])[1] = %d\n", ((ary + 1)[1])[1]);
-
-    printf("(ary+2)+1  = %d\n", (ary + 2) + 1);
-    printf("(ary+2)[1] = %d\n", (ary + 2)[1]);
-    printf("ary[2][1] = %d\n", ary[2][1]);
-    printf("((ary+2)[1])[1] = %d\n", (ary + 2)[1][1]);
-
-
 
     void* ptr = malloc(40);
     int* ip = ptr;
