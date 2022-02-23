@@ -1,2 +1,2 @@
-# 2022-DSA-Assignments
-2022-DSA-Assignments
+# NTUCSIE-2022-DSA-Assignments
+NTUCSIE Data Structures and Algorithms
