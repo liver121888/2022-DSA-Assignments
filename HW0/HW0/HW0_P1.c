@@ -39,7 +39,7 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[])
         big = b; small = a; Blen = blen; Slen = alen;
     }
     int Clen;
-    if (big[0] == small[0]) Clen = Blen - 1;
+    if (big[0] == small[0] && alen == blen ) Clen = Blen - 1;
     else Clen = Blen;
     c[Clen] = 0;
     Clen--; Blen--; Slen--;
