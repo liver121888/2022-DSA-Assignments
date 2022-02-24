@@ -3,20 +3,23 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-int IsAGreaterThanB(unsigned char a[], int* alen, unsigned char b[], int* blen)
+
+// return 0 if a = b, 1 for a > b, -1 for a < b
+int IsAGreaterThanBAndGetLengths(unsigned char a[], int* alen, unsigned char b[], int* blen)
 {
     int i =0, j=0;
     while (a[i] != 0) i++;
     while (b[j] != 0) j++;
+    *alen = i; *blen = j;
     int aGreaterThanB = 1;
-    if (i < j) aGreaterThanB = 0;
+    if (i < j) aGreaterThanB = -1;
     else if (i == j)
     {
         int k = 0;  
         if (a[k] == b[k] && k < alen ) { k++; }
-        if (k < i && a[k] < b[k]) aGreaterThanB = 0;
+        if (k < i && a[k] < b[k]) aGreaterThanB = -1;
+        else aGreaterThanB = 0;
     }
-    *alen = i; *blen = j;
     return aGreaterThanB;
 }
 
@@ -45,8 +48,16 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     unsigned char* big, * small;
     int i; // bigger length and index
     int j; // smaller length and index
-
-    if ( IsAGreaterThanB(a,&aLen, b, &bLen))
+    int same = IsAGreaterThanBAndGetLengths(a, &aLen, b, &bLen);
+    if (same == 0)
+    {
+        *clen = 1;
+        c = malloc(2);
+        c[1] = 0;
+        c[0] = '0';
+        return c;
+    }
+    else if ( same > 0 )
     {
         big = a; small = b; i = aLen; j = bLen;
     }
@@ -54,9 +65,19 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     {
         big = b; small = a; i = bLen; j = aLen;
     }
-    if (big[0] == small[0] && i == j) k = i - 1; // digits of c will be lesser than bigger one by 1
-    else k = i; // digits of c is the same with the bigger
 
+    // big and small never the same from here
+    if (i == j)
+    {
+        k = i;  // digits of c will be lesser than or equal to bigger one
+        int p = 0;
+        while (big[p] == small[p] && p < i)
+        {
+            k--;
+            p++;
+        }
+    }
+    else k = i;// digits of c is the same with the bigger
     *clen = k;
 
     c = malloc(sizeof( unsigned char ) * (k + 1)); // allocate memory for c with an extra char for end of string
@@ -99,6 +120,16 @@ unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen )
     unsigned char* c;
     int k = 0; // length and index of c
  
+    if (aLen == 1)
+    {
+        k = 1;
+        *cLen = k;
+        c = malloc(k + 1);
+        c[k] = 0;
+        c[0] = (a[0]-'0' ) / 2 + '0';
+        return c;
+    }
+
     if (a[0] - '0' > 1) k = aLen;
     else k = aLen - 1;
     *cLen = k;
@@ -113,7 +144,7 @@ unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen )
         while (v < 2 && i < aLen)
         {
             i++;
-            v = v * 10 + a[i];
+            v = v * 10 + ( a[i]-'0');
         }
         c[k] = '0'+ v / 2;
         previous = v % 2;
@@ -128,30 +159,33 @@ unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen )
 int main()
 {
     char buf1[256], buf2[256];
-    FILE* ptr;
+    FILE* fPtr;
   // ptr = fopen("D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW0\\HW0\\x64\\Debug\\test.txt", "r");
     char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt";
     
-     ptr = fopen(fileName, "r");
-    fscanf(ptr, "%s", buf1 );
-    fscanf(ptr, "%s", buf2);
- 
-    printf("a = %s\n", buf1);
-    printf("b = %s\n", buf2);
-    fclose(ptr);
+     fPtr = fopen(fileName, "r");
 
-    int subLen;
-    char* sub =  BigIntsSubtraction(buf1, buf2, &subLen );
-    printf("a - b = %s\n", sub);
-    
-    int halfLen;
-    char* half;
-    if ((sub[subLen - 1] - '0') % 2 == 0)
-    {
-        half = BigIntsDivisionBy2(sub, subLen, &halfLen);
-        printf("sub / 2 = %s", half);
-    }
+     while (fscanf(fPtr, "%s %s", buf1, buf2) != EOF)
+     {
 
+
+         printf("a = %s\n", buf1);
+         printf("b = %s\n", buf2);
+
+         int subLen;
+         char* sub = BigIntsSubtraction(buf1, buf2, &subLen);
+         printf("a - b = %s\n", sub);
+
+         int halfLen;
+         char* half;
+         if ((sub[subLen - 1] - '0') % 2 == 0)
+         {
+             half = BigIntsDivisionBy2(sub, subLen, &halfLen);
+             printf("(a-b) / 2 = %s\n\n", half);
+         }
+     }
+
+    fclose(fPtr);
     int i;
     scanf("%d", &i);
 }
