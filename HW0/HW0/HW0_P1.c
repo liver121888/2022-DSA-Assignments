@@ -108,11 +108,52 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
 }
 
 
-unsigned char* BigIntsMultiplication(unsigned char a[], int k) 
+unsigned char* BigIntsMultiplication(unsigned char a[], int aLen, int p, int* cLen) 
 {
+    unsigned char* c;
+    
+    unsigned char values[512]; // In-place update
+    int lastLen, newLen;
+    // copy 
+    int i, k = 0; // length and index of c
+    for (k = 0; k < aLen; k++) values[k] = a[k] - '0';
+    lastLen = aLen;
+  
+    int count = 0;
+    int add = 0;
+    while (count < p)
+    {
+        if (values[0] >= 5) newLen = lastLen + 1;
+        else newLen = lastLen;
+        add = 0;
+        k = newLen-1;
+        for (int i = lastLen - 1; i >= 0; i--)
+        {
+            int v = values[i] * 2 + add;
+            if (v >= 10)
+            {
+                values[k] = v - 10;
+                add = 1;
+                if (i == 0) values[k - 1] = 1;
+            }
+            else
+            {
+                values[k] = v;
+                add = 0;
+            }
+            k--;
+        }
+        lastLen = newLen;
+        count++;
+    }
 
+    *cLen = newLen;
+    c = malloc(newLen + 1);
+    for (int i = 0; i < newLen; i++)
+        c[i] = values[i] + '0';
+    c[newLen] = 0;
 
-    return NULL;
+    return c;
 }
 
 unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen ) 
@@ -173,16 +214,26 @@ int main()
          printf("b = %s\n", buf2);
 
          int subLen;
-         char* sub = BigIntsSubtraction(buf1, buf2, &subLen);
+         unsigned char* sub = BigIntsSubtraction(buf1, buf2, &subLen);
          printf("a - b = %s\n", sub);
 
          int halfLen;
-         char* half;
+         unsigned char* half;
          if ((sub[subLen - 1] - '0') % 2 == 0)
          {
              half = BigIntsDivisionBy2(sub, subLen, &halfLen);
              printf("(a-b) / 2 = %s\n\n", half);
          }
+
+         int powLen;
+         unsigned char* pow;
+         pow = BigIntsMultiplication(sub, subLen, 2, &powLen);
+         printf("(a-b)**2 = %s\n", pow);
+
+         pow = BigIntsMultiplication(sub, subLen, 3, &powLen);
+         printf("(a-b)**3 = %s\n\n", pow);
+
+
      }
 
     fclose(fPtr);
