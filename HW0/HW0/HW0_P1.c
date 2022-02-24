@@ -3,19 +3,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-int IsAGreaterThanB(unsigned char a[], unsigned char b[])
+int IsAGreaterThanB(unsigned char a[], int* alen, unsigned char b[], int* blen)
 {
-    int alen=0, blen=0;
-    while (a[alen] != 0) alen++;
-    while (b[blen] != 0) blen++;
+    int i =0, j=0;
+    while (a[i] != 0) i++;
+    while (b[j] != 0) j++;
     int aGreaterThanB = 1;
-    if (alen < blen) aGreaterThanB = 0;
-    else if (alen == blen)
+    if (i < j) aGreaterThanB = 0;
+    else if (i == j)
     {
-        int i = 0;  
-        if (a[i] == b[i] && i < alen ) { i++; }
-        if (i < alen && a[i] < b[i]) aGreaterThanB = 0;
+        int k = 0;  
+        if (a[k] == b[k] && k < alen ) { k++; }
+        if (k < i && a[k] < b[k]) aGreaterThanB = 0;
     }
+    *alen = i; *blen = j;
     return aGreaterThanB;
 }
 
@@ -38,43 +39,46 @@ int IsAGreaterThanBPointerWay(unsigned char a[], unsigned char b[])
 
 const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[]) 
 {
+    int aLen, bLen;
     unsigned char *c=0;
-
+    int k = 0;
     unsigned char* big, * small;
-    big = a; small = b;
-    if (!IsAGreaterThanB(a, b))
+    int i; // bigger length and index
+    int j; // smaller length and index
+
+    if ( IsAGreaterThanB(a,&aLen, b, &bLen))
     {
-        big = b; small = a;
+        big = a; small = b; i = aLen; j = bLen;
     }
-    int bigLen = 0, smallLen = 0, cLen = 0;
-    while (big[bigLen] != 0)bigLen++;
-    while (small[smallLen] != 0)smallLen++;
-    if (big[0] == small[0] && bigLen == smallLen) cLen = bigLen - 1;
-    else cLen = bigLen - 1;
-    c = malloc(sizeof( unsigned char ) * (cLen + 1));
- 
-    c[cLen] = 0; // End of the string
-    cLen--; bigLen--; smallLen--;
-    int sub = 0; // extra subtraction
-    while (bigLen >= 0)
+    else
     {
-        if (smallLen < 0)
-            c[cLen] = big[bigLen];
+        big = b; small = a; i = bLen; j = aLen;
+    }
+    if (big[0] == small[0] && i == j) k = i - 1; // digits of c will be lesser than bigger one by 1
+    else k = i; // digits of c is the same with the bigger
+
+    c = malloc(sizeof( unsigned char ) * (k + 1)); // allocate memory for c with an extra char for end of string
+    c[k] = 0; // End of the string
+
+    k--; i--; j--; // now all of them are indexes
+    int sub = 0; // extra subtraction, initially zero
+    while (i >= 0) // loop through from last index to zero 
+    {
+        if (j < 0) // no digit existing in smaller
+            c[k] = big[i]; // no subtraction is required
         else
         {
-            int net = big[bigLen] - sub - small[smallLen];
+            int net = big[i] - sub - small[j];
             if (net > 0)
             {
-                c[cLen] = '0'+net; sub = 0;
+                c[k] = '0'+net; sub = 0; // no extra subtraction for higher digit
             }
             else 
             {
-                c[cLen] = '0'+( 10 + net); sub = 1;
+                c[k] = '0'+( 10 + net); sub = 1; 
             }
         }
-        bigLen--;
-        smallLen--;
-        cLen--;
+        i--; j--; k--;
     }
     return c;
 }
@@ -87,12 +91,14 @@ unsigned char* BigIntsMultiplication(unsigned char a[], int k)
     return NULL;
 }
 
-unsigned char* BigIntsDivision(unsigned char a[], int k) 
+unsigned char* BigIntsDivisionBy2(unsigned char a[] ) 
 {
 
 
     return NULL;
 }
+
+
 
 
 int main()
