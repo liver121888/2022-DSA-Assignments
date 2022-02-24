@@ -2,6 +2,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<math.h>
 
 
 int row, col;
@@ -9,6 +10,7 @@ int** board;
 int** rowHints;
 int** colHints;
 int trial = 0;
+long long overallCount;
 
 void printBoard(int** a, int row, int col)
 {
@@ -95,6 +97,40 @@ int success()
 	return 1;
 }
 
+int BoardFilledWithColors()
+{
+	for (int r = 0; r < row; r++)
+		for (int c = 0; c < col; c++)
+			if (board[r][c] < 0) return 0;
+	return 1;
+}
+
+int Recur(int* all)
+{
+	if (BoardFilledWithColors())
+	{
+		if (success())
+		{
+			printf("Found!    Trial = %d / %d\n", trial, overallCount);
+			printGlobalBoard();
+			return 1;
+		}
+		else return 0;
+	}
+	else
+	{
+		int i = 0;
+		while (all[i] >= 0)i++;
+		all[i] = 1;
+		if (Recur(all)) return 1;
+		all[i] = 0;
+		if (Recur(all)) return 1;
+		all[i] = -1;
+		return 0;
+	}
+}
+
+
 int BrutalSolve(int* board, int totalLength, int yourindex)
 {
 	// Try black first
@@ -123,6 +159,7 @@ int BrutalSolve(int* board, int totalLength, int yourindex)
 	return 0;
 }
 
+
 void main()
 {
 	for (int b = 0; b < 100; b++)
@@ -138,6 +175,7 @@ void main()
 		fscanf(fptr, "%d %d", &row, &col);
 
 		int* all = malloc(row * col * sizeof(int*));
+		overallCount = pow(2, row * col);
 
 		board = malloc(row * sizeof(int*));
 
@@ -183,14 +221,22 @@ void main()
 		//all[21] = 1; all[22] = 0; all[23] = 0;
 
 		//int ii = success();
+		printf("\n=== by Recur \n");
+		trial = 0;
+		Recur(all);
 
 
 
-		//printBoard (board, row, col);
-
+		for (int r = 0; r < row; r++)
+		{
+			for (int c = 0; c < col; c++)
+				board[r][c] = -1;
+		}
+		printf("\n=== by brutalSolver \n");
+		trial = 0;
 		if (BrutalSolve(all, row * col, 0))
 		{
-			printf("Found!   Trial = %d\n", trial);
+			printf("Found!   Trial = %d / %d\n", trial, overallCount);
 			printGlobalBoard();
 		}
 		else
