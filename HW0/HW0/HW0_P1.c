@@ -37,7 +37,7 @@ int IsAGreaterThanBPointerWay(unsigned char a[], unsigned char b[])
     return aGreaterThanB;
 }
 
-const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[]) 
+const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], int* clen) 
 {
     int aLen, bLen;
     unsigned char *c=0;
@@ -57,6 +57,8 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[])
     if (big[0] == small[0] && i == j) k = i - 1; // digits of c will be lesser than bigger one by 1
     else k = i; // digits of c is the same with the bigger
 
+    *clen = k;
+
     c = malloc(sizeof( unsigned char ) * (k + 1)); // allocate memory for c with an extra char for end of string
     c[k] = 0; // End of the string
 
@@ -69,7 +71,7 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[])
         else
         {
             int net = big[i] - sub - small[j];
-            if (net > 0)
+            if (net >= 0)
             {
                 c[k] = '0'+net; sub = 0; // no extra subtraction for higher digit
             }
@@ -80,6 +82,7 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[])
         }
         i--; j--; k--;
     }
+    
     return c;
 }
 
@@ -91,11 +94,32 @@ unsigned char* BigIntsMultiplication(unsigned char a[], int k)
     return NULL;
 }
 
-unsigned char* BigIntsDivisionBy2(unsigned char a[] ) 
+unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen ) 
 {
+    unsigned char* c;
+    int k = 0; // length and index of c
+ 
+    if (a[0] - '0' > 1) k = aLen;
+    else k = aLen - 1;
+    *cLen = k;
 
-
-    return NULL;
+    c = malloc( (k+1) * sizeof(unsigned char));
+    c[k] = 0;
+    int previous = 0;
+    k = 0;
+    for (int i = 0; i < aLen; i++)
+    {
+        int v = (a[i] - '0')+previous*10;
+        while (v < 2 && i < aLen)
+        {
+            i++;
+            v = v * 10 + a[i];
+        }
+        c[k] = '0'+ v / 2;
+        previous = v % 2;
+        k++;
+    }
+    return c;
 }
 
 
@@ -116,9 +140,17 @@ int main()
     printf("b = %s\n", buf2);
     fclose(ptr);
 
-    char* res =  BigIntsSubtraction(buf1, buf2);
-
-    printf("a - b = %s\n", res);
+    int subLen;
+    char* sub =  BigIntsSubtraction(buf1, buf2, &subLen );
+    printf("a - b = %s\n", sub);
+    
+    int halfLen;
+    char* half;
+    if ((sub[subLen - 1] - '0') % 2 == 0)
+    {
+        half = BigIntsDivisionBy2(sub, subLen, &halfLen);
+        printf("sub / 2 = %s", half);
+    }
 
     int i;
     scanf("%d", &i);
