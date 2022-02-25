@@ -15,9 +15,13 @@ int IsAGreaterThanBAndGetLengths(unsigned char a[], int* alen, unsigned char b[]
     if (i < j) aGreaterThanB = -1;
     else if (i == j)
     {
+        // equal or smaller
         int k = 0;  
         if (a[k] == b[k] && k < alen ) { k++; }
-        if (k < i && a[k] < b[k]) aGreaterThanB = -1;
+        if (k < i)
+        {
+            if (a[k] < b[k]) aGreaterThanB = -1;
+        }
         else aGreaterThanB = 0;
     }
     return aGreaterThanB;
@@ -48,7 +52,19 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     unsigned char* big, * small;
     int i; // bigger length and index
     int j; // smaller length and index
+    //if (a[0] == '1' && a[1] == '7' && b[0] == '4' && b[1] == '9')
+    //{
+    //    int stop = 1;
+    //}
+    //if (a[0] == 0 || b[0] == 0)
+    //{
+    //    int stop = 1;
+    //}
     int same = IsAGreaterThanBAndGetLengths(a, &aLen, b, &bLen);
+    //if (a[0] == 0 || b[0] == 0)
+    //{
+    //    int stop = 1;
+    //}
     if (same == 0)
     {
         *clen = 1;
@@ -63,6 +79,7 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     }
     else
     {
+        // Swqp 
         big = b; small = a; i = bLen; j = aLen;
     }
 
@@ -79,16 +96,20 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     //}
     //else k = i;// digits of c is the same with the bigger
    // *clen = k;
-    k = i;
-    c = malloc(k + 1);
-    c[k] = 0;
-  
 
+    k = i;
     c = malloc(sizeof( unsigned char ) * (k + 1)); // allocate memory for c with an extra char for end of string
+    for (int z = 0; z < k + 1; z++) c[z] = 0;
+
     c[k] = 0; // End of the string
 
     i--; j--; // now all of them are indexes
     int sub = 0; // extra subtraction, initially zero
+
+    //if (big[0] == 0 || small[0] == 0)
+    //{
+    //    int stop = 2;
+    //}
     while (i >= 0) // loop through from last index to zero 
     {
  
@@ -101,12 +122,13 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
         {
             c[i] = '0' + (10 + net); sub = 1;
         }
-
         i--; j--;  
     }
     j = 0;
-    for( int i = 0; i < k; i++)
-        if (c[i] != '0') { j = i; break; }
+    for( int ii = 0; ii < k; ii++)
+        if (c[ii] != '0') { j = ii; break; }
+
+    int zeroCount = j;
 
     i = 0;
     if (j != 0)
@@ -115,7 +137,13 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
             c[i++] = c[p];
         k = i-1;
     }
- 
+
+
+    int p;
+    for ( p = 0; ; p++)  if (c[p] == 0) break;
+    if (p != k)
+        printf("\n error!! \n");
+
     *clen = k;
     return c;
 }
@@ -123,10 +151,15 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
 
 unsigned char* BigIntsMultiplication(unsigned char a[], int aLen, int p, int* cLen) 
 {
+    if (p == 0)
+    {
+        *cLen = aLen;
+        return a;
+    }
     unsigned char* c;
     
     unsigned char values[512]; // In-place update
-    int lastLen, newLen;
+    int lastLen=-1, newLen=-1;
     // copy 
     int i, k = 0; // length and index of c
     for (k = 0; k < aLen; k++) values[k] = a[k] - '0';
@@ -195,7 +228,7 @@ unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen )
     for (int i = 0; i < aLen; i++)
     {
         int v = (a[i] - '0')+previous*10;
-        while (v < 2 && i < aLen)
+        if (v < 2 && i == 0)
         {
             i++;
             v = v * 10 + ( a[i]-'0');
@@ -207,12 +240,60 @@ unsigned char* BigIntsDivisionBy2(unsigned char a[], int aLen, int* cLen )
     return c;
 }
 
+unsigned char* GetGCD( unsigned char buf1[], unsigned char buf2[])
+{
+    char* big, * small;
+    int count = 0;
+    int len1, len2, bigLen, smallLen;
+    if (IsAGreaterThanBAndGetLengths(buf1, &len1, buf2, &len2) > 0)
+    {
+        big = buf1; bigLen = len1, small = buf2, smallLen = len2;
+    }
+    else
+    {
+        big = buf2; bigLen = len2, small = buf1, smallLen = len1;
+    }
+    while (big[0] != '0' && small[0] != '0')
+    {
 
+        if ((big[bigLen - 1] - '0') % 2 == 0 && (small[smallLen - 1] - '0') % 2 == 0) count++;
+         int kkk = 0;
+        if ((small[smallLen - 1] - '0') % 2 == 0)
+        {
+            kkk = 1;
+            small = BigIntsDivisionBy2(small, smallLen, &smallLen);
+        }
+        if ((big[bigLen - 1] - '0') % 2 == 0)
+        {
+            kkk = 2;
+            big = BigIntsDivisionBy2(big, bigLen, &bigLen);
+        }
+        if (IsAGreaterThanBAndGetLengths(big, &bigLen, small, &smallLen) < 0)
+        {
+            unsigned char* temp = big;
+            big = small;
+            small = temp;
+            int len = bigLen;
+            bigLen = smallLen;
+            smallLen = len;
+        }
+        big = BigIntsSubtraction(big, small, &bigLen);
+    }
+    small = BigIntsMultiplication(small, smallLen, count, &smallLen);
+    return small;
+}
 
 
 int main()
 {
-    char buf1[256], buf2[256];
+    unsigned char aa[] = "42";
+    unsigned char bb[] = "66";
+    unsigned char* cc;
+    cc = GetGCD(aa, bb);
+
+
+
+    char buf1[260], buf2[260];
     FILE* fPtr;
   // ptr = fopen("D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW0\\HW0\\x64\\Debug\\test.txt", "r");
     char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt";
@@ -223,33 +304,67 @@ int main()
      {
 
 
-         printf("a = %s\n", buf1);
+         printf("a = %s \n", buf1);
          printf("b = %s\n", buf2);
 
          int subLen;
          unsigned char* sub = BigIntsSubtraction(buf1, buf2, &subLen);
-         printf("a - b = %s\n", sub);
+         printf("a - b = %s    len = %d\n", sub, subLen);
 
          int halfLen;
          unsigned char* half;
          if ((sub[subLen - 1] - '0') % 2 == 0)
          {
              half = BigIntsDivisionBy2(sub, subLen, &halfLen);
-             printf("(a-b) / 2 = %s\n\n", half);
+             printf("(a-b) / 2 = %s   len = %d\n\n", half, halfLen );
          }
 
          int powLen;
          unsigned char* pow;
          pow = BigIntsMultiplication(sub, subLen, 2, &powLen);
-         printf("(a-b)**2 = %s\n", pow);
+         printf("(a-b)**2 = %s   len = %d\n", pow, powLen);
 
          pow = BigIntsMultiplication(sub, subLen, 3, &powLen);
-         printf("(a-b)**3 = %s\n\n", pow);
+         printf("(a-b)**3 = %s   len = %d\n\n", pow, powLen);
 
 
      }
 
     fclose(fPtr);
+
+
+
+
+
+
+    for (int b = 0; b < 50; b++)
+    {
+
+        printf("\n\n*************** problem %d.int ***************\n", b);
+        char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\85.in";
+        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.in", b);
+
+        FILE* fptr = fopen(fileName, "r");
+
+        fscanf(fPtr, "%s %s", buf1, buf2);
+        fclose(fPtr);
+
+        printf("a = %s\nb = %s\n", buf1, buf2 );
+
+        char* gcd;
+        gcd = GetGCD(buf1, buf2);
+
+        printf("Computed GCD = %s\n", gcd);
+
+        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", b);
+        fptr = fopen(fileName, "r");
+        fscanf(fPtr, "%s", buf1 );
+        fclose(fPtr);
+
+        printf("Answer = %s\n\n", buf1);
+
+
+    }
     int i;
     scanf("%d", &i);
 }
