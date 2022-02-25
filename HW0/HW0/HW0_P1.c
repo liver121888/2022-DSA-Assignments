@@ -67,43 +67,56 @@ const unsigned char* BigIntsSubtraction(unsigned char a[], unsigned char b[], in
     }
 
     // big and small never the same from here
-    if (i == j)
-    {
-        k = i;  // digits of c will be lesser than or equal to bigger one
-        int p = 0;
-        while (big[p] == small[p] && p < i)
-        {
-            k--;
-            p++;
-        }
-    }
-    else k = i;// digits of c is the same with the bigger
-    *clen = k;
+    //if (i == j)
+    //{
+    //    k = i;  // digits of c will be lesser than or equal to bigger one
+    //    int p = 0;
+    //    while (big[p] == small[p] && p < i)
+    //    {
+    //        k--;
+    //        p++;
+    //    }
+    //}
+    //else k = i;// digits of c is the same with the bigger
+   // *clen = k;
+    k = i;
+    c = malloc(k + 1);
+    c[k] = 0;
+  
 
     c = malloc(sizeof( unsigned char ) * (k + 1)); // allocate memory for c with an extra char for end of string
     c[k] = 0; // End of the string
 
-    k--; i--; j--; // now all of them are indexes
+    i--; j--; // now all of them are indexes
     int sub = 0; // extra subtraction, initially zero
     while (i >= 0) // loop through from last index to zero 
     {
-        if (j < 0) // no digit existing in smaller
-            c[k] = big[i]; // no subtraction is required
+ 
+        int net = big[i]-'0' - sub - (j >= 0 ? small[j]-'0' : 0);
+        if (net >= 0)
+        {
+            c[i] = '0' + net; sub = 0; // no extra subtraction for higher digit
+        }
         else
         {
-            int net = big[i] - sub - small[j];
-            if (net >= 0)
-            {
-                c[k] = '0'+net; sub = 0; // no extra subtraction for higher digit
-            }
-            else 
-            {
-                c[k] = '0'+( 10 + net); sub = 1; 
-            }
+            c[i] = '0' + (10 + net); sub = 1;
         }
-        i--; j--; k--;
+
+        i--; j--;  
     }
-    
+    j = 0;
+    for( int i = 0; i < k; i++)
+        if (c[i] != '0') { j = i; break; }
+
+    i = 0;
+    if (j != 0)
+    {
+        for ( int p = j; p <= k; p++)
+            c[i++] = c[p];
+        k = i-1;
+    }
+ 
+    *clen = k;
     return c;
 }
 
