@@ -389,7 +389,39 @@ void h()
 // Double values of the target BigInt repeatTimes
 void DoubleVlueMultipleTimes(char* target, int* targetLenAdd, int repeatTimes )
 {
-
+    int count = 0;
+    int add = 0;
+    int  j=-1;
+    int len = *targetLenAdd;
+    while (count < repeatTimes)
+    {
+        if (target[0] >= 5) j = len; // One digit is added; Start index extended by 1
+        else j = len - 1; // Same index 
+        *targetLenAdd = j + 1; // Keep new length for this iteration
+        add = 0;
+        for (int i = len - 1; i >= 0; i--)
+        {
+            int v = target[i] * 2 + add;
+            if (v >= 10)
+            {
+                target[j] = v - 10;
+                add = 1;
+                if (i == 0) target[j - 1] = 1; // extended (j-1) should be exactly 0
+            }
+            else
+            {
+                target[j] = v;
+                add = 0;
+            }
+            j--;
+        }
+        count++;
+        len = *targetLenAdd; // Update new length for next multiplication
+    }
+    if (*targetLenAdd <= 0)
+    {
+        int stopit = 0;
+    }
 }
 
 
@@ -397,12 +429,73 @@ void DoubleVlueMultipleTimes(char* target, int* targetLenAdd, int repeatTimes )
 void FirstSubstractSecondUpdateFirst(char* first, int* firstLenAdd, char* second, int secondLen)
 {
 
+    int len = *firstLenAdd;
+    int j;
+    j = secondLen - 1;
+    int sub = 0; // extra subtraction, initially zero
+
+    for (int i = len - 1; i >= 0; i--)
+    {
+        int low = j >= 0 ? second[j] : 0;
+        int net = first[i] - sub - low;
+        if (net >= 0)
+        {
+            first[i] =  net; 
+            sub = 0; // no extra subtraction for higher digit
+        }
+        else
+        {
+            first[i] =  10 + net; 
+            sub = 1;
+        }
+        j--;
+    }
+    j = 0;
+    for (int i = 0; i < len; i++)
+        if (first[i] == 0) j++;
+        else break;
+
+    if (j == len) // all zero, set length 1 return;
+    {
+        *firstLenAdd = 1;
+    }
+    else if (j != 0) // same length, no new set
+    {
+        *firstLenAdd = len - j;
+        // Move non-zeros forward
+        for (int i = 0; i < len - j; i++)
+            first[i] = first[i + j];
+    }
+
+    if (*firstLenAdd <= 0)
+    {
+        int stopit = 0;
+    }
 }
 
 // Set value to half of the target BigInt
 void HalfTheBitInt(char* target, int* targetLenAdd )
 {
-
+    int len = *targetLenAdd;
+    int previous = 0;
+    int j = 0;
+    for (int i = 0; i < len; i++)
+    {
+        int v = target[i] + previous * 10;
+        if (v < 2 && i == 0 && len > 1)
+        {
+            i++;
+            v = v * 10 + target[i];
+        }
+        target[j] = v / 2;
+        previous = v % 2;
+        j++;
+    }
+    *targetLenAdd = j;
+    if (*targetLenAdd <= 0)
+    {
+        int stopit = 0;
+    }
 }
 
 // Check whether the first value is larger than the second, return 1
@@ -412,8 +505,10 @@ int IsFirstLargerThanSecond(char* first, int firstLen, char* second, int secondL
 {
     if (firstLen > secondLen) return 1;
     else if (secondLen > firstLen) return -1;
-
-    return 1;
+    for (int i = 0; i < firstLen; i++)
+        if (first[i] > second[i]) return 1;
+        else if (first[i] < second[i]) return - 1;
+    return 0;
 }
 
 int main()
@@ -424,6 +519,72 @@ int main()
     char* large, * small, * temp;
     int alen, blen, largeLen, smallLen;
 
+
+    // ***** DEBUG Test on own boundary conditions ********************
+    char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt";
+
+    fPtr = fopen(fileName, "r");
+
+    while (fscanf(fPtr, "%s %s", a, b) != EOF)
+    {
+        printf("a = %s \n", a);
+        printf("b = %s\n", b);
+        // calculated alen and blen
+        alen = 0;
+        while (a[alen] != 0) alen++;
+        blen = 0;
+        while (b[blen] != 0) blen++;
+
+        // convert chars to values for all functions to directly access values, not characters       
+        for (int i = 0; i < alen; i++)
+            a[i] -= '0';
+        for (int i = 0; i < blen; i++)
+            b[i] -= '0';
+
+        if (IsFirstLargerThanSecond(a, alen, b, blen) > 0)
+        {
+            large = a; largeLen = alen; small = b; smallLen = blen;
+        }
+        else
+        {
+            large = b; largeLen = blen; small = a; smallLen = alen;
+        }
+
+        HalfTheBitInt(large,  &largeLen);
+        printf("large /2 =  ");
+        for (int i = 0; i < largeLen; i++) printf("%d ", large[i]);
+        printf("\n\n");
+
+        DoubleVlueMultipleTimes(large, &largeLen, 1);
+        printf("large /2 * 2 =  ");
+        for (int i = 0; i < largeLen; i++) printf("%d ", large[i]);
+        printf("\n\n");
+
+
+        HalfTheBitInt(small, &smallLen);
+        printf("small /2 =  ");
+        for (int i = 0; i < smallLen; i++) printf("%d ", small[i]);
+        printf("\n\n");
+
+
+        DoubleVlueMultipleTimes(small, &smallLen, 1);
+        printf("small /2 * 2 =  ");
+        for (int i = 0; i < smallLen; i++) printf("%d ", small[i]);
+        printf("\n\n");
+
+
+        FirstSubstractSecondUpdateFirst(large, &largeLen, small, smallLen);
+        printf("a - b =  ");
+        for( int i = 0; i < largeLen; i++) printf("%d ",large[i]);
+        printf("\n\n");
+
+   }
+    fclose(fPtr);
+
+
+
+    // ***************** Formally solve the given problems **********************
+
     for (int z = 0; z < 50; z++)
     {
         printf("\n\n*************** problem %d.int ***************\n", z);
@@ -433,11 +594,17 @@ int main()
         fscanf(fPtr, "%s %s", a, b);
         fclose(fPtr);
 
+        // Test                                                       5
+        //a[0] = '1'; a[1] = '9'; a[2] = '5'; a[3] = '8'; a[4] = '1'; a[5] = '0'; a[6] = '1'; a[7] = '9'; a[8] = 0;
+        //b[0] = '1'; b[1] = '2'; b[2] = '3'; b[3] = '4'; b[4] = '5'; b[5] = '6'; b[6] = '7'; b[7] = '9'; b[8] = 0;
+        //a[0] = '4'; a[1] = '2'; a[2] = 0;
+        //b[0] = '6'; b[1] = '6'; b[2] = 0;
+
         // calculated alen and blen
         alen = 0;
-        while (a[alen] != '0') alen++;
+        while (a[alen] != 0) alen++;
         blen = 0;
-        while (b[blen] != '0') blen++;
+        while (b[blen] != 0) blen++;
 
         // convert chars to values for all functions to directly access values, not characters       
         for (int i = 0; i < alen; i++)
@@ -464,12 +631,12 @@ int main()
             if (isLargeEven && isSmallEven) halfCount++;
             if (isLargeEven) HalfTheBitInt(large, &largeLen);
             if (isSmallEven) HalfTheBitInt(small, &smallLen);
-            if (!IsFirstLargerThanSecond(large, largeLen, small, smallLen))
+            if ( IsFirstLargerThanSecond(large, largeLen, small, smallLen) < 0 )
             {
                 // Swap large and small
                 temp = large;
                 large = small;
-                small = large;
+                small = temp;
                 int t = largeLen;
                 largeLen = smallLen;
                 smallLen = t;
@@ -481,13 +648,13 @@ int main()
         // GCD is store in small, convert back to chars
         for (int i = 0; i < smallLen; i++) small[i] += '0';
         small[smallLen] = 0;
-        printf("GCD = %s \n", small);
+        printf("GCD(%d) = %s \n",smallLen, small);
 
         sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", z);
         fPtr = fopen(fileName, "r");
         fscanf(fPtr, "%s", a );
         fclose(fPtr);
-        printf("Answer = %s\n\n", a);
+        printf("Answer  = %s\n\n", a);
     } 
     int iii;
     scanf("%d", &iii);
