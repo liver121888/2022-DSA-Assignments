@@ -284,7 +284,7 @@ unsigned char* GetGCD( unsigned char buf1[], unsigned char buf2[])
 }
 
 
-int main()
+int oldmain()
 {
     unsigned char aa[] = "42";
     unsigned char bb[] = "66";
@@ -367,4 +367,115 @@ int main()
     }
     int i;
     scanf("%d", &i);
+}
+
+void f()
+{
+    int i, j;
+    i = 33;
+}
+
+void g()
+{
+    int x, y;
+    y = 44;
+}
+
+void h()
+{
+    int xx, yy;
+}
+
+
+void DoubleVlueMultipleTimes(char* small, int* smallLenAdd, int halfCount)
+{
+
+}
+
+void FirstSubstractSecondUpdateFirst(char* large, int* largeLenAdd, char* small, int smallLen)
+{
+
+}
+
+void HalfTheBitInt(char* large, int* largeLenAdd )
+{
+
+}
+
+int IsFirstLargerThanSecond(char* a, int alen, char* b, int blen)
+{
+    return 1;
+}
+
+int main()
+{
+    FILE* fPtr;
+
+    char a[260], b[260];
+    char* large, * small, * temp;
+    int alen, blen, largeLen, smallLen;
+
+    for (int z = 0; z < 50; z++)
+    {
+        printf("\n\n*************** problem %d.int ***************\n", z);
+        char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\85.in";
+        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.in", z);
+        fPtr = fopen(fileName, "r");
+        fscanf(fPtr, "%s %s", a, b);
+        fclose(fPtr);
+
+        // calculated alen and blen
+        alen = 0;
+        while (a[alen] != '0') alen++;
+        blen = 0;
+        while (b[blen] != '0') blen++;
+        for (int i = 0; i < alen; i++)
+            a[i] -= '0';
+        for (int i = 0; i < blen; i++)
+            b[i] -= '0';
+
+        if (IsFirstLargerThanSecond(a, alen, b, blen) > 0)
+        {
+            large = a; largeLen = alen; small = b; smallLen = blen;
+        }
+        else
+        {
+            large = b; largeLen = blen; small = a; smallLen = alen;
+        }
+        int halfCount = 0;
+        // convert chars to values via pointer
+        while (large[0] != 0 && small[0] != 0)
+        {
+            int isLargeEven = large[largeLen - 1] % 2 == 0;
+            int isSmallEven = small[smallLen - 1] % 2 == 0;
+            if (isLargeEven && isSmallEven) halfCount++;
+            if (isLargeEven) HalfTheBitInt(large, &largeLen);
+            if (isSmallEven) HalfTheBitInt(small, &smallLen);
+            if (!IsFirstLargerThanSecond(large, largeLen, small, smallLen))
+            {
+                // Swap large and small
+                temp = large;
+                large = small;
+                small = large;
+                int t = largeLen;
+                largeLen = smallLen;
+                smallLen = t;
+            }
+            FirstSubstractSecondUpdateFirst(large, &largeLen, small, smallLen);
+        }
+        DoubleVlueMultipleTimes(small, &smallLen, halfCount);
+
+        // GCD is store in small, convert back to chars
+        for (int i = 0; i < smallLen; i++) small[i] += '0';
+        small[smallLen] = 0;
+        printf("GCD = %s \n", small);
+
+        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", z);
+        fPtr = fopen(fileName, "r");
+        fscanf(fPtr, "%s", a );
+        fclose(fPtr);
+        printf("Answer = %s\n\n", a);
+    } 
+    int iii;
+    scanf("%d", &iii);
 }
