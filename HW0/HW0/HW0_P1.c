@@ -386,24 +386,33 @@ void h()
     int xx, yy;
 }
 
-
-void DoubleVlueMultipleTimes(char* small, int* smallLenAdd, int halfCount)
+// Double values of the target BigInt repeatTimes
+void DoubleVlueMultipleTimes(char* target, int* targetLenAdd, int repeatTimes )
 {
 
 }
 
-void FirstSubstractSecondUpdateFirst(char* large, int* largeLenAdd, char* small, int smallLen)
+
+// First value subtract second value and update first value with the residual 
+void FirstSubstractSecondUpdateFirst(char* first, int* firstLenAdd, char* second, int secondLen)
 {
 
 }
 
-void HalfTheBitInt(char* large, int* largeLenAdd )
+// Set value to half of the target BigInt
+void HalfTheBitInt(char* target, int* targetLenAdd )
 {
 
 }
 
-int IsFirstLargerThanSecond(char* a, int alen, char* b, int blen)
+// Check whether the first value is larger than the second, return 1
+// If equal return 0;
+// If first smaller than the second, return -1.
+int IsFirstLargerThanSecond(char* first, int firstLen, char* second, int secondLen)
 {
+    if (firstLen > secondLen) return 1;
+    else if (secondLen > firstLen) return -1;
+
     return 1;
 }
 
@@ -429,6 +438,8 @@ int main()
         while (a[alen] != '0') alen++;
         blen = 0;
         while (b[blen] != '0') blen++;
+
+        // convert chars to values for all functions to directly access values, not characters       
         for (int i = 0; i < alen; i++)
             a[i] -= '0';
         for (int i = 0; i < blen; i++)
@@ -443,7 +454,9 @@ int main()
             large = b; largeLen = blen; small = a; smallLen = alen;
         }
         int halfCount = 0;
-        // convert chars to values via pointer
+
+
+
         while (large[0] != 0 && small[0] != 0)
         {
             int isLargeEven = large[largeLen - 1] % 2 == 0;
