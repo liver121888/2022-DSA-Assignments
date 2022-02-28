@@ -1,198 +1,197 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_WARNINGS
-#define MAX_LENGTH 512
+#define MAX_LENGTH 260
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int alength, blength, clength;
 
-
-char BigIntsComparator(char a[], char b[], int alen, int blen)
+int BigIntsComparator(char a[], char b[], int alen, int blen)
 {
-	char aisbigger = 0;
-	if (alen > blen)
-		aisbigger = 1;
-	else if (alen < blen)
-		goto out;
-	else
-	{
-		for (size_t i = 0; i < alen; i++)
-		{
-			if (a[i] - b[i] > 0)
-			{
-				aisbigger = 1;
-				goto out;
-			}
-			else if (a[i] - b[i] < 0)
-				goto out;
-		}
-	}
-out:
-	return aisbigger;
+	if (alen > blen) return 1;
+	else if (alen < blen) return -1;
+	for (size_t i = 0; i < alen; i++)
+		if (a[i] - b[i] > 0) return 1;
+		else if (a[i] - b[i] < 0) return -1;
+	return 0;
 }
 
-char* BigIntsSubtraction(char a[], char b[], int alen, int blen, int* clen)
+void BigIntsSubtraction(char a[], char b[], int* alen, int blen)
 {
-	char* bigger, * smaller;
-	char c[MAX_LENGTH];
-	int biggerlength = 0, smallerlength = 0;
-	int _clen = 0;
-
-	char isabigger = BigIntsComparator(a, b, alen, blen);
-	if (isabigger == 1)
-	{
-		bigger = a;
-		biggerlength = alen;
-		smaller = b;
-		smallerlength = blen;
-	}
-	else
-	{
-		bigger = b;
-		biggerlength = blen;
-		smaller = a;
-		smallerlength = alen;
-	}
+	int l = *alen;
 
 	int borrower = 0;
 	int tmp = 0;
-	for (int bb = biggerlength - 1, ss = smallerlength - 1; bb >= 0; bb--, ss--)
+	for (int bb = l - 1, ss = blen - 1; bb >= 0; bb--, ss--)
 	{
-		if (ss < 0)
+		int low = ss >= 0 ? b[ss] : 0;
+		tmp = a[bb] - borrower - low;
+		if (tmp < 0)
 		{
-			c[bb] = bigger[bb] - borrower;
+			borrower = 1;
+			a[bb] = 10 + tmp;
+		}
+		else
+		{
 			borrower = 0;
-			_clen++;
-		}
-		else
-		{
-			tmp = bigger[bb] - borrower - smaller[ss];
-			if (tmp < 0)
-			{
-				borrower = 1;
-				c[bb] = '0' + (10 + tmp);
-			}
-			else
-			{
-				borrower = 0;
-				c[bb] = '0' + tmp;
-			}
-			_clen++;
+			a[bb] = tmp;
 		}
 	}
-	c[biggerlength] = 0;
-	//remember to modify the upperbound of i
-	for (size_t i = 0; i < MAX_LENGTH; i++)
+	tmp = 0;
+	for (size_t i = 0; i < l; i++)
+		if (a[i] == 0) tmp++;
+		else break;
+
+	if (tmp == l)
+		*alen = 1;
+	else if (tmp != 0)
 	{
-		if (c[i] != '0')
-			break;
-		else
-		{
-			for (size_t j = 0; j < MAX_LENGTH; j++)
-			{
-				if (c[j + 1] >= '0')
-					c[j] = c[j + 1];
-				else
-				{
-					c[j] = NULL; //TOOD
-					break;
-				}
-			}
-		}
+		*alen = l - tmp;
+		for (size_t i = 0; i < l - tmp; i++)
+			a[i] = a[i + tmp];
 	}
-	*clen = _clen;
-	return c;
+
+
+	//char c[MAX_LENGTH];
+	//for (int i = 0; i < *alen; i++)
+	//	c[i] = a[i] + '0';
+	//printf("");
 }
 
-char* BigIntsMultiplication(char* array, int* length, int k)
+void BigIntsMultiplication(char* array, int* length, int k)
 {
 	int carrier = 0;
 	int net = 0;
-	//char* c = malloc(sizeof(char) * MAX_LENGTH);
-	char c[260];
-	for (size_t i = 0; i < *length; i++)
-	{
-		c[i] = array[i] - '0';
-	}
-	c[*length] = 0;
-	int clength = 0;
+	int len = *length;
+	int index = -1;
+
 	for (size_t j = 1; j <= k; j++)
 	{
-		while (c[clength] != 0) clength++;
-		if (c[0] >= 5)
+		if (array[0] >= 5) index = len;
+		else index = len - 1;
+		*length = index + 1;
+		for (int i = len - 1; i >= 0; i--)
 		{
-			clength = clength + 1;
-		}
-		for (size_t i = clength - 1; i >= 0; i--)
-		{
-			net = (c[i] + carrier) * 2;
+			net = (array[i] + carrier) * 2;
 			if (net >= 10)
 			{
 				carrier = 1;
-				c[i] = net - 10;
+				array[index] = net - 10;
+				if (i == 0) array[index - 1] = 1;
 			}
 			else
 			{
 				carrier = 0;
-				c[i] = net;
+				array[index] = net;
 			}
+			index--;
 		}
+		len = *length;
 	}
-	for (size_t i = 0; i < clength; i++)
-	{
-		c[i] = c[i] + '0';
-	}
-	return c;
+
+	//char c[MAX_LENGTH];
+	//for (int i = 0; i < *length; i++)
+	//	c[i] = array[i] + '0';
+	//printf("");
 }
 
-unsigned char* BigIntsDivision(unsigned char a[], int k)
+void BigIntsDivision(char a[], int* alen)
 {
+	int len = *alen;
+	int tmp = 0;
+	int tmp2 = 0;
+	int j = 0;
+	for (int i = 0; i < len; i++)
+	{
+		tmp2 = a[i] + tmp * 10;
+		// special case when leading digit is 1, the len have to -1, plus i one more time to achieve this
+		if (tmp2 < 2 && i == 0 && len>1)
+		{
+			i++;
+			tmp2 = tmp2 * 10 + a[i];
+		}
+		a[j] = tmp2 / 2;
+		tmp = tmp2 % 2;
+		j++;
+	}
+	*alen = j;
 
-
-	return NULL;
+	//char c[MAX_LENGTH];
+	//for (int i = 0; i < *alen; i++)
+	//	c[i] = a[i] + '0';
+	//printf("");
 }
 
 int main()
 {
 	FILE* ptr;
+	int c1length = 0, c2length = 0, blen, slen, inttmp;
 	char c1[MAX_LENGTH], c2[MAX_LENGTH];
 	//char* c3 = malloc(sizeof(char) * MAX_LENGTH);
-	char* c3;
+	char* big, * small, * tmp;
 	ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW0\\HW0\\hw0_testdata\\gcd\\50.in", "r");
-	fscanf(ptr, "%s %s", c1, c2);
-
-	char* aptr = c1, * bptr = c2;
-
-	while (*aptr != 0)
+	if (fscanf(ptr, "%s %s", c1, c2) != EOF)
 	{
-		aptr++;
-		alength++;
+		fclose(ptr);
+		while (c1[c1length] != 0) c1length++;
+		while (c2[c2length] != 0) c2length++;
+
+		for (size_t i = 0; i < c1length; i++)
+			c1[i] = c1[i] - '0';
+		for (size_t i = 0; i < c2length; i++)
+			c2[i] = c2[i] - '0';
+
+
+		if (BigIntsComparator(c1, c2, c1length, c2length) > 0)
+		{
+			big = c1; small = c2; blen = c1length; slen = c2length;
+		}
+		else
+		{
+			big = c2; small = c1; blen = c2length; slen = c1length;
+		}
+
+		int ans = 0;
+		int isbeven;
+		int isseven;
+		while (big[0] != 0 && small[0] != 0)
+		{
+			isbeven = big[blen - 1] % 2 == 0;
+			isseven = small[slen - 1] % 2 == 0;
+
+			if (isseven && isbeven)
+			{
+				ans++;
+				BigIntsDivision(small, &slen);
+				BigIntsDivision(big, &blen);
+			}
+			else if (isseven)
+				BigIntsDivision(small, &slen);
+			else if (isbeven)
+				BigIntsDivision(big, &blen);
+
+			if (BigIntsComparator(big, small, blen, slen) < 0)
+			{
+				tmp = big;
+				big = small;
+				small = tmp;
+				inttmp = blen;
+				blen = slen;
+				slen = inttmp;
+			}
+			BigIntsSubtraction(big, small, &blen, slen);
+		}
+		BigIntsMultiplication(small, &slen, ans);
+		for (size_t i = 0; i < slen; i++) 
+			small[i] += '0';
+		small[slen] = 0;
+		printf("GCD(%d) = %s \n", slen, small);
+
 	}
-	while (*bptr != 0)
+	else
 	{
-		bptr++;
-		blength++;
+		fclose(ptr);
+		printf("Files opend failed");
 	}
-
-	//while (c1[0] != 0 && c2[0] != 0)
-	//{
-	//	if (c1)
-	//	{
-
-	//	}
-	//}
-
-
-
-
-
-	c3 = BigIntsSubtraction(c1, c2, alength, blength, &clength);
-
-	c3 = BigIntsMultiplication(c3, &clength,2);
-
-
-
-	fclose(ptr);
 	return 0;
 }
