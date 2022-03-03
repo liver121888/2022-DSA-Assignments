@@ -50,12 +50,6 @@ void BigIntsSubtraction(char a[], char b[], int* alen, int blen)
 		for (size_t i = 0; i < l - tmp; i++)
 			a[i] = a[i + tmp];
 	}
-
-
-	//char c[MAX_LENGTH];
-	//for (int i = 0; i < *alen; i++)
-	//	c[i] = a[i] + '0';
-	//printf("");
 }
 
 void BigIntsMultiplication(char* array, int* length, int k)
@@ -70,9 +64,10 @@ void BigIntsMultiplication(char* array, int* length, int k)
 		if (array[0] >= 5) index = len;
 		else index = len - 1;
 		*length = index + 1;
+		carrier = 0;
 		for (int i = len - 1; i >= 0; i--)
 		{
-			net = (array[i] + carrier) * 2;
+			net = array[i] * 2 + carrier;
 			if (net >= 10)
 			{
 				carrier = 1;
@@ -88,11 +83,6 @@ void BigIntsMultiplication(char* array, int* length, int k)
 		}
 		len = *length;
 	}
-
-	//char c[MAX_LENGTH];
-	//for (int i = 0; i < *length; i++)
-	//	c[i] = array[i] + '0';
-	//printf("");
 }
 
 void BigIntsDivision(char a[], int* alen)
@@ -115,83 +105,72 @@ void BigIntsDivision(char a[], int* alen)
 		j++;
 	}
 	*alen = j;
-
-	//char c[MAX_LENGTH];
-	//for (int i = 0; i < *alen; i++)
-	//	c[i] = a[i] + '0';
-	//printf("");
 }
 
 int main()
 {
-	FILE* ptr;
+	//FILE* ptr;
 	int c1length = 0, c2length = 0, blen, slen, inttmp;
 	char c1[MAX_LENGTH], c2[MAX_LENGTH];
 	//char* c3 = malloc(sizeof(char) * MAX_LENGTH);
 	char* big, * small, * tmp;
-	ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW0\\HW0\\hw0_testdata\\gcd\\50.in", "r");
-	if (fscanf(ptr, "%s %s", c1, c2) != EOF)
+	//ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW0\\HW0\\hw0_testdata\\gcd\\50.in", "r");
+	scanf("%s %s", c1, c2);
+
+	//fclose(ptr);
+	while (c1[c1length] != 0) c1length++;
+	while (c2[c2length] != 0) c2length++;
+
+	for (size_t i = 0; i < c1length; i++)
+		c1[i] = c1[i] - '0';
+	for (size_t i = 0; i < c2length; i++)
+		c2[i] = c2[i] - '0';
+
+
+	if (BigIntsComparator(c1, c2, c1length, c2length) > 0)
 	{
-		fclose(ptr);
-		while (c1[c1length] != 0) c1length++;
-		while (c2[c2length] != 0) c2length++;
-
-		for (size_t i = 0; i < c1length; i++)
-			c1[i] = c1[i] - '0';
-		for (size_t i = 0; i < c2length; i++)
-			c2[i] = c2[i] - '0';
-
-
-		if (BigIntsComparator(c1, c2, c1length, c2length) > 0)
-		{
-			big = c1; small = c2; blen = c1length; slen = c2length;
-		}
-		else
-		{
-			big = c2; small = c1; blen = c2length; slen = c1length;
-		}
-
-		int ans = 0;
-		int isbeven;
-		int isseven;
-		while (big[0] != 0 && small[0] != 0)
-		{
-			isbeven = big[blen - 1] % 2 == 0;
-			isseven = small[slen - 1] % 2 == 0;
-
-			if (isseven && isbeven)
-			{
-				ans++;
-				BigIntsDivision(small, &slen);
-				BigIntsDivision(big, &blen);
-			}
-			else if (isseven)
-				BigIntsDivision(small, &slen);
-			else if (isbeven)
-				BigIntsDivision(big, &blen);
-
-			if (BigIntsComparator(big, small, blen, slen) < 0)
-			{
-				tmp = big;
-				big = small;
-				small = tmp;
-				inttmp = blen;
-				blen = slen;
-				slen = inttmp;
-			}
-			BigIntsSubtraction(big, small, &blen, slen);
-		}
-		BigIntsMultiplication(small, &slen, ans);
-		for (size_t i = 0; i < slen; i++) 
-			small[i] += '0';
-		small[slen] = 0;
-		printf("GCD(%d) = %s \n", slen, small);
-
+		big = c1; small = c2; blen = c1length; slen = c2length;
 	}
 	else
 	{
-		fclose(ptr);
-		printf("Files opend failed");
+		big = c2; small = c1; blen = c2length; slen = c1length;
 	}
+
+	int ans = 0;
+	int isbeven;
+	int isseven;
+	while (big[0] != 0 && small[0] != 0)
+	{
+		isbeven = big[blen - 1] % 2 == 0;
+		isseven = small[slen - 1] % 2 == 0;
+
+		if (isseven && isbeven)
+		{
+			ans++;
+			BigIntsDivision(small, &slen);
+			BigIntsDivision(big, &blen);
+		}
+		else if (isseven)
+			BigIntsDivision(small, &slen);
+		else if (isbeven)
+			BigIntsDivision(big, &blen);
+
+		if (BigIntsComparator(big, small, blen, slen) < 0)
+		{
+			tmp = big;
+			big = small;
+			small = tmp;
+			inttmp = blen;
+			blen = slen;
+			slen = inttmp;
+		}
+		BigIntsSubtraction(big, small, &blen, slen);
+	}
+	BigIntsMultiplication(small, &slen, ans);
+	for (size_t i = 0; i < slen; i++) 
+		small[i] += '0';
+	small[slen] = 0;
+	printf(small);
+
 	return 0;
 }
