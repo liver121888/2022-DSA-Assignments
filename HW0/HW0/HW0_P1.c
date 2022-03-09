@@ -167,7 +167,7 @@ int main()
 		BigIntsSubtraction(big, small, &blen, slen);
 	}
 	BigIntsMultiplication(small, &slen, ans);
-	for (size_t i = 0; i < slen; i++) 
+	for (size_t i = 0; i < slen; i++)
 		small[i] += '0';
 	small[slen] = 0;
 	printf(small);
