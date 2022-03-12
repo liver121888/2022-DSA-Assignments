@@ -80,16 +80,17 @@ void EvalueTopOperatorAndOperands( int EvaluateToID )
 		}
 
 		if (EvaluateToID == 0) break; // Only the top expression
-		else  
+		else if (EvaluateToID == 1) // to bottom stack or (
 		{
+			if (Operand == 0 || Operator == 0 || Operator->op == '(') break;
+		}
+		else if( EvaluateToID == 2 ) // to and remove Left Paraphesis;
+		{ 
 			if (Operand == 0 || Operator == 0) break;
-			if (EvaluateToID == 2)// to Left Paraphesis;
+			if (Operator->op == '(')
 			{
-				if (Operator->op == '(')
-				{
-					Operator = Operator->next;
-					break;
-				}
+				Operator = Operator->next;
+				break;
 			}
 		}
 
@@ -132,10 +133,10 @@ void main()
 	c = "(5+4)*(5*(3-2*3))=";
 
 	c = "1+2=*5+(1+7+11)=%5-11="; //  // Print: 3, Print: 34, Print: -7 
-//	c = "1+3-2*4="; // Print: -4
-//	c = "1+2*(3+(8-6/3)*5)="; // Print: 67
-//	c = "1+(2*3*(1+2+3*4/2*7+(1+8))+4)=/(11/5)+7-19*2="; // Print: 329, Print: 133
-	c = "1+(2*3*(1+2+3*4/2*7+(1+8))+4)=";
+	c = "1+3-2*4="; // Print: -4
+	c = "1+2*(3+(8-6/3)*5)="; // Print: 67
+	c = "1+(2*3*(1+2+3*4/2*7+(1+8))+4)="; // Print: 329
+    c = "1+(2*3*(1+2+3*4/2*7+(1+8))+4)=/(11/5)+7-19*2="; // Print: 329, Print: 133
 
 	EXP = c;
 	do
