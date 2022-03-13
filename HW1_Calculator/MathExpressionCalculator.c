@@ -84,7 +84,7 @@ void EvalueTopOperatorAndOperands( int EvaluateToID )
 		{
 			if (Operand == 0 || Operator == 0 || Operator->op == '(') break;
 		}
-		else if( EvaluateToID == 2 ) // to and remove Left Paraphesis;
+		else if( EvaluateToID == 2 ) // to and remove Left Parenthesis;
 		{ 
 			if (Operand == 0 || Operator == 0) break;
 			if (Operator->op == '(')
@@ -172,7 +172,6 @@ void main()
 				break;
 			case '+':
 			case '-':
-				//if (Operator != 0 && (Operator->op == '+' || Operator->op == '-'))
 					// Same level operator; Evaluate previous operation
 				if (Operator != 0 && Operator->op != '(') 
 					EvalueTopOperatorAndOperands(1);
@@ -182,7 +181,6 @@ void main()
 			case '/':
 			case '%':
 				// High level operator, previous expression can be evaluated
-			//	if (Operator != 0 && Operand != 0 ) EvalueTopOperatorAndOperands();
 				if (Operator != 0 && (Operator->op == '*' || Operator->op == '/' || Operator->op == '%'))
 					// Same level operator; Evaluate previous operation
 					EvalueTopOperatorAndOperands(0);
@@ -195,6 +193,5 @@ void main()
 
 	} while (1);
 
-	printf("\nHello");
 	scanf("%d");
 }

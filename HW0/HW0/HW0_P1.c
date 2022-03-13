@@ -130,8 +130,20 @@ int IsFirstLargerThanSecond(char* first, int firstLen, char* second, int secondL
     return 0;
 }
 
+void g()
+{
+    short x,b,c;
+}
+
+void f()
+{
+    short a = 'a';
+}
 int main()
 {
+    f();
+    g();
+
     FILE* fPtr;
 
     char a[260], b[260];
@@ -140,8 +152,8 @@ int main()
 
 
     // ***** DEBUG Test on own boundary conditions ********************
-    char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt";
-
+    char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt"; //NTU
+    sprintf(fileName, "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW0\\HW0\\hw0_testdata\\gcd\\test.txt" ); // NanKong
     fPtr = fopen(fileName, "r");
 
     while (fscanf(fPtr, "%s %s", a, b) != EOF)
@@ -207,8 +219,9 @@ int main()
     for (int z = 0; z < 50; z++)
     {
         printf("\n\n*************** problem %d.int ***************\n", z);
-        char fileName[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\85.in";
-        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.in", z);
+        char fileName[256]; // = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\85.in";
+        //sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.in", z);  // NTU 
+        sprintf(fileName, "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW0\\HW0\\hw0_testdata\\gcd\\%d.in", z); // NanKong
         fPtr = fopen(fileName, "r");
         fscanf(fPtr, "%s %s", a, b);
         fclose(fPtr);
@@ -269,7 +282,9 @@ int main()
         small[smallLen] = 0;
         printf("GCD(%d) = %s \n",smallLen, small);
 
-        sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", z);
+        // sprintf(fileName, "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", z); // NTU
+        sprintf(fileName, "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW0\\HW0\\hw0_testdata\\gcd\\%d.out", z); // NanKong
+    
         fPtr = fopen(fileName, "r");
         fscanf(fPtr, "%s", a );
         fclose(fPtr);
