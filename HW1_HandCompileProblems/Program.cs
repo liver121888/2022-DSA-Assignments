@@ -53,9 +53,12 @@ namespace HW1_HandCompileProblems
             // f(n) = 2 f(n-1) + 1 = 2 ( 2 f(n-2) + 1 ) + 1 = 2 ( 2 (2 f(n-3) + 1) + 1 ) + 1 = ....
             // geometric sequence factor 2 +  [ 1 + 2 + 4 + 8 + ... ]
             cnt = 0;
-            n = 10;
+            n = 4;
             FuncB(n);
-            Console.WriteLine($"P2: n = {n}  FuncB count = {cnt}  ( 2^^n+1 + 2^^n  = {  ( 1- Math.Pow(2,n+1) ) / (1-2)  + (1 - Math.Pow(2, n )) / (1 - 2) } ) ");
+            double d1 = Math.Pow( 2, n );
+            double d2 = ( 1 - Math.Pow( 2, n ) )/ ( 1 - 2 );
+
+            Console.WriteLine($"P2: n = {n}  FuncB count = {cnt}  2^n +2(1-2^(n))/(1-2) = { Math.Pow( 2, n )+ 2* (1- Math.Pow( 2, n))/ (1-2)} = 3(2^n)-2 = {3*Math.Pow(2,n)-2} =  ( 2^^n+1 + 2^^n  =  {  ( 1- Math.Pow(2,n+1) ) / (1-2)  + (1 - Math.Pow(2, n )) / (1 - 2) } ) ");
 
 
 
