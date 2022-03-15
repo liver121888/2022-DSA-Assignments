@@ -9,6 +9,9 @@ namespace HW1_HandCompileProblems
     class Program
     {
         static int cnt = 0;
+        static int iCnt = 0;
+        static int oCnt = 0;
+
         static void FuncB(int n)
         {
             cnt++;
@@ -27,8 +30,13 @@ namespace HW1_HandCompileProblems
             int i = n;
             while (i > 1)
             {
+                oCnt++;
                 int j = 0;
-                while (j < i) j = j + 1;
+                while( j < i )
+                {
+                    j = j + 1;
+                    iCnt++;
+                }
                 i = i / 2;
             }
         }
@@ -41,6 +49,7 @@ namespace HW1_HandCompileProblems
             int sum = 0, i = 1;
             int n = (int)Math.Pow(2, 20);
             int c = 0;
+
             while (sum < n)
             {
                 sum += i;
@@ -61,7 +70,13 @@ namespace HW1_HandCompileProblems
             Console.WriteLine($"P2: n = {n}  FuncB count = {cnt}  2^n +2(1-2^(n))/(1-2) = { Math.Pow( 2, n )+ 2* (1- Math.Pow( 2, n))/ (1-2)} = 3(2^n)-2 = {3*Math.Pow(2,n)-2} =  ( 2^^n+1 + 2^^n  =  {  ( 1- Math.Pow(2,n+1) ) / (1-2)  + (1 - Math.Pow(2, n )) / (1 - 2) } ) ");
 
 
-
+            for( n = 1 ; n <= 100 ; n++ )
+            {
+                oCnt = 0;
+                iCnt = 0;
+                FunC( n );
+                Console.WriteLine( $"P3: n = {n} out count = {oCnt}  in count = {iCnt}  total = {iCnt+oCnt}   log2(n)+2n-2  = {Math.Log(n,2)+2*n-2}" );
+            }
 
 
 
