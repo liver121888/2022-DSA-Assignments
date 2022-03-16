@@ -111,3 +111,12 @@ bottom->nil
 1 => 5         ( 1 < 2 && 1+1 = 2, pop out 2 , 1 is smallest NO push 1)
 1 => 5         ( 1 < 5  && 2+1 != 5   1 is smallest NO push 1)
 2 =>> 2
+
+
+3. 
+a <-0
+axd <-0
+for i <- 1 to n
+	a <- a + w[i]
+	axd <- axd + i * w[i];
+return Floor( axd / a )
