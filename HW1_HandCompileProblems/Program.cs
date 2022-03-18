@@ -79,6 +79,40 @@ namespace HW1_HandCompileProblems
             }
 
 
+            // Smallest void number Problem(3)-2
+            // [5, 2, 1, 1, 2, 3, 5, 8]
+            int[] array = { 5, 2, 1, 1, 2, 3, 5, 8 };
+            int up = array.Length;
+            List<int> L = new List<int>( );
+            int ans = 1;
+            foreach( int item in array )
+            {
+                if( item > up )
+                {
+                    up--;
+                    continue;
+                }
+                if( item == ans )
+                {
+                    ans++;
+                    while( ans == L[ 0 ] )
+                    {
+                        L.RemoveAt( 0 );
+                    }
+                }
+                else if( item > ans )
+                {
+                    int id = 0;
+                    while( id < L.Count && item > L[ id ] )
+                    {
+                        id++;
+                    }
+                    if(  id >= L.Count || item != L[ id]  )
+                        L.Insert( id, item );
+                }
+            }
+
+            Console.WriteLine( $"The smallest void number is {ans}" );
 
             Console.ReadKey();
         }

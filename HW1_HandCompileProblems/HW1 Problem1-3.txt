@@ -89,28 +89,25 @@ while L.head != null
 		m <- m.next
 	L.head <- L.head.next
 2. 
-
-bottom->nil
-	foreach item in array
-		if stack is empty
-			bottom <- item
-		else
-			if item < top
-				t <- POP stack
-				if stack is empty
-					bottom <- item;
-				else
-					if top = item 
-						POP stack
-					PUSH item
-				PUSH t
-			else if item > top
-				PUSH item
-5 => 5
-2 => 5, 2      ( 2 < 5 && 2+1 != 5  push 2 )
-1 => 5         ( 1 < 2 && 1+1 = 2, pop out 2 , 1 is smallest NO push 1)
-1 => 5         ( 1 < 5  && 2+1 != 5   1 is smallest NO push 1)
-2 =>> 2
+up <- n
+L <- nil // List L
+ans <- 1 // smallest void number is default 1
+foreach item in array
+	if item > up
+		up <- up - 1
+		next
+	if item = ans
+		ans <- ans + 1 // upward by 1
+		while ans = L
+			L <- L.next
+	else if item > ans
+		p <- L
+		while p.nxet != nil and item > p.next
+			p <- p.next
+		if item != p.next
+			item.next <- p.next
+			p.next <- item
+return ans
 
 
 3. 
