@@ -148,7 +148,8 @@ void QueueDismissViaReverse(int queue)
             if (GroupTails[gid])
             {
                 // The group exists at the target queue, reconnect 
-                // traverse 
+                // store the next item, when this group is fully added, reconnect it to the
+                // end of this group.
                 groupNext = GroupTails[gid]->next;
 
                 GroupTails[gid]->next = ptr;
@@ -158,17 +159,20 @@ void QueueDismissViaReverse(int queue)
             else
             {
                 // No such group in newQueue 
-                groupNext = 0;
+                // This group will be added to tail of newQueue
+                groupNext = 0;  
 
                 if (Tails[newQueue])
                 {
+                    // Append this group to the end of newQueue
                     Tails[newQueue]->next = ptr;
                     ptr->next = ptr->prev;
                     ptr->prev = Tails[newQueue];
                }
                 else
                 {
-                    Tails[newQueue] = ptr;
+                    // 
+                    Heads[newQueue] = ptr;
                     ptr->next = ptr->prev;
                     ptr->prev = GroupTails[gid];
                 }
@@ -190,8 +194,6 @@ void QueueDismissViaReverse(int queue)
             // same group swap prev and next
             ptr->next = ptr->prev;
             ptr->prev = last;
-
-
             last = ptr;
         }
 

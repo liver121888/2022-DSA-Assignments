@@ -1,4 +1,4 @@
-3 18 4
+4 19 4
 enter 0 1 0
 go 0
 enter 0 1 0
@@ -16,5 +16,6 @@ enter 0 10 2
 close 1
 go 0
 close 0
+close 3
 go 2
 Answer: <two blank lines> 5 7 2 10 6 3 4 8
