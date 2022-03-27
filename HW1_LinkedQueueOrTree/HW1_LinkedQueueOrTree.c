@@ -115,13 +115,6 @@ void QueueDismissViaReverse(int queue)
     } while (Closed[newQueue] == 'y');
 
     DLItem* ptr;
-    ptr = Tails[newQueue];
-    //while (target)
-    //{
-    //    frontOne = target->prev;
-    //    Enter(target->grpIdx, target->id, newQueue);
-    //    target = frontOne;
-    //}
 
     // Find the tailer element of each group in destination queue 
     for (int i = 0; i < GroupNumber; i++) GroupTails[i] = 0;
@@ -138,18 +131,17 @@ void QueueDismissViaReverse(int queue)
     }
 
     // Backward traverse the dismissed queue
-    ptr = Tails[queue];
-    gid = -1;
-
 
     DLItem* groupNext = 0;
-    DLItem* last = 0, *previous = 0;
+    DLItem* last = 0, *previousOne = 0;
     // Backward traverse all elements
+    gid = -1;
+    ptr = Tails[queue];
     while (ptr)
     {
+        previousOne = ptr->prev;
         if (ptr->grpIdx != gid)
         {
-            previous = ptr->prev;
 
             // A new group encountered
             gid = ptr->grpIdx;
@@ -183,33 +175,35 @@ void QueueDismissViaReverse(int queue)
             }
             last = ptr;
 
-            // preview next group
-            if (ptr->next == 0 || ptr->next->grpIdx != gid)
-            {
-                ptr->next = groupNext;
-                if (groupNext)  groupNext->prev = ptr;
-                else Tails[newQueue] = ptr;
-            }
+            //// This is the last item of this group; connect the next group of this inserted group  
+            //if (previousOne == 0 || previousOne->grpIdx != gid)
+            //{ 
+            //                  
+            //    ptr->next = groupNext;
+            //    if (groupNext)  groupNext->prev = ptr;
+            //    else Tails[newQueue] = ptr; // This is the end of this group and is new tail of the join queue
+            //}
 
         }
         else
         {
             // same group swap prev and next
-            previous = ptr->prev;
-
             ptr->next = ptr->prev;
             ptr->prev = last;
 
-            // preview next group
-            if (ptr->next == 0 || ptr->next->grpIdx != gid)
-            {
-                ptr->next = groupNext;
-                if (groupNext)  groupNext->prev = ptr;
-                else Tails[newQueue] = ptr;
-            }
+
             last = ptr;
         }
-        ptr = previous;
+
+        // This is the last item of this group; connect the next group of this inserted group  
+        if (previousOne == 0 || previousOne->grpIdx != gid)
+        {
+            ptr->next = groupNext;
+            if (groupNext)  groupNext->prev = ptr;
+            else Tails[newQueue] = ptr;
+        }
+
+        ptr = previousOne;
     }
   
 
