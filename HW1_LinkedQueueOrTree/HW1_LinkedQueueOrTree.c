@@ -80,12 +80,12 @@ void Enter(int group, int id, int queue)
 
 void QueueDismiss(int queue)
 {
-    int newQueue;
+    int newQueue = queue;
     do
     {
-        newQueue = queue - 1;
+        newQueue --;
         if (newQueue < 0) newQueue += QueueNumber;
-    } while (Closed[newQueue] == 'y');
+    }while (Closed[newQueue] == 'y');
 
     DLItem* target, * frontOne;
     target = QueueTails[queue];
@@ -121,8 +121,8 @@ int main()
     char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
     char answer[80];
 
-    filePtr = fopen(fileName1, "r");
-    // filePtr = fopen(fileName2, "r");
+    // filePtr = fopen(fileName1, "r");
+    filePtr = fopen(fileName2, "r");
 
     fscanf(filePtr, "%d %d %d", &QueueNumber, &EventNumber, &GroupNumber);
     // Allocate memory for these queues
