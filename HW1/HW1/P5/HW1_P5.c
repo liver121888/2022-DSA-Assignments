@@ -18,7 +18,11 @@ typedef struct node {
 
 node** head;
 node** tail;
-node** Gtail;
+
+node*** GroupEnds;
+node*** GroupStarts; // used in Dismiss functions
+
+
 char* closed;
 int WCNumber, SituationNumber, GroupNumber;
 int FileFlag = 1;
@@ -108,10 +112,71 @@ void close(int m)
 	head[m] = 0;
 }
 
+void enteringroup(int g, int id, int m)
+{
+	node* n = malloc(sizeof(node));
+	if (n != 0)
+	{
+		n->ID = id;
+		n->Group = g;
+	}
+
+
+
+	node* groupEnd = GroupEnds[m][g];
+	if (groupEnd)
+	{
+		// The group exist in this queue
+		node* lastNext = groupEnd->next;
+		groupEnd->next = n;
+		n->prev = groupEnd;
+		n->next = lastNext;
+		if (lastNext)
+			lastNext->prev = n;
+		else
+			tail[m] = n;
+		GroupEnds[m][g] = n;
+	}
+	else
+	{
+		// This is the first guy of a new group enters this queue
+		// Enter tail of the queue
+		if (tail[m])
+		{
+			// tail exist
+			tail[m]->next = n;
+			n->prev = tail[m];
+			n->next = 0;
+			tail[m] = n;
+		}
+		else
+		{
+			// empty queue
+			head[m] = n;
+			tail[m] = n;
+			n->prev = 0;
+			n->next = 0;
+		}
+		GroupStarts[m][g] = n;
+		GroupEnds[m][g] = n;
+	}
+}
+
+
+
 void closeingroup(int m)
 {
-	node* tmp = 0;
-	int gnum;
+	node* Qtail = 0;
+	node* endGuy;
+	node* startGuy;
+	node* joinStart;
+	node* joinEnd;
+	node* prevNext;
+	Qtail = tail[m];
+
+	int gid;
+	int id;
+
 	closed[m] = 'y';
 	for (int k = m; k >= -1; k--)
 	{
@@ -120,96 +185,88 @@ void closeingroup(int m)
 
 		if (closed[k] == 'n')
 		{
-			tmp = tail[k];
-			for (int i = 0; i < GroupNumber; i++) 
-				Gtail[i] = 0;
-			gnum = -1;
-			while (tmp)
+			while (Qtail)
 			{
-				if (tmp->Group != gnum)
+				// current group id
+				gid = Qtail->Group;
+				// the next group end for next iter
+				Qtail = GroupStarts[m][gid]->prev;
+
+				// reverse id of this group
+				endGuy = GroupEnds[m][gid];
+				startGuy = GroupStarts[m][gid];
+				id = endGuy->ID;
+				while (startGuy->ID != id)
 				{
-					gnum = tmp->Group;
-					Gtail[gnum] = tmp;
+					endGuy->ID = startGuy->ID;
+					startGuy->ID = id;
+					// if the people in queue is odd?
+					if (endGuy->prev == startGuy || endGuy == startGuy)
+						break;
+					endGuy = endGuy->prev;
+					id = endGuy->ID;
+					startGuy = startGuy->next;
 				}
-				tmp = tmp->prev;
-			}
-			tmp = tail[m];
-			gnum = -1;
 
-			node* groupNext = 0;
-			node* last = 0, * previous = 0;
-			while (tmp)
-			{
-				previous = tmp->prev;
 
-				if (tmp->Group != gnum)
-				{				
+				// link group gid in queue to k
+				joinStart = GroupStarts[k][gid],
+					joinEnd = GroupEnds[k][gid];
+				startGuy = GroupStarts[m][gid];
+				endGuy = GroupEnds[m][gid];
 
-					gnum = tmp->Group;
-					if (Gtail[gnum])
-					{
-						groupNext = Gtail[gnum]->next;
+				if (joinEnd)
+				{
+					// group exist
+					prevNext = joinEnd->next;
+					joinEnd->next = startGuy;
+					startGuy->prev = joinEnd;
 
-						Gtail[gnum]->next = tmp;
-						tmp->next = tmp->prev;
-						tmp->prev = Gtail[gnum];
-					}
+					endGuy->next = prevNext;
+					if (prevNext)
+						prevNext->prev = endGuy;
 					else
-					{
-						groupNext = 0;
-						if (tail[k])
-						{
-							tail[k]->next = tmp;
-							tmp->next = tmp->prev;
-							tmp->prev = tail[k];
-						}
-						else
-						{
+						// if the people in queue is odd?
+						tail[k] = endGuy;
 
-							head[k] = tmp;
-							tmp->next = tmp->prev;
-							tmp->prev = Gtail[gnum];
-						}
-					}
-					last = tmp;
-
-					//if (tmp->next == 0 || tmp->next->Group != gnum)
-					//{
-					//	tmp->next = groupNext;
-					//	if (groupNext)
-					//		groupNext->prev = tmp;
-					//	else
-					//		tail[k] = tmp;
-					//}
-
+					// group added, update end
+					GroupEnds[k][gid] = endGuy;
 				}
 				else
 				{
-					tmp->next = tmp->prev;
-					tmp->prev = last;
-					//if (tmp->next == 0 || tmp->next->Group != gnum)
-					//{
-					//	tmp->next = groupNext;
-					//	if (groupNext)
-					//		groupNext->prev = tmp;
-					//	else
-					//		tail[k] = tmp;
-					//}
-					last = tmp;
-				}
+					// The group is not in the jointQueue
+					// append to tail of jointQueue
+					joinEnd = tail[k];
+					if (joinEnd)
+					{
+						joinEnd->next = startGuy;
+						startGuy->prev = joinEnd;
 
-				if (tmp->next == 0 || tmp->next->Group != gnum)
-				{
-					tmp->next = groupNext;
-					if (groupNext)
-						groupNext->prev = tmp;
+						tail[k] = endGuy;
+						endGuy->next = 0;
+					}
 					else
-						tail[k] = tmp;
+					{
+						// joint queue is empty
+
+						head[k] = startGuy;
+						tail[k] = endGuy;
+						startGuy->prev = 0;
+						endGuy->next = 0;
+					}
+
+					GroupStarts[k][gid] = startGuy;
+					GroupEnds[k][gid] = endGuy;
+
 				}
-				tmp = previous;
 			}
 			break;
 		}
+	}
+
+	for (int j = 0; j < GroupNumber; j++)
+	{
+		GroupEnds[m][j] = GroupStarts[m][j] = 0;
 	}
 	tail[m] = 0;
 	head[m] = 0;
@@ -220,27 +277,69 @@ void closeingroup(int m)
 
 void go(int m)
 {
-	// free?
+	node* nextGuy;
+	int gid;
 	if (head[m])
 	{
-		head[m] = head[m]->next;
-		if(head[m])
-			head[m]->prev = 0;
+		gid = head[m]->Group;
+		nextGuy = head[m]->next;
+		if (nextGuy)
+		{
+			// nextGuy exist
+			head[m] = nextGuy;
+			nextGuy->prev = 0;
+			if (nextGuy->Group == gid)
+			{
+				GroupStarts[m][gid] = nextGuy;
+			}
+			else
+			{
+				GroupStarts[m][gid] = 0;
+				GroupEnds[m][gid] = 0;
+			}
+		}
 		else
+		{
+			GroupEnds[m][gid] = 0;
+			GroupStarts[m][gid] = 0;
+			head[m] = 0;
 			tail[m] = 0;
+		}
 	}
 }
 
 void leave(int m)
 {
+	int gid;
+	node* prevGuy;
 	// free?
 	if (tail[m])
 	{
-		tail[m] = tail[m]->prev;
-		if (tail[m])
-			tail[m]->next = 0;
+		gid = tail[m]->Group;
+		prevGuy = tail[m]->prev;
+		if (prevGuy)
+		{
+			// previous guy exits
+			tail[m] = prevGuy;
+			prevGuy->next = 0;
+			if (prevGuy->Group == gid)
+				// same g
+				GroupEnds[m][gid] = prevGuy;
+			else
+			{
+				// different g
+				GroupStarts[m][gid] = 0;
+				GroupEnds[m][gid] = 0;
+			}
+		}
 		else
+		{
+			// previous is null (the only item in queue), after leave, empty the queue
+			GroupEnds[m][gid] = 0;
+			GroupStarts[m][gid] = 0;
 			head[m] = 0;
+			tail[m] = 0;
+		}
 	}
 }
 
@@ -255,7 +354,7 @@ int main()
 
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW1\\HW1\\hw1_testdata\\P5\\1.in", "r");
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW1\\HW1\\hw1_testdata\\P5\\2.in", "r");
 		int r = fscanf(ptr, "%d %d %d", &WCNumber, &SituationNumber, &GroupNumber);
 	}
 	else
@@ -266,14 +365,25 @@ int main()
 
 	head = malloc(sizeof(node*) * WCNumber);
 	tail = malloc(sizeof(node*) * WCNumber);
+	GroupEnds = malloc(sizeof(node**) * WCNumber);
+	GroupStarts = malloc(sizeof(node**) * WCNumber);
+
 	closed = malloc(sizeof(char) * WCNumber);
-	Gtail = malloc(sizeof(node*) * GroupNumber);
-	
+
+
 	for (int k = 0; k < WCNumber; k++)
 	{
 		head[k] = 0;
 		tail[k] = 0;
 		closed[k] = 'n';
+		GroupStarts[k] = malloc(sizeof(node*) * GroupNumber);
+		GroupEnds[k] = malloc(sizeof(node*) * GroupNumber);
+
+		for (int j = 0; j < GroupNumber; j++)
+		{
+			GroupStarts[k][j] = 0;
+			GroupEnds[k][j] = 0;
+		}
 	}
 
 
@@ -299,7 +409,7 @@ int main()
 			{
 				int res = scanf("%d %d %d", &i, &j, &m);
 			}
-			enter(i, j, m);
+			enteringroup(i, j, m);
 			break;
 		case('l'):
 			if (FileFlag)
