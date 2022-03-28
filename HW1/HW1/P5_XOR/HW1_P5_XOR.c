@@ -9,8 +9,7 @@
 
 
 typedef struct node {
-	struct node* prev;
-	struct node* next;
+	struct node* link;
 	int Group;
 	int ID;
 }node;
@@ -18,10 +17,14 @@ typedef struct node {
 
 node** head;
 node** tail;
-node** Gtail;
 char* closed;
 int WCNumber, SituationNumber, GroupNumber;
 int FileFlag = 1;
+
+node* XOR(node* a, node* b)
+{
+	return((intptr_t)(a) ^ (intptr_t)(b));
+}
 
 
 
@@ -61,12 +64,8 @@ void enter(int g, int id, int m)
 
 	if (tail[m])
 	{
-		tail[m]->next = n;
-		if (n != NULL)
-		{
-			n->prev = tail[m];
-			n->next = NULL;
-		}
+		tail[m]->link = XOR(tail[m]->link, n);
+		n->link = XOR(tail[m], NULL);
 		tail[m] = n;
 	}
 	else
@@ -74,8 +73,7 @@ void enter(int g, int id, int m)
 		// first node in queue
 		if (n != NULL)
 		{
-			n->next = 0;
-			n->prev = NULL;
+			n->link = XOR(0, 0);
 		}
 		head[m] = n;
 		tail[m] = n;
@@ -107,116 +105,6 @@ void close(int m)
 	tail[m] = 0;
 	head[m] = 0;
 }
-
-void closeingroup(int m)
-{
-	node* tmp = 0;
-	int gnum;
-	closed[m] = 'y';
-	for (int k = m; k >= -1; k--)
-	{
-		if (k == -1)
-			k = WCNumber - 1;
-
-		if (closed[k] == 'n')
-		{
-			tmp = tail[k];
-			for (int i = 0; i < GroupNumber; i++) 
-				Gtail[i] = 0;
-			gnum = -1;
-			while (tmp)
-			{
-				if (tmp->Group != gnum)
-				{
-					gnum = tmp->Group;
-					Gtail[gnum] = tmp;
-				}
-				tmp = tmp->prev;
-			}
-			tmp = tail[m];
-			gnum = -1;
-
-			node* groupNext = 0;
-			node* last = 0, * previous = 0;
-			while (tmp)
-			{
-				previous = tmp->prev;
-
-				if (tmp->Group != gnum)
-				{				
-
-					gnum = tmp->Group;
-					if (Gtail[gnum])
-					{
-						groupNext = Gtail[gnum]->next;
-
-						Gtail[gnum]->next = tmp;
-						tmp->next = tmp->prev;
-						tmp->prev = Gtail[gnum];
-					}
-					else
-					{
-						groupNext = 0;
-						if (tail[k])
-						{
-							tail[k]->next = tmp;
-							tmp->next = tmp->prev;
-							tmp->prev = tail[k];
-						}
-						else
-						{
-
-							head[k] = tmp;
-							tmp->next = tmp->prev;
-							tmp->prev = Gtail[gnum];
-						}
-					}
-					last = tmp;
-
-					//if (tmp->next == 0 || tmp->next->Group != gnum)
-					//{
-					//	tmp->next = groupNext;
-					//	if (groupNext)
-					//		groupNext->prev = tmp;
-					//	else
-					//		tail[k] = tmp;
-					//}
-
-				}
-				else
-				{
-					tmp->next = tmp->prev;
-					tmp->prev = last;
-					//if (tmp->next == 0 || tmp->next->Group != gnum)
-					//{
-					//	tmp->next = groupNext;
-					//	if (groupNext)
-					//		groupNext->prev = tmp;
-					//	else
-					//		tail[k] = tmp;
-					//}
-					last = tmp;
-				}
-
-				if (tmp->next == 0 || tmp->next->Group != gnum)
-				{
-					tmp->next = groupNext;
-					if (groupNext)
-						groupNext->prev = tmp;
-					else
-						tail[k] = tmp;
-				}
-				tmp = previous;
-			}
-			break;
-		}
-	}
-	tail[m] = 0;
-	head[m] = 0;
-}
-
-
-
 
 void go(int m)
 {
@@ -267,7 +155,6 @@ int main()
 	head = malloc(sizeof(node*) * WCNumber);
 	tail = malloc(sizeof(node*) * WCNumber);
 	closed = malloc(sizeof(char) * WCNumber);
-	Gtail = malloc(sizeof(node*) * GroupNumber);
 	
 	for (int k = 0; k < WCNumber; k++)
 	{
@@ -332,7 +219,7 @@ int main()
 			{
 				int res = scanf("%d", &m);
 			}
-			closeingroup(m);
+			close(m);
 			break;
 		default:
 			break;
