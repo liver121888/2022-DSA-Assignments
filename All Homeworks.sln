@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComplexityCurves", "Complex
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HW1_DoublyLinkedAdvancedLists", "HW1_DoublyLinkedAdvancedLists\HW1_DoublyLinkedAdvancedLists.vcxproj", "{7E89926A-54DF-425A-B732-71453875888C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HW1_XORLinkedAdvancedLists", "HW1_XORLinkedAdvancedLists\HW1_XORLinkedAdvancedLists.vcxproj", "{4985C43B-D4E4-4225-A69E-A0524688BE24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,16 @@ Global
 		{7E89926A-54DF-425A-B732-71453875888C}.Release|x64.Build.0 = Release|x64
 		{7E89926A-54DF-425A-B732-71453875888C}.Release|x86.ActiveCfg = Release|Win32
 		{7E89926A-54DF-425A-B732-71453875888C}.Release|x86.Build.0 = Release|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Debug|x64.ActiveCfg = Debug|x64
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Debug|x64.Build.0 = Debug|x64
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Debug|x86.ActiveCfg = Debug|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Debug|x86.Build.0 = Debug|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Release|Any CPU.ActiveCfg = Release|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Release|x64.ActiveCfg = Release|x64
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Release|x64.Build.0 = Release|x64
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Release|x86.ActiveCfg = Release|Win32
+		{4985C43B-D4E4-4225-A69E-A0524688BE24}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,7 +6,7 @@
 typedef struct dlitem
 {
     int id, grpIdx;
-    struct dlitem* prev, * next;
+    struct dlitem* prevXnext, * next;
 } DLItem;
 
 // Global Data
@@ -28,7 +28,7 @@ void TailLeave(int queue)
     if (Tails[queue])
     {
         int gid = Tails[queue]->grpIdx;
-        prevGuy = Tails[queue]->prev;
+        prevGuy = Tails[queue]->prevXnext;
         if (prevGuy)
         {
             // previous guy exits
@@ -70,7 +70,7 @@ void GoDequeu(int queue)
         {
             // next Guy exists
             Heads[queue] = nextGuy;
-            nextGuy->prev = 0;
+            nextGuy->prevXnext = 0;
             if (nextGuy->grpIdx == gid)
             {
                 GroupStarts[queue][gid] = nextGuy;
@@ -108,9 +108,9 @@ void Enter(int group, int id, int queue)
         // The group exist in this queue
         DLItem* lastNext = groupEnd->next;
         groupEnd->next = enteredGuy;
-        enteredGuy->prev = groupEnd;
+        enteredGuy->prevXnext = groupEnd;
         enteredGuy->next = lastNext;
-        if (lastNext) lastNext->prev = enteredGuy;
+        if (lastNext) lastNext->prevXnext = enteredGuy;
         else Tails[queue] = enteredGuy;
         // new group end
         GroupEnds[queue][group] = enteredGuy;
@@ -123,7 +123,7 @@ void Enter(int group, int id, int queue)
         {
             // Tail exists
             Tails[queue]->next = enteredGuy;
-            enteredGuy->prev = Tails[queue];
+            enteredGuy->prevXnext = Tails[queue];
             enteredGuy->next = 0;
             Tails[queue] = enteredGuy;
         }
@@ -132,7 +132,7 @@ void Enter(int group, int id, int queue)
             // Empty queue
             Heads[queue] = enteredGuy;
             Tails[queue] = enteredGuy;
-            enteredGuy->prev = 0;
+            enteredGuy->prevXnext = 0;
             enteredGuy->next = 0;
         }
         GroupStarts[queue][group] = enteredGuy;
@@ -156,7 +156,7 @@ void QueueDismissWithGroupStartsNEnds(int queue)
     while (tail)
     {
         int gid = tail->grpIdx; // The current group id
-        tail = GroupStarts[queue][gid]->prev; // The next group end for next iteration
+        tail = GroupStarts[queue][gid]->prevXnext; // The next group end for next iteration
 
         // Reverse id of this group
         DLItem* endGuy = GroupEnds[queue][gid];
@@ -166,8 +166,8 @@ void QueueDismissWithGroupStartsNEnds(int queue)
         {
             endGuy->id = startGuy->id;
             startGuy->id = id;
-            if (endGuy->prev == startGuy) break;
-            endGuy = endGuy->prev;
+            if (endGuy->prevXnext == startGuy) break;
+            endGuy = endGuy->prevXnext;
             id = endGuy->id;
             startGuy = startGuy->next;
         }
@@ -182,10 +182,10 @@ void QueueDismissWithGroupStartsNEnds(int queue)
             // group exist
             DLItem* prevNext = jointEnd->next;
             jointEnd->next = startGuy;
-            startGuy->prev = jointEnd;
+            startGuy->prevXnext = jointEnd;
 
             endGuy->next = prevNext;
-            if (prevNext) prevNext->prev = endGuy;
+            if (prevNext) prevNext->prevXnext = endGuy;
             else Tails[queue] = endGuy;
 
             GroupEnds[jointQueue][gid] = endGuy; // group added, update end
@@ -199,7 +199,7 @@ void QueueDismissWithGroupStartsNEnds(int queue)
             {
                 // Tail is not empty
                 jointEnd->next = startGuy;
-                startGuy->prev = jointEnd;
+                startGuy->prevXnext = jointEnd;
 
                 Tails[jointQueue] = endGuy;
                 endGuy->next = 0;
@@ -210,7 +210,7 @@ void QueueDismissWithGroupStartsNEnds(int queue)
 
                 Heads[jointQueue] = startGuy;
                 Tails[jointQueue] = endGuy;
-                startGuy->prev = 0;
+                startGuy->prevXnext = 0;
                 endGuy->next = 0;
             }
 

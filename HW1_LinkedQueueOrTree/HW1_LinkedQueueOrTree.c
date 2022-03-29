@@ -6,7 +6,7 @@
 typedef struct dlitem
 {
     int id, grpIdx;
-    struct dlitem* prev, * next;
+    struct dlitem* prevXnext, * next;
 } DLItem;
 
 // Global Data
@@ -24,8 +24,8 @@ void TailLeave(int queue)
 {
     if (Tails[queue])
     {
-        if (Heads[queue] == Tails[queue]) Heads[queue] = Tails[queue]->prev;
-        Tails[queue] = Tails[queue]->prev;
+        if (Heads[queue] == Tails[queue]) Heads[queue] = Tails[queue]->prevXnext;
+        Tails[queue] = Tails[queue]->prevXnext;
         if( Tails[queue] ) Tails[queue]->next = 0;
     }
 }
@@ -36,7 +36,7 @@ void GoDequeu(int queue)
     {
         if (Tails[queue] == Heads[queue]) Tails[queue] = Heads[queue]->next;
         Heads[queue] = Heads[queue]->next;
-        if( Heads[queue] ) Heads[queue]->prev = 0;
+        if( Heads[queue] ) Heads[queue]->prevXnext = 0;
 
     }
 }
@@ -53,14 +53,14 @@ void Enter(int group, int id, int queue)
             newOne->id = id;
             newOne->grpIdx = group;
 
-            newOne->prev = ptr;
+            newOne->prevXnext = ptr;
             newOne->next = ptr->next;
-            newOne->prev->next = newOne;
-            if (newOne->next) newOne->next->prev = newOne;
+            newOne->prevXnext->next = newOne;
+            if (newOne->next) newOne->next->prevXnext = newOne;
             if (ptr == Tails[queue])Tails[queue] = newOne;
             return;
         }
-        ptr = ptr->prev;
+        ptr = ptr->prevXnext;
     }
     // Added to tail
     DLItem* newOne = malloc(sizeof(DLItem));
@@ -69,14 +69,14 @@ void Enter(int group, int id, int queue)
     if (Tails[queue])
     {
         Tails[queue]->next = newOne;
-        newOne->prev = Tails[queue];
+        newOne->prevXnext = Tails[queue];
         newOne->next = 0;
         Tails[queue] = newOne;
     }
     else
     {
         newOne->next = 0;
-        newOne->prev = 0;
+        newOne->prevXnext = 0;
         Heads[queue] = newOne;
         Tails[queue] = newOne;
     }
@@ -95,7 +95,7 @@ void QueueDismiss(int queue)
     target = Tails[queue];
     while (target)
     {
-        frontOne = target->prev;
+        frontOne = target->prevXnext;
         Enter(target->grpIdx, target->id, newQueue);
         target = frontOne;
     }
@@ -127,7 +127,7 @@ void QueueDismissViaReverse(int queue)
             gid = ptr->grpIdx;
             GroupTails[gid] = ptr; // get tail of group gid at queue newQueue
         }
-        ptr = ptr->prev;
+        ptr = ptr->prevXnext;
     }
 
     // Backward traverse the dismissed queue
@@ -139,7 +139,7 @@ void QueueDismissViaReverse(int queue)
     ptr = Tails[queue];
     while (ptr)
     {
-        previousOne = ptr->prev;
+        previousOne = ptr->prevXnext;
         if (ptr->grpIdx != gid)
         {
 
@@ -153,8 +153,8 @@ void QueueDismissViaReverse(int queue)
                 groupNext = GroupTails[gid]->next;
 
                 GroupTails[gid]->next = ptr;
-                ptr->next = ptr->prev;
-                ptr->prev = GroupTails[gid];            
+                ptr->next = ptr->prevXnext;
+                ptr->prevXnext = GroupTails[gid];            
             }
             else
             {
@@ -166,15 +166,15 @@ void QueueDismissViaReverse(int queue)
                 {
                     // Append this group to the end of newQueue
                     Tails[newQueue]->next = ptr;
-                    ptr->next = ptr->prev;
-                    ptr->prev = Tails[newQueue];
+                    ptr->next = ptr->prevXnext;
+                    ptr->prevXnext = Tails[newQueue];
                }
                 else
                 {
                     // 
                     Heads[newQueue] = ptr;
-                    ptr->next = ptr->prev;
-                    ptr->prev = GroupTails[gid];
+                    ptr->next = ptr->prevXnext;
+                    ptr->prevXnext = GroupTails[gid];
                 }
             }
             last = ptr;
@@ -192,8 +192,8 @@ void QueueDismissViaReverse(int queue)
         else
         {
             // same group swap prev and next
-            ptr->next = ptr->prev;
-            ptr->prev = last;
+            ptr->next = ptr->prevXnext;
+            ptr->prevXnext = last;
             last = ptr;
         }
 
@@ -201,7 +201,7 @@ void QueueDismissViaReverse(int queue)
         if (previousOne == 0 || previousOne->grpIdx != gid)
         {
             ptr->next = groupNext;
-            if (groupNext)  groupNext->prev = ptr;
+            if (groupNext)  groupNext->prevXnext = ptr;
             else Tails[newQueue] = ptr;
         }
 
