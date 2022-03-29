@@ -13,6 +13,7 @@ typedef struct node {
 	struct node* next;
 	int Group;
 	int ID;
+	int reversed;
 }node;
 
 
@@ -28,90 +29,6 @@ int WCNumber, SituationNumber, GroupNumber;
 int FileFlag = 1;
 
 
-
-void enter(int g, int id, int m)
-{
-	node* tmpptr = tail[m];
-	// check whether already a node in queue with same group
-	while (tmpptr)
-	{
-		if (tmpptr->Group == g)
-		{
-			// insert
-			node* n = malloc(sizeof(node));
-			if (n != NULL)
-			{
-				n->Group = g;
-				n->ID = id;
-				n->next = tmpptr->next;
-				n->prev = tmpptr;
-				tmpptr->next = n;
-				// not in tail, link the tmpptr->next
-				if (n->next) n->next->prev = n;
-				// if the tmpptr is in tail, update tail
-				if (tmpptr == tail[m])tail[m] = n;
-			}
-			return;
-		}
-		tmpptr = tmpptr->prev;
-	}
-	// no node with same group, add to tail or first node in queue
-	node* n = malloc(sizeof(node));
-	if (n != NULL)
-	{
-		n->Group = g;
-		n->ID = id;
-	}
-
-	if (tail[m])
-	{
-		tail[m]->next = n;
-		if (n != NULL)
-		{
-			n->prev = tail[m];
-			n->next = NULL;
-		}
-		tail[m] = n;
-	}
-	else
-	{
-		// first node in queue
-		if (n != NULL)
-		{
-			n->next = 0;
-			n->prev = NULL;
-		}
-		head[m] = n;
-		tail[m] = n;
-	}	
-}
-
-
-
-void close(int m)
-{
-	node* tmp = 0;
-	closed[m] = 'y';
-	for (int k = m; k >= -1; k--)
-	{
-		if (k == -1)
-			k = WCNumber - 1;
-
-		if (closed[k] == 'n')
-		{
-			while (tail[m] != 0)
-			{
-				tmp = tail[m]->prev;
-				enter(tail[m]->Group, tail[m]->ID, k);
-				tail[m] = tmp;
-			}
-			break;
-		}
-	}
-	tail[m] = 0;
-	head[m] = 0;
-}
-
 void enteringroup(int g, int id, int m)
 {
 	node* n = malloc(sizeof(node));
@@ -119,10 +36,8 @@ void enteringroup(int g, int id, int m)
 	{
 		n->ID = id;
 		n->Group = g;
+		n->reversed = 0;
 	}
-
-
-
 	node* groupEnd = GroupEnds[m][g];
 	if (groupEnd)
 	{
@@ -200,7 +115,7 @@ void closeingroup(int m)
 				{
 					endGuy->ID = startGuy->ID;
 					startGuy->ID = id;
-					// if the people in queue is odd?
+					// if the people in queue is odd? then it would not enter the while loop
 					if (endGuy->prev == startGuy || endGuy == startGuy)
 						break;
 					endGuy = endGuy->prev;
@@ -210,8 +125,8 @@ void closeingroup(int m)
 
 
 				// link group gid in queue to k
-				joinStart = GroupStarts[k][gid],
-					joinEnd = GroupEnds[k][gid];
+				joinStart = GroupStarts[k][gid];
+				joinEnd = GroupEnds[k][gid];
 				startGuy = GroupStarts[m][gid];
 				endGuy = GroupEnds[m][gid];
 
@@ -271,9 +186,6 @@ void closeingroup(int m)
 	tail[m] = 0;
 	head[m] = 0;
 }
-
-
-
 
 void go(int m)
 {
