@@ -234,7 +234,8 @@ int main()
     // ntu
     char fileName1[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
     char fileName2[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
-    char fileName4[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
+   // char fileName4[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
+    char fileName4[] = "..\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
 
     // char fileName1[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
     // char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
