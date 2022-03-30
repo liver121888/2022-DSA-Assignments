@@ -31,6 +31,7 @@ node*** GroupStarts, *** GroupStartPrevs; // used in Dismiss functions
 char* closed;
 int WCNumber, SituationNumber, GroupNumber;
 int FileFlag = 1;
+int PrintQueueInfoFlag = 0;
 
 
 void PrintQueueInfo()
@@ -215,6 +216,8 @@ void closeingroup(int m)
 						// reverse
 						head[k] = endGuy;
 						tail[k] = startGuy;
+						endGuy->link = (unsigned int)endGuy->link ^ 0;
+						startGuy->link = (unsigned int)startGuy->link ^ (unsigned int)GroupStartPrevs[m][gid] ^ (unsigned int)0;
 					}
 					GroupStartPrevs[k][gid] = joinEnd;
 					GroupStarts[k][gid] = endGuy;
@@ -258,9 +261,11 @@ void go(int m)
 				GroupStarts[m][gid] = 0;
 				GroupEnds[m][gid] = 0;
 				GroupEndNexts[m][gid] = 0;
+
+				GroupStartPrevs[m][nextGuy->Group] = 0;
 			}
 			// ^ head first to get next then ^ 0 turns new head
-			nextGuy->link = (unsigned int)nextGuy->link^ (unsigned int)head[m]^ (unsigned int)NULL;
+			nextGuy->link = (unsigned int)NULL^((unsigned int)nextGuy->link^ (unsigned int)head[m]);
 			head[m] = nextGuy;
 		}
 		else
@@ -300,6 +305,8 @@ void leave(int m)
 				GroupStarts[m][gid] = 0;
 				GroupEnds[m][gid] = 0;
 				GroupEndNexts[m][gid] = 0;
+
+				GroupEndNexts[m][prevGuy->Group] = 0;
 			}
 			// ^ tail get prev then ^ 0
 			prevGuy->link = (unsigned int)prevGuy->link^ (unsigned int)tail[m]^ (unsigned int)NULL;
@@ -330,7 +337,7 @@ int main()
 
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW1\\HW1\\hw1_testdata\\P5\\2.in", "r");
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW1\\HW1\\hw1_testdata\\P5\\1.in", "r");
 		r = fscanf(ptr, "%d %d %d", &WCNumber, &SituationNumber, &GroupNumber);
 	}
 	else
@@ -428,6 +435,11 @@ int main()
 		default:
 			break;
 		}
+		if (PrintQueueInfoFlag)
+		{
+			PrintQueueInfo();
+		}
+
 
 	}
 
