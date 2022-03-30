@@ -231,14 +231,23 @@ void PrintQueueInfo()
 
 int main()
 {
-    char fileName1[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
-    char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
-    char fileName3[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues003.txt";
+    // ntu
+    char fileName1[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+    char fileName2[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+    char fileName4[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
+
+    // char fileName1[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+    // char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+    // char fileName3[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues003.txt";
+
+    // char fileName1[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+    // char fileName2[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+    // char fileName4[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
     char answer[80];
 
     // filePtr = fopen(fileName1, "r");
     //filePtr = fopen(fileName2, "r");
-    filePtr = fopen(fileName3, "r");
+    filePtr = fopen(fileName4, "r");
 
     fscanf(filePtr, "%d %d %d", &QueueNumber, &EventNumber, &GroupNumber);
     // Allocate memory for these queues

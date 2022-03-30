@@ -27,7 +27,7 @@ void PrintQueueInfo()
     DLItem* ptr, * last;
     for (int q = 0; q < QueueNumber; q++)
     {
-        printf("\nQ%d: ", q);
+        printf("\r\nQ%d: ", q);
         last = 0;
         ptr = Heads[q];
         while (ptr)
@@ -313,18 +313,23 @@ void QueueDismissWithGroupStartsNEnds(int queue)
 
 int main()
 {
-   //char fileName1[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
-   // char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
-    char fileName3[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues003.txt";
 
-    char fileName1[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
-    char fileName2[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
-    char fileName4[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
-    //char fileName2[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+    // ntu
+   char fileName1[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+   char fileName2[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+   char fileName4[] = "D:\\2022 GitHubProjects\\DataStructureAndAlgorithm2022\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
+
+   // char fileName1[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+   // char fileName2[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+   // char fileName3[] = "D:\\2022 GitRepos\\2022 DataStructureAlgorithmCourseHWK\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues003.txt";
+
+   // char fileName1[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues001.txt";
+   // char fileName2[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues002.txt";
+   // char fileName4[] = "D:\\2022 GitHubProject\\DatasStructureAlgorithm\\HW1_LinkedQueueOrTree\\Samples\\DoubleLinkingQueues004.txt";
     char answer[80];
 
     // filePtr = fopen(fileName1, "r");
-    filePtr = fopen(fileName1, "r");
+    filePtr = fopen(fileName2, "r");
     // filePtr = fopen(fileName3, "r");
 
     fscanf(filePtr, "%d %d %d", &QueueNumber, &EventNumber, &GroupNumber);
@@ -366,23 +371,23 @@ int main()
         {
         case 'e':// enter
             fscanf(filePtr, "%d %d %d", &groupIdx, &ID, &queueIdx);
-            printf("\n\n\t=> %d(%d) enters Q%d ", ID, groupIdx, queueIdx);
+            printf("\r\n\r\n\t=> %d(%d) enters Q%d ", ID, groupIdx, queueIdx);
             Enter(groupIdx, ID, queueIdx);
             break;
         case 'l': // leave
             fscanf(filePtr, "%d", &queueIdx);
-            printf("\n\n\t=> Q%d tail leaves ", queueIdx);
+            printf("\r\n\r\n\t=> Q%d tail leaves ", queueIdx);
             TailLeave(queueIdx);
             break;
         case 'g': // go
             fscanf(filePtr, "%d", &queueIdx);
-            printf("\n\n\t=> Q%d head leaves ", queueIdx);
+            printf("\r\n\r\n\t=> Q%d head leaves ", queueIdx);
             GoDequeu(queueIdx);
             break;
         case 'c': // close
             fscanf(filePtr, "%d", &queueIdx);
             // QueueDismiss(queueIdx);
-            printf("\n\n\t=> Q%d closes ", queueIdx);
+            printf("\r\n\r\n\t=> Q%d closes ", queueIdx);
             //QueueDismiss(queueIdx);
             QueueDismissWithGroupStartsNEnds(queueIdx);
             break;
@@ -394,10 +399,10 @@ int main()
     while ((fgets(answer, 80, filePtr)) != NULL) {}
     fclose(filePtr);
 
-    printf("\n******** Correct Answer *************\n");
+    printf("\r\n******** Correct Answer *************\r\n");
     printf("%s", answer);
 
-    printf("\n********** Our Solution ***********\n");
+    printf("\r\n********** Our Solution ***********\r\n");
     DLItem* ptr, *last;
     for (int q = 0; q < QueueNumber; q++)
     {
@@ -410,7 +415,7 @@ int main()
             last = ptr;
             ptr = next;
         }
-        printf("\n");
+        printf("\r\n");
     }
 
     scanf("%d");
