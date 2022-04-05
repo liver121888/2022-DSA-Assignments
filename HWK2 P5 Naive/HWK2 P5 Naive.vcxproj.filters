@@ -18,6 +18,9 @@
     <ClCompile Include="HWK2 P5 Naive.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Source.c">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="price.h">

@@ -4,11 +4,183 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<math.h>
+
+
+typedef struct bstNode
+{
+    unsigned long long price;
+    struct bstNode *left;
+    struct bstNode* right;
+} BstNode;
+
+
+
+struct bstNode* balanceBST(struct bstNode* root) 
+{
+
+}
+
+void InsertAPrice(unsigned long long p, BstNode *stock)
+{
+    if (stock == 0)
+    {
+        stock = malloc(sizeof(BstNode));
+        stock->price = p;
+        stock->left = 0;
+        stock->right = 0;
+    }
+    else
+    {
+        if (p <= stock->price)
+        {
+            InsertAPrice(p, stock->left);
+        }
+        else
+        {
+            InsertAPrice(p, stock->right);
+        }
+    }
+}
+
+//BstNode* stocks;
 
 int numOfStocks, numQuery, increasePeriod, kSweet, extra;
-unsigned int *stocks;
+int **stockIDs;
 char answer[80];
 FILE* filePtr;
+
+
+typedef struct node
+{
+    unsigned long long value;
+    struct node* next;
+    struct node* prev;
+} Node;
+
+unsigned long long method1DoubleLinkedList(long long  extras, long long k)
+{
+    // A  doubly-linked sorted list of length of k is maintained 
+    int count = extras == 0 ? numOfStocks : numOfStocks + 1;
+    unsigned long long answer = pow(2, 127);
+    Node* head = 0;
+    int length = 0;
+    Node* tail = 0;
+    unsigned long long value;
+    int loop = ceil(pow(10, 9) / increasePeriod);
+    Node** flagPtrs;
+    int all = count * loop;
+
+    // A stock is divided into loop sub-lists, which are sorted lists
+    // So totally there are loop * count sorted list
+    // Each sublist contains a node flag, if flag value < 0 in initial state; 
+    // otherwise, flag value = 0 means the rest of sublist consisting values larger than answer
+    // otherwise, the pointer is the last smallest node 
+
+    // malloc 記憶體長度無法開 10億個，放棄 flag
+    //Node* dummy = malloc(sizeof(Node));
+
+    //flagPtrs = malloc(sizeof(Node*) * all);
+    //for (int i = 0; i < all; i++)flagPtrs[i] = dummy;
+
+    int cc = 0;
+    for (int i = 0; i < k; i++) // up 10^6
+    {
+        // each step read in the i-th element of each sub-stock line;
+        // simply discard the element (value > answer) and set stop flag of that line; 
+        // or insert into the list and discard the last element (tail) and update answer
+        if (length >= k) break;
+        cc = 0;
+
+        for (int p = 0; p < loop; p++) // up 1024
+        {
+            if (cc >= length) break;
+            for (int s = 0; s < count; s++)
+            {
+                cc++;
+            //int serial = s * loop;
+            //    int fid = serial + p;
+             //   if (flagPtrs[fid] == 0) continue;
+
+                int sid = extras == 0 ? stockIDs[s] : extras;
+                value = price(sid, p * increasePeriod + i);
+                if (length <= k)
+                {
+                    // the list is not completed, insert the element update length
+                    // start from self flag or head
+                    Node* newOne = malloc(sizeof(Node));
+                    newOne->value = value;
+
+                   // Node* ptr = flagPtrs[fid] == dummy ? head : flagPtrs[fid];
+                    Node *ptr = head;
+                    if (ptr == 0)
+                    {
+                        head = newOne;
+                        tail = newOne;
+                        newOne->prev = 0;
+                        newOne->next = 0;
+                    }
+                    else
+                    {
+                        // search to the right sorted place
+                        while (ptr != 0 && value > ptr->value) ptr = ptr->next;
+                        if (ptr == 0)
+                        {
+                            // tail
+                            tail->next = newOne;
+                            newOne->prev = tail;
+                            newOne->next = 0;
+                            tail = newOne;
+                        }
+                        else
+                        {
+                            // Insert in front of ptr middle
+                            Node* prev = ptr->prev;
+                            if (prev == 0)
+                            {
+                                // new head
+                                head = newOne;
+                                newOne->prev = 0;
+                                ptr->prev = newOne;
+                                newOne->next = ptr;
+                            }
+                            else
+                            {
+                                // middle
+                                prev->next = newOne;
+                                newOne->prev = prev;
+                                ptr->prev = newOne;
+                                newOne->next = ptr;
+                            }
+
+                        }
+                    }
+                 //   flagPtrs[fid] = newOne;
+                    length++;
+                    if (length > k)
+                    {
+                        // remove tail to maintain length k smallest values
+                        Node* newTail = tail->prev;
+                        newTail->next = 0;
+                        tail = newTail;
+                    }
+                }
+                else
+                {
+                    // 
+                    if (value >= tail->value)
+                    {
+                        // set flag = 0
+             //           flagPtrs[fid] = 0;
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    return tail->value;
+
+}
 
 void main()
 {
@@ -21,31 +193,24 @@ void main()
     char answer[80];
 
     // filePtr = fopen(fileName1, "r");
-    filePtr = fopen(fileName2, "r");
+    filePtr = fopen(fileName1, "r");
     // filePtr = fopen(fileName4, "r");
     // filePtr = fopen(fileName3, "r");
 
     fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
-    stocks = malloc(numOfStocks * sizeof(unsigned int));
+    stockIDs = malloc(numOfStocks * sizeof(unsigned int));
     for (int i = 0; i < numOfStocks; i++)
     {
-        fscanf(filePtr, "%d", &stocks[i]);
+        fscanf(filePtr, "%d", &stockIDs[i]);
     }
 
     for (int j = 0; j < numQuery; j++)
     {
         fscanf(filePtr, "%d %d", &extra, &kSweet);
 
-        unsigned long long d = pow(2, sizeof(long long)) - 1;
-
-        if( extra != 0 ) d = price(extra, kSweet);
+        unsigned long long answer = method1DoubleLinkedList(extra, kSweet);
  
-        for (int i = 0; i < numOfStocks; i++)
-        {
-            unsigned long long v = price(stocks[i], kSweet);
-            if (v < d) d = v;
-        }
-        printf("%u\n", d);
+         printf("%u\n", answer);
     }
 
     fscanf(filePtr, "%s", answer);
