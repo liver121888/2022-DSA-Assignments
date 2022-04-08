@@ -58,18 +58,17 @@ typedef struct node
     struct node* prev;
 } Node;
 
-unsigned long long method1DoubleLinkedList(long long  extras, long long k)
+unsigned long long method1DoubleLinkedList(long long  extras, long long kSmallest)
 {
     // A  doubly-linked sorted list of length of k is maintained 
     int count = extras == 0 ? numOfStocks : numOfStocks + 1;
     unsigned long long answer = pow(2, 127);
     Node* head = 0;
-    int length = 0;
     Node* tail = 0;
     unsigned long long value;
     int loop = ceil(pow(10, 9) / increasePeriod);
     Node** flagPtrs;
-    int all = count * loop;
+    int numberSortedLists = count * loop;
 
     // A stock is divided into loop sub-lists, which are sorted lists
     // So totally there are loop * count sorted list
@@ -82,36 +81,40 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long k)
 
     //flagPtrs = malloc(sizeof(Node*) * all);
     //for (int i = 0; i < all; i++)flagPtrs[i] = dummy;
-
-    int cc = 0;
-    for (int i = 0; i < k; i++) // up 10^6
+    
+    int refreshCount = 0;
+    int length = 0;
+    int done = 0;
+    for (int i = 0; i < kSmallest; i++) // up 10^6
     {
         // each step read in the i-th element of each sub-stock line;
         // simply discard the element (value > answer) and set stop flag of that line; 
         // or insert into the list and discard the last element (tail) and update answer
-        if (length >= k) break;
-        cc = 0;
+        //if (length >= kSmallest) break;
+        //refreshCount = 0;
 
         for (int p = 0; p < loop; p++) // up 1024
         {
-            if (cc >= length) break;
+            //if (refreshCount >= length) break;
             for (int s = 0; s < count; s++)
             {
-                cc++;
-            //int serial = s * loop;
-            //    int fid = serial + p;
-             //   if (flagPtrs[fid] == 0) continue;
+                if (refreshCount >= numberSortedLists)
+                {
+                    // Looping through all lists; no further insertion;
+                    // The current stored are the smallest k values
+                    return tail->value;
+                    break;
+                }
 
                 int sid = extras == 0 ? stockIDs[s] : extras;
                 value = price(sid, p * increasePeriod + i);
-                if (length <= k)
+                if (length <= kSmallest)
                 {
-                    // the list is not completed, insert the element update length
+                    // the stored list is not completed, insert the element update length
                     // start from self flag or head
                     Node* newOne = malloc(sizeof(Node));
                     newOne->value = value;
 
-                   // Node* ptr = flagPtrs[fid] == dummy ? head : flagPtrs[fid];
                     Node *ptr = head;
                     if (ptr == 0)
                     {
@@ -152,30 +155,63 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long k)
                                 ptr->prev = newOne;
                                 newOne->next = ptr;
                             }
-
                         }
                     }
-                 //   flagPtrs[fid] = newOne;
                     length++;
-                    if (length > k)
-                    {
-                        // remove tail to maintain length k smallest values
-                        Node* newTail = tail->prev;
-                        newTail->next = 0;
-                        tail = newTail;
-                    }
                 }
                 else
                 {
-                    // 
+                    // the k-smallest stored list is full
+                    // check whether the value can be inserted into the stored list
                     if (value >= tail->value)
                     {
-                        // set flag = 0
-             //           flagPtrs[fid] = 0;
-                        continue;
+                        // large than the largest vlaue of the stored list; discard this
+                        // value add count traverse once
+                        refreshCount++;
                     }
+                    else
+                    {
+                        // Add this value to the stored list and expel the largest node
+                        Node* ptr = head;                     // search to the right sorted place
+                        while (ptr != 0 && value > ptr->value) ptr = ptr->next;
+                        if (ptr == 0) // tail
+                        {
+                            // tail; simply replace value; no any pointer redirection
+                            ptr->value = value;
+                        }
+                        else // head or middle
+                        {
+                            // Since tail is to be discarded;
+                           // We store the value to tail
+                            Node* newOne = tail;
+                            tail = tail->prev; // discard tail
+                            tail->next = 0;
+                            newOne->value = value;
+                            // Insert in front of ptr middle
+                            Node* prev = ptr->prev;
+                           if (prev == 0) // head
+                            {
+                                // new head
+                                head = newOne;
+                                newOne->prev = 0;
+                                ptr->prev = newOne;
+                                newOne->next = ptr;
+                            }
+                            else // middle
+                            {
+                                prev->next = newOne;
+                                newOne->prev = prev;
+                                ptr->prev = newOne;
+                                newOne->next = ptr;
+                            }
+
+                        }
+                        // Since a new small values is stored, reset the refresh counter to try another traverse.
+                        refreshCount = 1;
+                    }                
                 }
             }
+
         }
     }
     return tail->value;
