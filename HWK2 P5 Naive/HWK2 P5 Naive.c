@@ -68,7 +68,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
     unsigned long long value;
     int loop = ceil(pow(10, 9) / increasePeriod);
     Node** flagPtrs;
-    int numberSortedLists = count * loop;
+    int numberSortedLists = count * increasePeriod;
 
     // A stock is divided into loop sub-lists, which are sorted lists
     // So totally there are loop * count sorted list
@@ -85,7 +85,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
     int refreshCount = 0;
     int length = 0;
     int done = 0;
-    for (int i = 0; i < kSmallest; i++) // up 10^6
+    for (int i = 0; i < loop; i++) // up 10^6
     {
         // each step read in the i-th element of each sub-stock line;
         // simply discard the element (value > answer) and set stop flag of that line; 
@@ -93,10 +93,10 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
         //if (length >= kSmallest) break;
         //refreshCount = 0;
 
-        for (int p = 0; p < loop; p++) // up 1024
-        {
             //if (refreshCount >= length) break;
-            for (int s = 0; s < count; s++)
+        for (int s = 0; s < count; s++)
+        {
+            for (int p = 0; p < increasePeriod; p++) // up 1024
             {
                 if (refreshCount >= numberSortedLists)
                 {
@@ -207,7 +207,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
 
                         }
                         // Since a new small values is stored, reset the refresh counter to try another traverse.
-                        refreshCount = 1;
+                        if(i != loop-1) refreshCount = 1;
                     }                
                 }
             }
@@ -229,7 +229,7 @@ void main()
     char answer[80];
 
     // filePtr = fopen(fileName1, "r");
-    filePtr = fopen(fileName1, "r");
+    filePtr = fopen(fileName2, "r");
     // filePtr = fopen(fileName4, "r");
     // filePtr = fopen(fileName3, "r");
 
@@ -244,11 +244,12 @@ void main()
     {
         fscanf(filePtr, "%d %d", &extra, &kSweet);
 
+         printf("Query %d (s=%d,k=%d) => answer =",j,extra, kSweet );
         unsigned long long answer = method1DoubleLinkedList(extra, kSweet);
- 
-         printf("%u\n", answer);
-    }
+        printf(" %u\n",  answer);
 
+    }
+    printf("Done! Check answer ...\n");
     fscanf(filePtr, "%s", answer);
     printf( "%s\n", answer);
     unsigned long long g;
