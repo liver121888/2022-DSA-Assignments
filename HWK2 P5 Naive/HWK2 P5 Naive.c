@@ -341,6 +341,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
 
 typedef struct pollNode
 {
+    unsigned int count;
     unsigned long long value;
     unsigned long long stockID;
     unsigned long long seqID;
@@ -395,11 +396,11 @@ unsigned long long method3PoolFiltering( unsigned long long kSweet)
 {
     PoolNode* head;
     unsigned long long k = 1;
+
     while (k != kSweet)
     {
-        // The increased-sublist with the smallest value move to the next value
-        sortedNodes[0]->seqID++;
-        unsigned long long v =  price(sortedNodes[0]->stockID, sortedNodes[0]->seqID);
+        sortedNodes[0]->seqID += increasePeriod;
+        unsigned long long v = price(sortedNodes[0]->stockID, sortedNodes[0]->seqID);
         sortedNodes[0]->value = v;
         head = sortedNodes[0];
         int done = 0;
@@ -418,6 +419,7 @@ unsigned long long method3PoolFiltering( unsigned long long kSweet)
         }
         if (!done) sortedNodes[increasePeriod * activeNumber - 1] = head;
         k++;
+
     }
  
     
@@ -445,10 +447,10 @@ void main()
 
     char answer[80];
 
- //  filePtr = fopen(fileName1, "r");
-  //  filePtr = fopen(fileName2, "r");
-    //   filePtr = fopen(fileName3, "r");
-     filePtr = fopen(fileName4, "r");
+   // filePtr = fopen(fileName1, "r");
+ //  filePtr = fopen(fileName2, "r");
+ //     filePtr = fopen(fileName3, "r");
+      filePtr = fopen(fileName4, "r");
 
     fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
     stockIDs = malloc((numOfStocks )* sizeof(unsigned long long));
@@ -460,7 +462,6 @@ void main()
     {
         fscanf(filePtr, "%llu", &id); // or %I64u
         stockIDs[i] = id;
-        //fscanf(filePtr, "%u", &stockIDs[i]);
         activeIDs[i] = stockIDs[i];
     }
 
@@ -488,7 +489,7 @@ void main()
             {
                 sortedNodes[c] = malloc(sizeof(PoolNode));
                 sortedNodes[c]->stockID = activeIDs[s];
-                sortedNodes[c]->seqID = 1 + p * increasePeriod;
+                sortedNodes[c]->seqID = p + 1; // 1 + p * increasePeriod;
                 sortedNodes[c]->value = price(sortedNodes[c]->stockID, sortedNodes[c]->seqID);
                 c++;
             }
@@ -509,7 +510,7 @@ void main()
         unsigned long long answer = method3PoolFiltering( kSweet );
 
          printf("Query %d  s=%llu, k=%llu  => answer = %llu = %llu \n",j, extra, kSweet, answer, price(sortedNodes[0]->stockID, sortedNodes[0]->seqID ) );
-       // printf(" %llu\n",  answer);
+
     }
 
     printf("Done! Check answer ...\n");
