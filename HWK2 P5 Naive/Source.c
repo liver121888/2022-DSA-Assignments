@@ -1,5 +1,5 @@
 // Checking if a binary tree is height balanced in C
-
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #define bool int
@@ -58,3 +58,4 @@ int amain() {
     else
         printf("The tree is not balanced");
 }
+*/

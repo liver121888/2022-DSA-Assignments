@@ -1,0 +1,53 @@
+(1.1) 字元/字串
+
+   %c, %C : 字元,  char c;
+       %s : 字元陣列, char buffer[MAX_PATH];
+       %S : 字元陣列(Unicode), wchar buffer[MAX_PATH];
+
+(1.2) 整數
+
+     %d, %i : 10進制整數  , int x; [lemma] 
+         %u : 10進制無號數, unsigned int x;
+         %o : 8進制無號數,  unsigned int x;
+     %x, %X : 16進制無號數, unsigned int x;
+%lld, %I64d : long long int, __int64 輸入型態 (for MSVC)
+%ull, %I64u : unsigned long long int  輸入型態
+
+[lemma] %d : dec; %i : integer，於 scanf 時有部份差異 (%d 只接受10進位, %i 可接受指定進位，如 0x23, 045)，但於 printf 時 %d, %i 並無顯著差異 (感謝 Jacob Lee 補充指導)
+
+(1.3) 浮點數
+
+   %e, %E : 浮點數使用科學符號表示之,指數將帶正負號, float x,doubley;
+       %f : 單精度浮點數(預設輸出精度6位), float x;
+      %lf : 倍精度浮點數(預設輸出精度6位), double x;
+%llf, %LF : 雙倍精度浮點數(預設輸出精度6位), long double x;
+   %g, %G : 由系統決定是否採科學符號表示。
+
+ 
+
+
+
+2. 寬度 ( %[*][寬度][長度修飾]資料型態 ) 選填欄位net
+
+ 
+
+           指定一次最多可讀多少字元進來。
+
+3. 長度修飾 ( %[*][寬度][長度修飾]資料型態) 選填欄位
+
+      %h : 將數字視為 short int (%hd, %hi) 或 unsigned int (%hu),
+           此修飾只對整數型態之 %hi, %hd, %ho, %hu, %hx, %hX 有效。
+      %l : 將數字視為 long  int (%ld, %li) 
+           或 unsigned long int (%lu, %lo, %lx, %lX) 
+           或 double (%le, %lf, %lg)
+      %L : 此修飾只對浮點數型態之 long double 有效, 可用於修飾
+           %Le, %LE, %Lf, %Lg, %LG。
+
+ 
+
+4. * (  %[*][寬度][長度修飾]資料型態 ) 選填欄位 
+
+     只讀取該變數，但不儲存下來。ex:
+     int a1, a2, a4;
+     scanf("%d%d%d%*d%d", &a1, &a2, &a4);
+     若使用者輸入 1 2 3 4，則 1 設給 a1; 2 設給 a2; 3則配到 %*d, 故不儲存; 4 則設給 a4。

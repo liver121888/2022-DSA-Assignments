@@ -7,20 +7,17 @@
 #include<math.h>
 
 
+/*
 typedef struct bstNode
 {
     unsigned long long price;
     struct bstNode *left;
     struct bstNode* right;
 } BstNode;
-
-
-
 struct bstNode* balanceBST(struct bstNode* root) 
 {
 
 }
-
 void InsertAPrice(unsigned long long p, BstNode *stock)
 {
     if (stock == 0)
@@ -42,24 +39,12 @@ void InsertAPrice(unsigned long long p, BstNode *stock)
         }
     }
 }
-
-//BstNode* stocks;
-
-int numOfStocks, numQuery, increasePeriod, kSweet, extra, activeNumber;
-unsigned int* stockIDs,*activeIDs;
-unsigned long long* firstValues;
-//unsigned long
-char answer[80];
-FILE* filePtr;
-
-
 typedef struct node
 {
-    unsigned long long value;
-    struct node* next;
     struct node* prev;
+    struct node* next;
+    long long value;
 } Node;
-
 void showList(Node* h)
 {
     Node* ptr = h;
@@ -70,7 +55,6 @@ void showList(Node* h)
     }
     printf("\n");
 }
-
 void CorrectQuickSort(int p, int r)
 {
     if (p >= r) return;
@@ -79,7 +63,7 @@ void CorrectQuickSort(int p, int r)
     int i = p - 1;
     unsigned int temp;
     unsigned long long tempV;
-    for( int j = p; j <= r-1; j++)
+    for (int j = p; j <= r - 1; j++)
         if (firstValues[j] <= x)
         {
             // extend
@@ -107,22 +91,20 @@ void CorrectQuickSort(int p, int r)
     //printf("\n");
 
     CorrectQuickSort(p, i - 1);
-    CorrectQuickSort(i+1, r);
+    CorrectQuickSort(i + 1, r);
 }
-
-
-void quicksort( int left, int right) // 輸入資料，和從兩邊開始的位置
+void WrongQuicksort(int left, int right) // 輸入資料，和從兩邊開始的位置
 {
     if (left >= right) return; // 如果左邊大於右邊，就跳出function
     int i = left; // 左邊的代理人
     int j = right; // 右邊的代理人
-    unsigned long long key = firstValues[ left]; // 基準點
+    unsigned long long key = firstValues[left]; // 基準點
     int temp;
     unsigned long long tempV;
-    while (i!=j)
+    while (i != j)
     {
-        while ( i < j && firstValues[j]  > key ) j--;  // 從右邊開始找，找比基準點小的值
-        while (i < j && firstValues[i]  <= key) i++; // 從左邊開始找，找比基準點大的值
+        while (i < j && firstValues[j]  > key) j--;  // 從右邊開始找，找比基準點小的值
+        while (i < j && firstValues[i] <= key) i++; // 從左邊開始找，找比基準點大的值
         if (i < j) // 當左右代理人沒有相遇時，互換值
         {
             temp = activeIDs[i];
@@ -148,22 +130,20 @@ void quicksort( int left, int right) // 輸入資料，和從兩邊開始的位�
     quicksort(activeIDs, left, i - 1);   // 繼續處理較小部分的子循環
     quicksort(activeIDs, i + 1, right); //  繼續處理較大部分的子循環
 }
-
-
 unsigned long long method2TraverseFromSmallestAndCountTraversed(long long  extras, long long kSmallest)
 {
     int count = 0;
     int batchsize = activeNumber * increasePeriod;
     int loop;
     unsigned long long value, nextValue;
-    for (loop = 0; 1 ; loop++) // Carry out one batch traverse
+    for (loop = 0; 1; loop++) // Carry out one batch traverse
     {
         for (int p = 1; p <= increasePeriod; p++) // up 1024
         {
             for (int s = 0; s < activeNumber; s++)
             {
                 int pid = loop * increasePeriod + p;
-                if (s == 0) value = price(activeIDs[s],pid );
+                if (s == 0) value = price(activeIDs[s], pid);
                 else  value = nextValue;
 
                 if (s != activeNumber - 1)
@@ -183,14 +163,10 @@ unsigned long long method2TraverseFromSmallestAndCountTraversed(long long  extra
                 printf("%d = %u \n", count, value);
             }
         }
-    } 
+    }
 
     return 0;
 }
-
-
-
-
 // The following does not work!
 // A stock is divided into N sub-lists. Totally there are (|A|+1)N = M sorted lists
 // Repeatedly traverse M lists and update a doubly linked sorted list L of M so-far largest values.
@@ -213,7 +189,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
 
     int traversedCount = 0;
     int loop;
-    for (loop = 0; traversedCount < kSmallest; loop++ ) // Carry out one batch traverse
+    for (loop = 0; traversedCount < kSmallest; loop++) // Carry out one batch traverse
     {
         for (int s = 0; s < count; s++)
         {
@@ -224,7 +200,7 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
                 value = price(sid, p * increasePeriod + loop);
 
 
-                if (loop==0)
+                if (loop == 0)
                 {
                     // Build the doubly linked list.
                     // start from self flag or head
@@ -286,52 +262,52 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
                         // smaller or equal to the smallest value
                         continue;
                     }
-                   // head is to be discarded, but memory is used to store the new value
-                   newOne = head;
-                   // Store the new value
-                   newOne->value = value;
+                    // head is to be discarded, but memory is used to store the new value
+                    newOne = head;
+                    // Store the new value
+                    newOne->value = value;
 
 
 
-                   if (ptr == 0) // tail
-                   {
-                       // discard head and update the pointer
-                       if (head->next)
-                       {
-                           head = head->next;
-                           head->prev = 0; // head prev must be 0
-                       }
-                       // new tail
-                       tail->next = newOne;
-                       newOne->prev = tail;
-                       tail = newOne;
-                       tail->next = 0; // tail next must be 0
-                   }
-                   else // Insert in front of ptr; value smaller than or equal to ptr
-                   {
-                       prev = ptr->prev; // store previous pointer
-                       if (prev == head || prev == 0)
-                       {
-                           // No head update
-                       }
-                       else
-                       {
-                           if (prev)
-                           {
+                    if (ptr == 0) // tail
+                    {
+                        // discard head and update the pointer
+                        if (head->next)
+                        {
+                            head = head->next;
+                            head->prev = 0; // head prev must be 0
+                        }
+                        // new tail
+                        tail->next = newOne;
+                        newOne->prev = tail;
+                        tail = newOne;
+                        tail->next = 0; // tail next must be 0
+                    }
+                    else // Insert in front of ptr; value smaller than or equal to ptr
+                    {
+                        prev = ptr->prev; // store previous pointer
+                        if (prev == head || prev == 0)
+                        {
+                            // No head update
+                        }
+                        else
+                        {
+                            if (prev)
+                            {
 
-                               // discard head and update the pointer
-                               if (head->next)
-                               {
-                                   head = head->next;
-                                   head->prev = 0; // head prev must be 0
-                               }
-                               prev->next = newOne;
-                               newOne->prev = prev;
-                               ptr->prev = newOne;
-                               newOne->next = ptr;
-                           }
-                       }
-                   }
+                                // discard head and update the pointer
+                                if (head->next)
+                                {
+                                    head = head->next;
+                                    head->prev = 0; // head prev must be 0
+                                }
+                                prev->next = newOne;
+                                newOne->prev = prev;
+                                ptr->prev = newOne;
+                                newOne->next = ptr;
+                            }
+                        }
+                    }
 
                     showList(head);
                 }
@@ -359,10 +335,108 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
     }
     return ptr->value;
 }
+*/
 
+
+
+typedef struct pollNode
+{
+    unsigned long long value;
+    unsigned long long stockID;
+    unsigned long long seqID;
+} PoolNode;
+
+
+
+PoolNode** sortedNodes;
+
+int numOfStocks, numQuery, increasePeriod, activeNumber;
+unsigned long long kSweet, extra;
+unsigned long long* stockIDs,*activeIDs;
+
+
+//unsigned long long* firstValues;
+//unsigned long
+char answer[80];
+FILE* filePtr;
+
+
+void NodeQuickSort(int left, int right)
+{
+    if (left >= right) return ;
+    unsigned long long key = sortedNodes[right]->value; // last element is the pivot
+    // i: left upper bound
+    int i = left - 1;
+    PoolNode* temp;
+    for (int j = left; j <= right - 1; j++)
+        if (sortedNodes[j]->value <= key)
+        {
+            // extend
+            i++;
+            // move element j to left part
+            temp = sortedNodes[i];
+            sortedNodes[i] = sortedNodes[j];
+            sortedNodes[j] = temp;
+        }
+    // extend 
+    i++;
+    // insert the pivot between
+    temp = sortedNodes[i];
+    sortedNodes[i] = sortedNodes[right];
+    sortedNodes[right] = temp;
+
+    NodeQuickSort(left, i - 1);
+    NodeQuickSort(i + 1, right);
+}
+
+
+
+unsigned long long method3PoolFiltering( unsigned long long kSweet)
+{
+    PoolNode* head;
+    unsigned long long k = 1;
+    while (k != kSweet)
+    {
+        // The increased-sublist with the smallest value move to the next value
+        sortedNodes[0]->seqID++;
+        unsigned long long v =  price(sortedNodes[0]->stockID, sortedNodes[0]->seqID);
+        sortedNodes[0]->value = v;
+        head = sortedNodes[0];
+        int done = 0;
+        for (int i = 1; i < increasePeriod * activeNumber; i++)
+        {
+            if (sortedNodes[i]->value < v)
+            {
+                sortedNodes[i - 1] = sortedNodes[i];
+            }
+            else
+            {
+                sortedNodes[i - 1] = head;
+                done = 1;
+                break;
+            }
+        }
+        if (!done) sortedNodes[increasePeriod * activeNumber - 1] = head;
+        k++;
+    }
+ 
+    
+    unsigned long long sid = sortedNodes[0]->stockID;
+    unsigned long long qid = sortedNodes[0]->seqID;
+    unsigned long long vvv = sortedNodes[0]->value;
+    printf("(%llu,%llu)=%llu \n", sid,qid,vvv);
+ //   printf("%d smallest found at stock %llu seq %llu = %llu\n", kSweet, sortedNodes[0]->stockID, sortedNodes[0]->seqID , sortedNodes[0]->value);
+
+    return sortedNodes[0]->value;
+}
 
 void main()
 {
+    printf("Size of int = %d\n", sizeof(int));
+    printf("Size of unsigned int = %d\n", sizeof(unsigned int));
+    printf("Size of long = %d\n", sizeof(long ));
+    printf("Size of long int = %d\n", sizeof(long int));
+    printf("Size of long long = %d\n\n\n", sizeof(long long));
 
     char fileName1[] = "..\\HWK2 Samples\\p5sample1.txt";
     char fileName2[] = "..\\HWK2 Samples\\p5sample2.txt";
@@ -371,25 +445,32 @@ void main()
 
     char answer[80];
 
-  //   filePtr = fopen(fileName1, "r");
-    filePtr = fopen(fileName2, "r");
-    // filePtr = fopen(fileName4, "r");
-    // filePtr = fopen(fileName3, "r");
+ //  filePtr = fopen(fileName1, "r");
+  //  filePtr = fopen(fileName2, "r");
+    //   filePtr = fopen(fileName3, "r");
+     filePtr = fopen(fileName4, "r");
 
     fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
-    stockIDs = malloc((numOfStocks )* sizeof(unsigned int));
-    activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned int));
-    firstValues = malloc((numOfStocks + 1) * sizeof(unsigned long long));
+    stockIDs = malloc((numOfStocks )* sizeof(unsigned long long));
+    activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned long long));
+    sortedNodes = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
 
+    unsigned long long id = 0;
     for (int i = 0; i < numOfStocks; i++)
     {
-        fscanf(filePtr, "%d", &stockIDs[i]);
-        firstValues[i] = price(stockIDs[i], 1);
+        fscanf(filePtr, "%llu", &id); // or %I64u
+        stockIDs[i] = id;
+        //fscanf(filePtr, "%u", &stockIDs[i]);
+        activeIDs[i] = stockIDs[i];
     }
+
+    unsigned long long ee = 0, kk = 0;
 
     for (int j = 0; j < numQuery; j++)
     {
-        fscanf(filePtr, "%d %d", &extra, &kSweet);
+        fscanf(filePtr, "%llu %llu", &ee, &kk);
+        kSweet = kk;
+        extra = ee;
         if (extra == 0)
         {
             activeNumber = numOfStocks;
@@ -397,41 +478,48 @@ void main()
         else
         {
             activeNumber = numOfStocks + 1;
-            stockIDs[numOfStocks] = extra;
-            firstValues[numOfStocks] = price(extra, 1);
+            activeIDs[numOfStocks] = extra;
         }
-        for (int i = 0; i < activeNumber; i++)
-            activeIDs[i] = stockIDs[i];
+ 
+        // Create Node array
+        int c = 0;
+        for( int s = 0; s < activeNumber; s++)
+            for (int p = 0; p < increasePeriod; p++)
+            {
+                sortedNodes[c] = malloc(sizeof(PoolNode));
+                sortedNodes[c]->stockID = activeIDs[s];
+                sortedNodes[c]->seqID = 1 + p * increasePeriod;
+                sortedNodes[c]->value = price(sortedNodes[c]->stockID, sortedNodes[c]->seqID);
+                c++;
+            }
 
-        // Sort the stockIDs based on their first values
-        for (int i = 0; i < activeNumber; i++)
-            printf("%d = %d ", activeIDs[i], firstValues[i]);
-        printf("\n");
+        //printf("k = 0 " );
+        //for (int i = 0; i < activeNumber * increasePeriod; i++)
+        //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
+        //printf("\n");
 
-       // quicksort( 0, activeNumber-1);
-        CorrectQuickSort(0, activeNumber - 1);
+        NodeQuickSort(0, activeNumber * increasePeriod - 1);
 
-        for (int i = 0; i < activeNumber; i++)
-            printf("%d = %d ", activeIDs[i], firstValues[i]);
-        printf("\n");
-
-        //unsigned long long answer = method1DoubleLinkedList(extra, kSweet);
-        unsigned long long answer = method2TraverseFromSmallestAndCountTraversed(extra, kSweet);
-         printf("Query %d (s=%d,k=%d) => answer =",j,extra, kSweet );
-        printf(" %u\n",  answer);
+        //printf("k = 1 " );
+        //for (int i = 0; i < activeNumber * increasePeriod; i++)
+        //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
+        //printf("\n");
 
 
+        unsigned long long answer = method3PoolFiltering( kSweet );
 
+         printf("Query %d  s=%llu, k=%llu  => answer = %llu = %llu \n",j, extra, kSweet, answer, price(sortedNodes[0]->stockID, sortedNodes[0]->seqID ) );
+       // printf(" %llu\n",  answer);
     }
+
     printf("Done! Check answer ...\n");
     fscanf(filePtr, "%s", answer);
     printf( "%s\n", answer);
-    unsigned long long g;
+ 
     for (int j = 0; j < numQuery; j++)
     {
-        fscanf(filePtr, "%u", &g );
- 
-        printf("%u\n", g );    
+        fscanf(filePtr, "%s", answer);
+        printf("%s\n", answer);
     }
     fclose(filePtr);
 
