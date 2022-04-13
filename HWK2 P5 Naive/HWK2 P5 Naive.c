@@ -341,10 +341,9 @@ unsigned long long method1DoubleLinkedList(long long  extras, long long kSmalles
 
 typedef struct pollNode
 {
-    unsigned int count;
     unsigned long long value;
-    unsigned long long stockID;
-    unsigned long long seqID;
+    unsigned long long stockID; // unsigned int should be OK to save memory
+    unsigned long long seqID;   //sequence index;  unsigned int should be OK to save memory
 } PoolNode;
 
 
@@ -450,78 +449,84 @@ void main()
    // filePtr = fopen(fileName1, "r");
  //  filePtr = fopen(fileName2, "r");
  //     filePtr = fopen(fileName3, "r");
-      filePtr = fopen(fileName4, "r");
-
-    fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
-    stockIDs = malloc((numOfStocks )* sizeof(unsigned long long));
-    activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned long long));
-    sortedNodes = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
-
-    unsigned long long id = 0;
-    for (int i = 0; i < numOfStocks; i++)
-    {
-        fscanf(filePtr, "%llu", &id); // or %I64u
-        stockIDs[i] = id;
-        activeIDs[i] = stockIDs[i];
-    }
-
-    unsigned long long ee = 0, kk = 0;
-
-    for (int j = 0; j < numQuery; j++)
-    {
-        fscanf(filePtr, "%llu %llu", &ee, &kk);
-        kSweet = kk;
-        extra = ee;
-        if (extra == 0)
-        {
-            activeNumber = numOfStocks;
-        }
-        else
-        {
-            activeNumber = numOfStocks + 1;
-            activeIDs[numOfStocks] = extra;
-        }
  
-        // Create Node array
-        int c = 0;
-        for( int s = 0; s < activeNumber; s++)
-            for (int p = 0; p < increasePeriod; p++)
+    for (int f = 1; f <= 4; f++)
+    {
+        sprintf(answer, "..\\HWK2 Samples\\p5sample%d.txt", f);
+        filePtr = fopen(answer, "r");
+        printf("\nBenchmark file: %s\n", answer);
+
+        fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
+        stockIDs = malloc((numOfStocks) * sizeof(unsigned long long));
+        activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned long long));
+        sortedNodes = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
+
+        unsigned long long id = 0;
+        for (int i = 0; i < numOfStocks; i++)
+        {
+            fscanf(filePtr, "%llu", &id); // or %I64u
+            stockIDs[i] = id;
+            activeIDs[i] = stockIDs[i];
+        }
+
+        unsigned long long ee = 0, kk = 0;
+
+        for (int j = 0; j < numQuery; j++)
+        {
+            fscanf(filePtr, "%llu %llu", &ee, &kk);
+            kSweet = kk;
+            extra = ee;
+            if (extra == 0)
             {
-                sortedNodes[c] = malloc(sizeof(PoolNode));
-                sortedNodes[c]->stockID = activeIDs[s];
-                sortedNodes[c]->seqID = p + 1; // 1 + p * increasePeriod;
-                sortedNodes[c]->value = price(sortedNodes[c]->stockID, sortedNodes[c]->seqID);
-                c++;
+                activeNumber = numOfStocks;
+            }
+            else
+            {
+                activeNumber = numOfStocks + 1;
+                activeIDs[numOfStocks] = extra;
             }
 
-        //printf("k = 0 " );
-        //for (int i = 0; i < activeNumber * increasePeriod; i++)
-        //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
-        //printf("\n");
+            // Create Node array
+            int c = 0;
+            for (int s = 0; s < activeNumber; s++)
+                for (int p = 0; p < increasePeriod; p++)
+                {
+                    sortedNodes[c] = malloc(sizeof(PoolNode));
+                    sortedNodes[c]->stockID = activeIDs[s];
+                    sortedNodes[c]->seqID = p + 1; // 1 + p * increasePeriod;
+                    sortedNodes[c]->value = price(sortedNodes[c]->stockID, sortedNodes[c]->seqID);
+                    c++;
+                }
 
-        NodeQuickSort(0, activeNumber * increasePeriod - 1);
+            //printf("k = 0 " );
+            //for (int i = 0; i < activeNumber * increasePeriod; i++)
+            //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
+            //printf("\n");
 
-        //printf("k = 1 " );
-        //for (int i = 0; i < activeNumber * increasePeriod; i++)
-        //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
-        //printf("\n");
+            NodeQuickSort(0, activeNumber * increasePeriod - 1);
+
+            //printf("k = 1 " );
+            //for (int i = 0; i < activeNumber * increasePeriod; i++)
+            //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
+            //printf("\n");
 
 
-        unsigned long long answer = method3PoolFiltering( kSweet );
+            unsigned long long answer = method3PoolFiltering(kSweet);
 
-         printf("Query %d  s=%llu, k=%llu  => answer = %llu = %llu \n",j, extra, kSweet, answer, price(sortedNodes[0]->stockID, sortedNodes[0]->seqID ) );
+            printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer );
 
-    }
+        }
 
-    printf("Done! Check answer ...\n");
-    fscanf(filePtr, "%s", answer);
-    printf( "%s\n", answer);
- 
-    for (int j = 0; j < numQuery; j++)
-    {
+        printf("Done! Check answer ...\n");
         fscanf(filePtr, "%s", answer);
         printf("%s\n", answer);
+
+        for (int j = 0; j < numQuery; j++)
+        {
+            fscanf(filePtr, "%s", answer);
+            printf("%s\n", answer);
+        }
+        fclose(filePtr);
     }
-    fclose(filePtr);
 
 }
