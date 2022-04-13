@@ -211,13 +211,14 @@ void main()
         for (int i = 0; i < Q; i++)
         {
             fscanf(filePtr, "%d", &start);
+            printf("\n");
 
             int ans = method1(start);
 
-            printf("Query%d answer = %d\n", start, ans);
+            printf("Query%d answer = %d\n", i+1, ans);
         }
 
-        printf("Done! Check answer ...\n");
+        printf("\nDone! Check answer ...\n");
 
         fscanf(filePtr, "%s", answer);
         printf("%s\n", answer);
