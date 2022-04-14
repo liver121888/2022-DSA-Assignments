@@ -38,7 +38,7 @@ int main()
 
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW1\\HW1\\hw1_testdata\\P5\\1.in", "r");
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW2\\HW2\\hw2_testdata\\P5\\0.in", "r");
 		r = fscanf(ptr, "%d %d %d", &WCNumber, &SituationNumber, &GroupNumber);
 	}
 	else
