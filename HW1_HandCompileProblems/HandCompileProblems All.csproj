@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="HWK2 hand compilation work.docx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HW1 Problem1-3.txt" />

@@ -21,7 +21,7 @@ typedef struct  arc
 
 char answer[80];
 FILE* filePtr;
-Arc** arcs;
+Arc* arcs;
 int* eulerArray, * depthArray;
 int arrayIndex;
 int N, Q, S, R, Nm1;
@@ -137,16 +137,16 @@ void TraverseTreeToConstructArray(int parent, int target)
     // loop through all arcs; if time longer than judge acceptance, build a map 
     for (int a = 0; a < Nm1; a++)
     {
-        if (arcs[a]->first == target && arcs[a]->second != parent)
+        if (arcs[a].first == target && arcs[a].second != parent)
         {
             level++;
-            TraverseTreeToConstructArray(target, arcs[a]->second);
+            TraverseTreeToConstructArray(target, arcs[a].second);
             level--;
         }
-        else if (arcs[a]->second == target && arcs[a]->first != parent)
+        else if (arcs[a].second == target && arcs[a].first != parent)
         {
             level++;
-            TraverseTreeToConstructArray(target, arcs[a]->first);
+            TraverseTreeToConstructArray(target, arcs[a].first);
             level--;
         }
     }
@@ -195,7 +195,7 @@ void main()
         fscanf(filePtr, "%d %d %d %d", &N, &Q, &S, &R);
 
         Nm1 = N - 1;
-        arcs = malloc(Nm1 * sizeof(Arc*));
+        arcs = malloc(Nm1 * sizeof(Arc));
         eulerArray = malloc((N * 2 - 1) * sizeof(int));
         depthArray = malloc((N * 2 - 1) * sizeof(int));
 
@@ -204,9 +204,9 @@ void main()
         for (int i = 0; i < N - 1; i++)
         {
             fscanf(filePtr, "%d %d", &from, &to);
-            arcs[i] = malloc(sizeof(Arc));
-            arcs[i]->first = from;
-            arcs[i]->second = to;
+            //arcs[i] = malloc(sizeof(Arc));
+            arcs[i].first = from;
+            arcs[i].second = to;
         }
         for (int i = 0; i < Q; i++)
         {

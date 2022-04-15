@@ -347,7 +347,7 @@ typedef struct pollNode
 } PoolNode;
 
 
-
+// Instead of using an object array whose orders are fixed, use pointer array for easier sorting (altering their orders)
 PoolNode** sortedNodes;
 
 int numOfStocks, numQuery, increasePeriod, activeNumber;

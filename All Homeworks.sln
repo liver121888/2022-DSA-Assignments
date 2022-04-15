@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HW1_Calculator", "HW1_Calcu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HW1_DoubleLinkedQueues", "HW1_LinkedQueueOrTree\HW1_LinkedQueueOrTree.vcxproj", "{1CFBCE41-3F8D-437D-B5BA-34C90190F743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HW1_HandCompileProblems", "HW1_HandCompileProblems\HW1_HandCompileProblems.csproj", "{BE51929A-C0AF-45E3-A2DA-5C2953D703EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandCompileProblems All", "HW1_HandCompileProblems\HandCompileProblems All.csproj", "{BE51929A-C0AF-45E3-A2DA-5C2953D703EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComplexityCurves", "ComplexityCurves\ComplexityCurves.csproj", "{0ADD2B0E-3838-4AD0-8661-D92A9D4E8ADC}"
 EndProject
