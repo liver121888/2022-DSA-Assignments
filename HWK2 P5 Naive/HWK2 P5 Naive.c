@@ -348,7 +348,7 @@ typedef struct pollNode
 
 
 // Instead of using an object array whose orders are fixed, use pointer array for easier sorting (altering their orders)
-PoolNode** sortedNodes;
+PoolNode** heapArray;
 
 int numOfStocks, numQuery, increasePeriod, activeNumber;
 unsigned long long kSweet, extra;
@@ -364,26 +364,26 @@ FILE* filePtr;
 void NodeQuickSort(int left, int right)
 {
     if (left >= right) return ;
-    unsigned long long key = sortedNodes[right]->value; // last element is the pivot
+    unsigned long long key = heapArray[right]->value; // last element is the pivot
     // i: left upper bound
     int i = left - 1;
     PoolNode* temp;
     for (int j = left; j <= right - 1; j++)
-        if (sortedNodes[j]->value <= key)
+        if (heapArray[j]->value <= key)
         {
             // extend
             i++;
             // move element j to left part
-            temp = sortedNodes[i];
-            sortedNodes[i] = sortedNodes[j];
-            sortedNodes[j] = temp;
+            temp = heapArray[i];
+            heapArray[i] = heapArray[j];
+            heapArray[j] = temp;
         }
     // extend 
     i++;
     // insert the pivot between
-    temp = sortedNodes[i];
-    sortedNodes[i] = sortedNodes[right];
-    sortedNodes[right] = temp;
+    temp = heapArray[i];
+    heapArray[i] = heapArray[right];
+    heapArray[right] = temp;
 
     NodeQuickSort(left, i - 1);
     NodeQuickSort(i + 1, right);
@@ -391,44 +391,44 @@ void NodeQuickSort(int left, int right)
 
 
 
-unsigned long long method3PoolFiltering( unsigned long long kSweet)
+unsigned long long SequentialPoolFiltering( unsigned long long kSweet)
 {
     PoolNode* head;
     unsigned long long k = 1;
 
     while (k != kSweet)
     {
-        sortedNodes[0]->seqID += increasePeriod;
-        unsigned long long v = price(sortedNodes[0]->stockID, sortedNodes[0]->seqID);
-        sortedNodes[0]->value = v;
-        head = sortedNodes[0];
+        heapArray[0]->seqID += increasePeriod;
+        unsigned long long v = price(heapArray[0]->stockID, heapArray[0]->seqID);
+        heapArray[0]->value = v;
+        head = heapArray[0];
         int done = 0;
         for (int i = 1; i < increasePeriod * activeNumber; i++)
         {
-            if (sortedNodes[i]->value < v)
+            if (heapArray[i]->value < v)
             {
-                sortedNodes[i - 1] = sortedNodes[i];
+                heapArray[i - 1] = heapArray[i];
             }
             else
             {
-                sortedNodes[i - 1] = head;
+                heapArray[i - 1] = head;
                 done = 1;
                 break;
             }
         }
-        if (!done) sortedNodes[increasePeriod * activeNumber - 1] = head;
+        if (!done) heapArray[increasePeriod * activeNumber - 1] = head;
         k++;
 
     }
  
     
-    unsigned long long sid = sortedNodes[0]->stockID;
-    unsigned long long qid = sortedNodes[0]->seqID;
-    unsigned long long vvv = sortedNodes[0]->value;
+    unsigned long long sid = heapArray[0]->stockID;
+    unsigned long long qid = heapArray[0]->seqID;
+    unsigned long long vvv = heapArray[0]->value;
     printf("(%llu,%llu)=%llu \n", sid,qid,vvv);
  //   printf("%d smallest found at stock %llu seq %llu = %llu\n", kSweet, sortedNodes[0]->stockID, sortedNodes[0]->seqID , sortedNodes[0]->value);
 
-    return sortedNodes[0]->value;
+    return heapArray[0]->value;
 }
 
 void main()
@@ -459,7 +459,7 @@ void main()
         fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
         stockIDs = malloc((numOfStocks) * sizeof(unsigned long long));
         activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned long long));
-        sortedNodes = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
+        heapArray = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
 
         unsigned long long id = 0;
         for (int i = 0; i < numOfStocks; i++)
@@ -491,10 +491,10 @@ void main()
             for (int s = 0; s < activeNumber; s++)
                 for (int p = 0; p < increasePeriod; p++)
                 {
-                    sortedNodes[c] = malloc(sizeof(PoolNode));
-                    sortedNodes[c]->stockID = activeIDs[s];
-                    sortedNodes[c]->seqID = p + 1; // 1 + p * increasePeriod;
-                    sortedNodes[c]->value = price(sortedNodes[c]->stockID, sortedNodes[c]->seqID);
+                    heapArray[c] = malloc(sizeof(PoolNode));
+                    heapArray[c]->stockID = activeIDs[s];
+                    heapArray[c]->seqID = p + 1; // 1 + p * increasePeriod;
+                    heapArray[c]->value = price(heapArray[c]->stockID, heapArray[c]->seqID);
                     c++;
                 }
 
@@ -511,7 +511,7 @@ void main()
             //printf("\n");
 
 
-            unsigned long long answer = method3PoolFiltering(kSweet);
+            unsigned long long answer = SequentialPoolFiltering(kSweet);
 
             printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer );
 
