@@ -5,6 +5,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<time.h>
+
 
 
 
@@ -20,7 +22,7 @@ typedef struct poolNode
 // During the operation, only swap the pointers is required
 PoolNode** heapArray;
 
-int numOfStocks, numQuery, increasePeriod, activeNumber;
+int numOfStocks, numQuery, increasePeriod, activeNumber, arraySize;
 unsigned long long kSweet, extra;
 unsigned long long* stockIDs, * activeIDs;
 
@@ -30,17 +32,67 @@ FILE* filePtr;
 
 
 // Construct the first heap array of PollNode according to their values.
+// It will be min heap, where the root is the smallest and all children are larger than their parents.
+// Once completed the root is the smallest node; yet the tree is not sorted!
 void HeapArrayFirstSort()
 {
+    PoolNode* temp;
+    // Start from last parent backward to do min heapify operation
+    for (int parent = arraySize / 2; parent >= 0; parent--)
+    {
+        int parentID = parent;
+        int childID = parentID * 2 + 1;
 
+        while (childID < arraySize) // child is traversed one by one
+        { 
+            // Select the child with the smaller value
+            if (childID + 1 < arraySize && heapArray[childID+1]->value < heapArray[childID]->value)
+                childID++; // second child is smaller than first child
+            if (heapArray[parentID]->value <= heapArray[childID]->value)  
+                break; // Done! Since the parent is smaller or equal to the smaller child
+            else 
+            { 
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                temp = heapArray[parentID];
+                heapArray[parentID] = heapArray[childID];
+                heapArray[childID] = temp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
+            }
+        }
+    }
 }
 
 
+// For debug using. Check whether the heap array is a valid min heap
+int CheckHeapArrayValidity( int printFlag )
+{
+    int cid;
+    for (int pid = 0; pid <= arraySize / 2; pid++)
+    {
+        cid = pid * 2 + 1;
+        if ( cid < arraySize &&  heapArray[pid]->value > heapArray[cid]->value)
+        {
+            if(printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, heapArray[pid]->value, cid, heapArray[cid]->value);
+            return 0;
+        }
+        cid++;
+        if (cid < arraySize && heapArray[pid]->value > heapArray[cid]->value)
+        {
+            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, heapArray[pid]->value, cid, heapArray[cid]->value);
+            return 0;
+        }
+    }
+    if (printFlag)   printf("\nHeap array is OK!!\n");
+    return 1;
+}
 
 
 unsigned long long SequentialPoolFiltering(unsigned long long kSweet)
 {
-    PoolNode* root;
+    PoolNode* temp;
     unsigned long long k = 1;
 
     while (k != kSweet)
@@ -49,31 +101,41 @@ unsigned long long SequentialPoolFiltering(unsigned long long kSweet)
         heapArray[0]->seqID += increasePeriod; // day id jump to next increased day
         unsigned long long v = price(heapArray[0]->stockID, heapArray[0]->seqID); // get upgraded value
         heapArray[0]->value = v; // update value
-        root = heapArray[0];
-        int done = 0;
-        // The root value is upgraded, re-heapify the heap array (b-tree) to have root updated with the smallest value
-        for (int i = 1; i < increasePeriod * activeNumber; i++)
+
+        int parentID = 0; // The root is upgraded
+        int childID = 1;
+        // Top-down min heapify??
+        while (childID < arraySize) // child is traversed one by one
         {
-            if (heapArray[i]->value < v)
+            // Select the child with the smaller value
+            if (childID + 1 < arraySize && heapArray[childID + 1]->value < heapArray[childID]->value )
+                childID++; // second child is smaller than first child
+            if (heapArray[parentID]->value <= heapArray[childID]->value )
             {
-                heapArray[i - 1] = heapArray[i];
+                break; // Done! Since the parent is smaller or equal to the smaller child
             }
             else
             {
-                heapArray[i - 1] = root;
-                done = 1;
-                break;
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                temp = heapArray[parentID];
+                heapArray[parentID] = heapArray[childID];
+                heapArray[childID] = temp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
             }
         }
-        if (!done) heapArray[increasePeriod * activeNumber - 1] = root;
         k++;
+        // Debug
+        //int result = CheckHeapArrayValidity(0);
+        //if(result == 0 )
+        //    printf(" *** Validity Failed at k = %d  \n", k);
 
     }
 
-    unsigned long long sid = heapArray[0]->stockID;
-    unsigned long long qid = heapArray[0]->seqID;
-    unsigned long long vvv = heapArray[0]->value;
-    printf("(%llu,%llu)=%llu \n", sid, qid, vvv);
+
+    printf("  My answer => (%llu,%llu) = %llu \n", heapArray[0]->stockID, heapArray[0]->seqID, heapArray[0]->value);
 
     return heapArray[0]->value;
 }
@@ -87,13 +149,8 @@ void PrintHeapArray()
 
 void main()
 {
-    printf("Size of int = %d\n", sizeof(int));
-    printf("Size of unsigned int = %d\n", sizeof(unsigned int));
-    printf("Size of long = %d\n", sizeof(long));
-    printf("Size of long int = %d\n", sizeof(long int));
-    printf("Size of long long = %d\n\n\n", sizeof(long long));
 
-    printf("  ******************* SMART HEAP SORTING & INSERT METHOD ******************");
+    printf("  ******************* SMART HEAP SORTING & Heap INSERT METHOD ******************\n");
 
     char fileName1[] = "..\\HWK2 Samples\\p5sample1.txt";
     char fileName2[] = "..\\HWK2 Samples\\p5sample2.txt";
@@ -109,6 +166,9 @@ void main()
     for (int f = 1; f <= 4; f++)
     {
         sprintf(answer, "..\\HWK2 Samples\\p5sample%d.txt", f);
+
+        clock_t startTime = clock();
+
         filePtr = fopen(answer, "r");
         printf("\nBenchmark file: %s\n", answer);
 
@@ -145,6 +205,7 @@ void main()
                 activeNumber = numOfStocks + 1;
                 activeIDs[numOfStocks] = extra;
             }
+            arraySize = activeNumber * increasePeriod;
 
             // Create Node array
             int c = 0;
@@ -163,15 +224,19 @@ void main()
 
             // Sort the firstly constructed heap array to get the first round of values.
             HeapArrayFirstSort();
+// Debug            CheckHeapArrayValidity( 1 );
 
-
+            printf("Query %d  s=%llu, k=%llu  => ", j, extra, kSweet);
             unsigned long long answer = SequentialPoolFiltering(kSweet);
 
-            printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer);
+ // Debug           printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer);
 
         }
 
-        printf("Done! Check answer ...\n");
+
+        clock_t endTime = clock();
+        double seconds = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+        printf("Done! Time Used: %f secs.  Check with the correct answers ...\n", seconds );
         fscanf(filePtr, "%s", answer);
         printf("%s\n", answer);
 
