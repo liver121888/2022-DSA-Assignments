@@ -358,18 +358,21 @@ void main()
                 // 
                 int bankIdx = queryArray[i].sweetK - 1;
                 unsigned long long value = dataBank[bankIdx];
-                unsigned long long nextValue = dataBank[--bankIdx];
+                unsigned long long prevValue = dataBank[bankIdx-1];
                 unsigned long long extraValue = extraHeapArray[0]->value;
                 unsigned long long answer;
 
                 while (1)
                 {
-                    if (extraValue > value)
+                    if (extraValue >= value)
                     {
                         answer = value;
                         break;
                     }
-                    else if (extraValue > nextValue && extraValue < value)
+                    //else if ( extraValue > prevValue && extraValue < value )
+                    //{
+                    else if ((bankIdx > 0 && extraValue >= prevValue && extraValue < value) || 
+                             (bankIdx == 0 && extraValue < value) )
                     {
                         answer = extraValue;
                         break;
@@ -377,8 +380,9 @@ void main()
                     else
                     {
                         // Lower down data bank one item
-                        value = nextValue;
-                        nextValue = dataBank[--bankIdx];
+                        bankIdx--;
+                        value = dataBank[bankIdx ];
+                        if( bankIdx > 0)  prevValue = dataBank[bankIdx-1];
 
                         // extra heap root upgrade 
                         // The smallest node upgrades to next value
@@ -412,6 +416,7 @@ void main()
                         }
                         extraValue = extraHeapArray[0]->value;
                     }
+
                 }
 
                 // 

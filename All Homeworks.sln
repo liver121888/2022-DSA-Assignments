@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK2 P5 Hierarchical Heap S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK2 P5 Primary and Extra Heaps With DataSets Stored", "HWK2 P5 Primary and Extra Heaps With DataSets Stored\HWK2 P5 Primary and Extra Heaps With DataSets Stored.vcxproj", "{BBF6CB9C-B633-4363-9B22-FC10CD039E62}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK2 P5 Hierarchical Heap for DataSets and Extra Heap", "HWK2 P5 Hierarchical Heap for DataSets and Extra Heap\HWK2 P5 Hierarchical Heap for DataSets and Extra Heap.vcxproj", "{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,16 @@ Global
 		{BBF6CB9C-B633-4363-9B22-FC10CD039E62}.Release|x64.Build.0 = Release|x64
 		{BBF6CB9C-B633-4363-9B22-FC10CD039E62}.Release|x86.ActiveCfg = Release|Win32
 		{BBF6CB9C-B633-4363-9B22-FC10CD039E62}.Release|x86.Build.0 = Release|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Debug|x64.ActiveCfg = Debug|x64
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Debug|x64.Build.0 = Debug|x64
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Debug|x86.ActiveCfg = Debug|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Debug|x86.Build.0 = Debug|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Release|Any CPU.ActiveCfg = Release|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Release|x64.ActiveCfg = Release|x64
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Release|x64.Build.0 = Release|x64
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Release|x86.ActiveCfg = Release|Win32
+		{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
