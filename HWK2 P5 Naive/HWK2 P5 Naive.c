@@ -17,7 +17,7 @@ typedef struct pollNode
 
 
 // Instead of using an object array whose orders are fixed, use pointer array for easier sorting (altering their orders)
-PoolNode** heapArray;
+PoolNode** stockHeapArray;
 
 int numOfStocks, numQuery, increasePeriod, activeNumber;
 unsigned long long kSweet, extra;
@@ -32,26 +32,26 @@ FILE* filePtr;
 void NodeQuickSort(int left, int right)
 {
     if (left >= right) return ;
-    unsigned long long key = heapArray[right]->value; // last element is the pivot
+    unsigned long long key = stockHeapArray[right]->value; // last element is the pivot
     // i: left upper bound
     int i = left - 1;
     PoolNode* temp;
     for (int j = left; j <= right - 1; j++)
-        if (heapArray[j]->value <= key)
+        if (stockHeapArray[j]->value <= key)
         {
             // extend
             i++;
             // move element j to left part
-            temp = heapArray[i];
-            heapArray[i] = heapArray[j];
-            heapArray[j] = temp;
+            temp = stockHeapArray[i];
+            stockHeapArray[i] = stockHeapArray[j];
+            stockHeapArray[j] = temp;
         }
     // extend 
     i++;
     // insert the pivot between
-    temp = heapArray[i];
-    heapArray[i] = heapArray[right];
-    heapArray[right] = temp;
+    temp = stockHeapArray[i];
+    stockHeapArray[i] = stockHeapArray[right];
+    stockHeapArray[right] = temp;
 
     NodeQuickSort(left, i - 1);
     NodeQuickSort(i + 1, right);
@@ -66,32 +66,32 @@ unsigned long long SequentialPoolFiltering( unsigned long long kSweet)
 
     while (k != kSweet)
     {
-        heapArray[0]->seqID += increasePeriod;
-        unsigned long long v = price(heapArray[0]->stockID, heapArray[0]->seqID);
-        heapArray[0]->value = v;
-        head = heapArray[0];
+        stockHeapArray[0]->seqID += increasePeriod;
+        unsigned long long v = price(stockHeapArray[0]->stockID, stockHeapArray[0]->seqID);
+        stockHeapArray[0]->value = v;
+        head = stockHeapArray[0];
         int done = 0;
         for (int i = 1; i < increasePeriod * activeNumber; i++)
         {
-            if (heapArray[i]->value < v)
+            if (stockHeapArray[i]->value < v)
             {
-                heapArray[i - 1] = heapArray[i];
+                stockHeapArray[i - 1] = stockHeapArray[i];
             }
             else
             {
-                heapArray[i - 1] = head;
+                stockHeapArray[i - 1] = head;
                 done = 1;
                 break;
             }
         }
-        if (!done) heapArray[increasePeriod * activeNumber - 1] = head;
+        if (!done) stockHeapArray[increasePeriod * activeNumber - 1] = head;
         k++;
 
     }
  
-     printf("  My answer => (%llu,%llu) = %llu \n", heapArray[0]->stockID, heapArray[0]->seqID, heapArray[0]->value);
+     printf("  My answer => (%llu,%llu) = %llu \n", stockHeapArray[0]->stockID, stockHeapArray[0]->seqID, stockHeapArray[0]->value);
 
-     return heapArray[0]->value;
+     return stockHeapArray[0]->value;
 }
 
 void main()
@@ -121,7 +121,7 @@ void main()
         fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
         stockIDs = malloc((numOfStocks) * sizeof(unsigned long long));
         activeIDs = malloc((numOfStocks + 1) * sizeof(unsigned long long));
-        heapArray = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
+        stockHeapArray = malloc((numOfStocks + 1) * increasePeriod * sizeof(PoolNode*));
 
         unsigned long long id = 0;
         for (int i = 0; i < numOfStocks; i++)
@@ -153,10 +153,10 @@ void main()
             for (int s = 0; s < activeNumber; s++)
                 for (int p = 0; p < increasePeriod; p++)
                 {
-                    heapArray[c] = malloc(sizeof(PoolNode));
-                    heapArray[c]->stockID = activeIDs[s];
-                    heapArray[c]->seqID = p + 1; // 1 + p * increasePeriod;
-                    heapArray[c]->value = price(heapArray[c]->stockID, heapArray[c]->seqID);
+                    stockHeapArray[c] = malloc(sizeof(PoolNode));
+                    stockHeapArray[c]->stockID = activeIDs[s];
+                    stockHeapArray[c]->seqID = p + 1; // 1 + p * increasePeriod;
+                    stockHeapArray[c]->value = price(stockHeapArray[c]->stockID, stockHeapArray[c]->seqID);
                     c++;
                 }
 

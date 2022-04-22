@@ -44,14 +44,14 @@ void HeapArrayFirstSort()
         int childID = parentID * 2 + 1;
 
         while (childID < arraySize) // child is traversed one by one
-        { 
+        {
             // Select the child with the smaller value
-            if (childID + 1 < arraySize && stockHeapArray[childID+1]->value < stockHeapArray[childID]->value)
+            if (childID + 1 < arraySize && stockHeapArray[childID + 1]->value < stockHeapArray[childID]->value)
                 childID++; // second child is smaller than first child
-            if (stockHeapArray[parentID]->value <= stockHeapArray[childID]->value)  
+            if (stockHeapArray[parentID]->value <= stockHeapArray[childID]->value)
                 break; // Done! Since the parent is smaller or equal to the smaller child
-            else 
-            { 
+            else
+            {
                 // Let the smaller child turn parent, and downgrade the parent to the child
                 // Swap child and parent
                 temp = stockHeapArray[parentID];
@@ -67,15 +67,15 @@ void HeapArrayFirstSort()
 
 
 // For debug using. Check whether the heap array is a valid min heap
-int CheckHeapArrayValidity( int printFlag )
+int CheckHeapArrayValidity(int printFlag)
 {
     int cid;
     for (int pid = 0; pid <= arraySize / 2; pid++)
     {
         cid = pid * 2 + 1;
-        if ( cid < arraySize &&  stockHeapArray[pid]->value > stockHeapArray[cid]->value)
+        if (cid < arraySize && stockHeapArray[pid]->value > stockHeapArray[cid]->value)
         {
-            if(printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->value, cid, stockHeapArray[cid]->value);
+            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->value, cid, stockHeapArray[cid]->value);
             return 0;
         }
         cid++;
@@ -108,9 +108,9 @@ unsigned long long SequentialPoolFiltering(unsigned long long kSweet)
         while (childID < arraySize) // child is traversed one by one
         {
             // Select the child with the smaller value
-            if (childID + 1 < arraySize && stockHeapArray[childID + 1]->value < stockHeapArray[childID]->value )
+            if (childID + 1 < arraySize && stockHeapArray[childID + 1]->value < stockHeapArray[childID]->value)
                 childID++; // second child is smaller than first child
-            if (stockHeapArray[parentID]->value <= stockHeapArray[childID]->value )
+            if (stockHeapArray[parentID]->value <= stockHeapArray[childID]->value)
             {
                 break; // Done! Since the parent is smaller or equal to the smaller child
             }
@@ -224,19 +224,19 @@ void main()
 
             // Sort the firstly constructed heap array to get the first round of values.
             HeapArrayFirstSort();
-// Debug            CheckHeapArrayValidity( 1 );
+            // Debug            CheckHeapArrayValidity( 1 );
 
             printf("Query %d  s=%llu, k=%llu  => ", j, extra, kSweet);
             unsigned long long answer = SequentialPoolFiltering(kSweet);
 
- // Debug           printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer);
+            // Debug           printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer);
 
         }
 
 
         clock_t endTime = clock();
         double seconds = (double)(endTime - startTime) / CLOCKS_PER_SEC;
-        printf("Done! Time Used: %f secs.  Check with the correct answers ...\n", seconds );
+        printf("Done! Time Used: %f secs.  Check with the correct answers ...\n", seconds);
         fscanf(filePtr, "%s", answer);
         printf("%s\n", answer);
 
