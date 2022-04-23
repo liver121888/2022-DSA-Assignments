@@ -79,7 +79,7 @@ FILE* filePtr;
 // Construct the first heap array of StockNode according to their first min values.
 // It will be constructed as a min-heap, where the root is the smallest and all children are larger than their parents.
 // Once completed the root is the smallest node; yet the tree is not sorted (we don't need a sorted heap)!
-void StockHeapArrayFirstSort()
+void StockHeapArrayFirstMinHipified()
 {
     StockNode* temp;
     // Start from last parent backward to do min heapify operation
@@ -111,7 +111,7 @@ void StockHeapArrayFirstSort()
 }
 
 
-void SegmentHeapArrayFirstSort( SegmentNode** segmentHeap )
+void SegmentHeapArrayFirstMinHipified(SegmentNode** segmentHeap)
 {
     SegmentNode* temp;
     // Start from last parent backward to do min heapify operation
@@ -145,27 +145,27 @@ void SegmentHeapArrayFirstSort( SegmentNode** segmentHeap )
 
 
 // For debug using. Check whether the heap array is a valid min heap
-int CheckHeapArrayValidity(int printFlag)
-{
-    int cid;
-    for (int pid = 0; pid <= arraySize / 2; pid++)
-    {
-        cid = pid * 2 + 1;
-        if (cid < arraySize && stockHeapArray[pid]->segmentHeapArray[0]->value > stockHeapArray[cid]->segmentHeapArray[0]->value)
-        {
-            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->segmentHeapArray[0]->value, cid, stockHeapArray[cid]->segmentHeapArray[0]->value);
-            return 0;
-        }
-        cid++;
-        if (cid < arraySize && stockHeapArray[pid]->segmentHeapArray[0]->value > stockHeapArray[cid]->segmentHeapArray[0]->value)
-        {
-            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->segmentHeapArray[0]->value, cid, stockHeapArray[cid]->segmentHeapArray[0]->value);
-            return 0;
-        }
-    }
-    if (printFlag)   printf("\nHeap array is OK!!\n");
-    return 1;
-}
+//int CheckHeapArrayValidity(int printFlag)
+//{
+//    int cid;
+//    for (int pid = 0; pid <= arraySize / 2; pid++)
+//    {
+//        cid = pid * 2 + 1;
+//        if (cid < arraySize && stockHeapArray[pid]->segmentHeapArray[0]->value > stockHeapArray[cid]->segmentHeapArray[0]->value)
+//        {
+//            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->segmentHeapArray[0]->value, cid, stockHeapArray[cid]->segmentHeapArray[0]->value);
+//            return 0;
+//        }
+//        cid++;
+//        if (cid < arraySize && stockHeapArray[pid]->segmentHeapArray[0]->value > stockHeapArray[cid]->segmentHeapArray[0]->value)
+//        {
+//            if (printFlag)  printf("\nERROR! parent H[%d] = %llu  > C[%d] = %llu\n\n", pid, stockHeapArray[pid]->segmentHeapArray[0]->value, cid, stockHeapArray[cid]->segmentHeapArray[0]->value);
+//            return 0;
+//        }
+//    }
+//    if (printFlag)   printf("\nHeap array is OK!!\n");
+//    return 1;
+//}
 
 
 unsigned long long SequentialPoolFiltering(unsigned long long kSweet)
@@ -259,10 +259,6 @@ void main()
 
     char answer[80];
 
-    // filePtr = fopen(fileName1, "r");
-  //  filePtr = fopen(fileName2, "r");
-  //     filePtr = fopen(fileName3, "r");
-
     for (int f = 1; f <= 4; f++)
     {
         sprintf(answer, "..\\HWK2 Samples\\p5sample%d.txt", f);
@@ -313,7 +309,7 @@ void main()
                 stockHeapArray[s] = malloc(sizeof(StockNode));
                 stockHeapArray[s]->stockID = activeIDs[s]; // The stock node stores its id
                 // Create the heap array of its segments
-                stockHeapArray[s]->segmentHeapArray = malloc( increasePeriod * sizeof(SegmentNode*));
+                stockHeapArray[s]->segmentHeapArray = malloc(increasePeriod * sizeof(SegmentNode*));
                 for (int p = 0; p < increasePeriod; p++)
                 {
                     // Allocate memory for each segment 
@@ -321,17 +317,14 @@ void main()
                     stockHeapArray[s]->segmentHeapArray[p]->seqID = p + 1; // 1 + p * increasePeriod;
                     stockHeapArray[s]->segmentHeapArray[p]->value = price(stockHeapArray[s]->stockID, stockHeapArray[s]->segmentHeapArray[p]->seqID);
                 }
-                SegmentHeapArrayFirstSort(stockHeapArray[s]->segmentHeapArray);
+                SegmentHeapArrayFirstMinHipified(stockHeapArray[s]->segmentHeapArray);
             }
 
             // Sort the firstly constructed heap array to get the first round of values.
-            StockHeapArrayFirstSort();
-            // Debug            CheckHeapArrayValidity( 1 );
+            StockHeapArrayFirstMinHipified();
 
             printf("Query %d  s=%llu, k=%llu  => ", j, extra, kSweet);
             unsigned long long answer = SequentialPoolFiltering(kSweet);
-
-            // Debug           printf("Query %d  s=%llu, k=%llu  => answer = %llu \n", j, extra, kSweet, answer);
 
         }
 
