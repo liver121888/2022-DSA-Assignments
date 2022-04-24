@@ -5,7 +5,6 @@ In other words, the "N" in the problem description is equal to (s - 1) / 1000000
 Notice that, this function is slightly slower than promised. */
 #pragma warning(push)
 #pragma warning(disable:4101)
-
 unsigned long long price(unsigned long long s, unsigned long long t){
 	unsigned long long p, x = (s ^ (s >> 30)) * 0xbf58476d1ce4e5b9ULL;
 	p = (s - 1) / 1000000ULL + 1ULL;
@@ -49,4 +48,4 @@ unsigned long long price(unsigned long long s, unsigned long long t){
 
 	return 	la + tr + (((lb - la) * (x >> 48)) >> 16);
 }
-#pragma   warning(pop)  
+#pragma warning(pop)
