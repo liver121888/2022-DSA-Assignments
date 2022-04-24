@@ -164,10 +164,11 @@ void main()
     char fileName2[] = "..\\HWK2 Samples\\p5sample2.txt";
     char fileName3[] = "..\\HWK2 Samples\\p5sample3.txt";
     char fileName4[] = "..\\HWK2 Samples\\p5sample4.txt";
+    char fileName5[] = "..\\HWK2 Samples\\p5sample5.txt";
 
     char answer[80];
 
-    for (int f = 1; f <= 4; f++)
+    for (int f = 1; f <= 5; f++)
     {
         sprintf(answer, "..\\HWK2 Samples\\p5sample%d.txt", f);
 
@@ -297,7 +298,16 @@ void main()
                     // Otherwise, useless draws will add up solving time
                     if (stockHeapArray[0]->extra != 0)
                     {
+                        // Make sure the reset not solved query doesn't include this extra stock
                         nodeReduced = 1;
+
+                        // $$$$$$$$$$$$
+                        for( int j =0;j < numQuery; j++)
+                            if (j != q && queryArray[j].currentCount != queryArray[j].sweetK && queryArray[j].stockFlag == stockHeapArray[0]->extra)
+                            {
+                                nodeReduced = 0;
+                                break;
+                            }
                     }
                 }
             }
