@@ -22,7 +22,7 @@ typedef struct poolNode
 // During the operation, only swap the pointers is required
 PoolNode** stockHeapArray;
 
-int numOfStocks, numQuery, increasePeriod, activeNumber, arraySize;
+int numOfStocks, numQuery, increasePeriod, totalNumber, arraySize;
 unsigned long long kSweet, extra;
 unsigned long long* stockIDs, * activeIDs;
 
@@ -142,7 +142,7 @@ unsigned long long SequentialPoolFiltering(unsigned long long kSweet)
 
 void PrintHeapArray()
 {
-    for (int i = 0; i < activeNumber * increasePeriod; i++)
+    for (int i = 0; i < totalNumber * increasePeriod; i++)
         printf("(%llu,%llu)=%llu ", stockHeapArray[i]->stockID, stockHeapArray[i]->seqID, stockHeapArray[i]->value);
     printf("\n");
 }
@@ -198,18 +198,18 @@ void main()
             extra = ee;
             if (extra == 0)
             {
-                activeNumber = numOfStocks;
+                totalNumber = numOfStocks;
             }
             else
             {
-                activeNumber = numOfStocks + 1;
+                totalNumber = numOfStocks + 1;
                 activeIDs[numOfStocks] = extra;
             }
-            arraySize = activeNumber * increasePeriod;
+            arraySize = totalNumber * increasePeriod;
 
             // Create Node array
             int c = 0;
-            for (int s = 0; s < activeNumber; s++)
+            for (int s = 0; s < totalNumber; s++)
                 for (int p = 0; p < increasePeriod; p++)
                 {
                     // Allocate memory for each node and complete the

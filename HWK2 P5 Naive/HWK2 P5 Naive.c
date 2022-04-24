@@ -19,7 +19,7 @@ typedef struct pollNode
 // Instead of using an object array whose orders are fixed, use pointer array for easier sorting (altering their orders)
 PoolNode** stockHeapArray;
 
-int numOfStocks, numQuery, increasePeriod, activeNumber;
+int numOfStocks, numQuery, increasePeriod, totalNumber;
 unsigned long long kSweet, extra;
 unsigned long long* stockIDs,*activeIDs;
 
@@ -71,7 +71,7 @@ unsigned long long SequentialPoolFiltering( unsigned long long kSweet)
         stockHeapArray[0]->value = v;
         head = stockHeapArray[0];
         int done = 0;
-        for (int i = 1; i < increasePeriod * activeNumber; i++)
+        for (int i = 1; i < increasePeriod * totalNumber; i++)
         {
             if (stockHeapArray[i]->value < v)
             {
@@ -84,7 +84,7 @@ unsigned long long SequentialPoolFiltering( unsigned long long kSweet)
                 break;
             }
         }
-        if (!done) stockHeapArray[increasePeriod * activeNumber - 1] = head;
+        if (!done) stockHeapArray[increasePeriod * totalNumber - 1] = head;
         k++;
 
     }
@@ -140,17 +140,17 @@ void main()
             extra = ee;
             if (extra == 0)
             {
-                activeNumber = numOfStocks;
+                totalNumber = numOfStocks;
             }
             else
             {
-                activeNumber = numOfStocks + 1;
+                totalNumber = numOfStocks + 1;
                 activeIDs[numOfStocks] = extra;
             }
 
             // Create Node array
             int c = 0;
-            for (int s = 0; s < activeNumber; s++)
+            for (int s = 0; s < totalNumber; s++)
                 for (int p = 0; p < increasePeriod; p++)
                 {
                     stockHeapArray[c] = malloc(sizeof(PoolNode));
@@ -165,7 +165,7 @@ void main()
             //    printf("(%llu,%llu)=%llu ", sortedNodes[i]->stockID, sortedNodes[i]->seqID, sortedNodes[i]->value);
             //printf("\n");
 
-            NodeQuickSort(0, activeNumber * increasePeriod - 1);
+            NodeQuickSort(0, totalNumber * increasePeriod - 1);
 
             //printf("k = 1 " );
             //for (int i = 0; i < activeNumber * increasePeriod; i++)
