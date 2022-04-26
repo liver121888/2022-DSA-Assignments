@@ -38,23 +38,26 @@ Snode* Stmp;
 Qnode* Query;
 Snode** stockHeapArray;
 node** extraHeapArray;
+node** extraHeapArrayForBinary;
+
 unsigned long long* SortedPrice;
 int heaplen;
 unsigned long long SortedPriceExtra1, SortedPriceExtra2;
+
 
 void PrintArray(int select)
 {
 	switch (select)
 	{
-	//case(0):
-	//	// Print PriceHeap
-	//	printf("PriceHeap (value, stock_id, seq_id): \n");
-	//	for (int i = 0; i < A * N; i++)
-	//	{
-	//		printf("(%llu, %d, %d), ", PriceHeap[i]->value, PriceHeap[i]->stock_id, PriceHeap[i]->seq_id);
-	//	}
-	//	printf("\n");
-	//	break;
+		//case(0):
+		//	// Print PriceHeap
+		//	printf("PriceHeap (value, stock_id, seq_id): \n");
+		//	for (int i = 0; i < A * N; i++)
+		//	{
+		//		printf("(%llu, %d, %d), ", PriceHeap[i]->value, PriceHeap[i]->stock_id, PriceHeap[i]->seq_id);
+		//	}
+		//	printf("\n");
+		//	break;
 	case(1):
 		// Print SortedPrice
 		printf("SortedPrice (value): \n");
@@ -69,7 +72,7 @@ void PrintArray(int select)
 		printf("extraHeapArray (value, seq_id): \n");
 		for (int i = 0; i < heaplen; i++)
 		{
-			printf("(%llu, %d), ", extraHeapArray[i]->value, extraHeapArray[i]->seq_id);
+			printf("(%llu, %d), ", extraHeapArrayForBinary[i]->value, extraHeapArrayForBinary[i]->seq_id);
 		}
 		printf("\n");
 		break;
@@ -185,24 +188,23 @@ void buildSortedPrice()
 }
 
 
-
 void ExtraMinHeapify()
 {
-	for (int parent = heaplen/2; parent >= 0; parent--)
+	for (int parent = heaplen / 2; parent >= 0; parent--)
 	{
 		parentID = parent;
 		childID = 2 * parent + 1;
 		while (childID < heaplen)
 		{
-			if (childID + 1 < heaplen && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
+			if (childID + 1 < heaplen && extraHeapArrayForBinary[childID + 1]->value < extraHeapArrayForBinary[childID]->value)
 				childID++;
-			if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
+			if (extraHeapArrayForBinary[parentID]->value <= extraHeapArrayForBinary[childID]->value)
 				break;
 			else
 			{
-				tmp = extraHeapArray[parentID];
-				extraHeapArray[parentID] = extraHeapArray[childID];
-				extraHeapArray[childID] = tmp;
+				tmp = extraHeapArrayForBinary[parentID];
+				extraHeapArrayForBinary[parentID] = extraHeapArrayForBinary[childID];
+				extraHeapArrayForBinary[childID] = tmp;
 				parentID = childID;
 				childID = parentID * 2 + 1;
 			}
@@ -225,7 +227,7 @@ unsigned long long binarySeach()
 		// heap size should be 2N
 		heaplen = 0;
 
-		if (x-N < 0)
+		if (x - N < 0)
 		{
 			down = 0;
 		}
@@ -234,15 +236,13 @@ unsigned long long binarySeach()
 			down = x - N;
 		}
 		heaplen = 2 * N;
-		
+
 		for (int p = 0; p < heaplen; p++)
 		{
 			// first assign non-sorted heap array 
-			extraHeapArray[p]->seq_id = p + 1 + down; // 1 + p * increasePeriod;
-			extraHeapArray[p]->value = price(StockSerialNumber[A], extraHeapArray[p]->seq_id);
+			extraHeapArrayForBinary[p]->seq_id = p + 1 + down; // 1 + p * increasePeriod;
+			extraHeapArrayForBinary[p]->value = price(StockSerialNumber[A], extraHeapArrayForBinary[p]->seq_id);
 		}
-
-
 		// heapify
 		ExtraMinHeapify();
 
@@ -258,14 +258,14 @@ unsigned long long binarySeach()
 
 		for (int i = 0; i < bound; i++)
 		{
-			SortedPriceExtra1 = extraHeapArray[0]->value;
+			SortedPriceExtra1 = extraHeapArrayForBinary[0]->value;
 			// here we have to copy value, we cannot directly point to it
-			extraHeapArray[0]->seq_id = extraHeapArray[heaplen - 1]->seq_id;
-			extraHeapArray[0]->value = price(StockSerialNumber[A],extraHeapArray[0]->seq_id);
+			extraHeapArrayForBinary[0]->seq_id = extraHeapArrayForBinary[heaplen - 1]->seq_id;
+			extraHeapArrayForBinary[0]->value = price(StockSerialNumber[A], extraHeapArrayForBinary[0]->seq_id);
 			heaplen--;
 			ExtraMinHeapify();
 		}
-		SortedPriceExtra2 = extraHeapArray[0]->value;
+		SortedPriceExtra2 = extraHeapArrayForBinary[0]->value;
 
 		if (DebugFlag)
 		{
@@ -303,6 +303,7 @@ unsigned long long binarySeach()
 	}
 	return 0;
 }
+
 
 
 int main()
@@ -372,35 +373,36 @@ int main()
 	}
 
 	// for FC
-	//extraHeapArray = malloc(N * sizeof(node*));
-	//for (int i = 0; i < N; i++)
-	//{
-	//	extraHeapArray[i] = malloc(sizeof(node));
-	//}
-
-	// for Binary
-	extraHeapArray = malloc(2 * N * sizeof(node*));
-	for (int i = 0; i < 2 * N; i++)
+	extraHeapArray = malloc(N * sizeof(node*));
+	for (int i = 0; i < N; i++)
 	{
 		extraHeapArray[i] = malloc(sizeof(node));
 	}
 
+	// for Binary
+	extraHeapArrayForBinary = malloc(2 * N * sizeof(node*));
+	for (int i = 0; i < 2 * N; i++)
+	{
+		extraHeapArrayForBinary[i] = malloc(sizeof(node));
+	}
+
 
 	SortedPrice = malloc(sizeof(unsigned long long) * maxk);
-
 	constructSnodeHeap();
 	buildSortedPrice();
+
+
 
 	if (DebugFlag)
 	{
 		PrintArray(1);
 	}
 
-	//int kIdx;
-	//unsigned long long value;
-	//unsigned long long prevValue;
-	//unsigned long long extraValue;
-	//unsigned long long answer;
+	int kIdx;
+	unsigned long long value;
+	unsigned long long prevValue;
+	unsigned long long extraValue;
+	unsigned long long answer;
 
 	// deal with queries
 	for (int i = 0; i < Q; i++)
@@ -413,104 +415,109 @@ int main()
 		}
 		else
 		{
-			// Build extra stock
-			StockSerialNumber[A] = Query[i].ES;
-			k = Query[i].k;
-			printf("%llu\n", binarySeach());
-			//// Clear extra stock, SortedPriceExtra?
+			if (N < 600)
+			{
+				// Build extra stock
+				StockSerialNumber[A] = Query[i].ES;
+				k = Query[i].k;
+				printf("%llu\n", binarySeach());
+				//// Clear extra stock, SortedPriceExtra?
+			}
+			else
+			{
+				for (int p = 0; p < N; p++)
+				{
+					// first assign non-sorted heap array 
+					extraHeapArray[p]->seq_id = p + 1; // 1 + p * increasePeriod;
+					extraHeapArray[p]->value = price(Query[i].ES, extraHeapArray[p]->seq_id);
+				}
 
-			//for (int p = 0; p < N; p++)
-			//{
-			//	// first assign non-sorted heap array 
-			//	extraHeapArray[p]->seq_id = p + 1; // 1 + p * increasePeriod;
-			//	extraHeapArray[p]->value = price(Query[i].ES, extraHeapArray[p]->seq_id);
-			//}
+				for (int parent = N / 2; parent >= 0; parent--)
+				{
+					parentID = parent;
+					childID = parentID * 2 + 1;
 
-			//for (int parent = N / 2; parent >= 0; parent--)
-			//{
-			//	parentID = parent;
-			//	childID = parentID * 2 + 1;
+					while (childID < N) // child is traversed one by one
+					{
+						// Select the child with the smaller value
+						if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
+							childID++; // second child is smaller than first child
+						if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
+							break; // Done! Since the parent is smaller or equal to the smaller child
+						else
+						{
+							// Let the smaller child turn parent, and downgrade the parent to the child
+							// Swap child and parent
+							tmp = extraHeapArray[parentID];
+							extraHeapArray[parentID] = extraHeapArray[childID];
+							extraHeapArray[childID] = tmp;
+							// Since parent and child are swapped, we need to traverse down further
+							parentID = childID;
+							childID = parentID * 2 + 1;
+						}
+					}
+				}
 
-			//	while (childID < N) // child is traversed one by one
-			//	{
-			//		// Select the child with the smaller value
-			//		if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
-			//			childID++; // second child is smaller than first child
-			//		if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
-			//			break; // Done! Since the parent is smaller or equal to the smaller child
-			//		else
-			//		{
-			//			// Let the smaller child turn parent, and downgrade the parent to the child
-			//			// Swap child and parent
-			//			tmp = extraHeapArray[parentID];
-			//			extraHeapArray[parentID] = extraHeapArray[childID];
-			//			extraHeapArray[childID] = tmp;
-			//			// Since parent and child are swapped, we need to traverse down further
-			//			parentID = childID;
-			//			childID = parentID * 2 + 1;
-			//		}
-			//	}
-			//}
+				kIdx = Query[i].k - 1;
+				value = SortedPrice[kIdx];
+				// next value is in sequence previous
+				prevValue = SortedPrice[kIdx - 1];
+				extraValue = extraHeapArray[0]->value;
 
-			//kIdx = Query[i].k - 1;
-			//value = SortedPrice[kIdx];
-			//// next value is in sequence previous
-			//prevValue = SortedPrice[kIdx - 1];
-			//extraValue = extraHeapArray[0]->value;
+				while (1)
+				{
+					if (extraValue >= value)
+					{
+						answer = value;
+						break;
+					}
+					else if ((kIdx > 0 && extraValue >= prevValue && extraValue < value) || (kIdx == 0 && extraValue < value))
+					{
+						answer = extraValue;
+						break;
+					}
+					else
+					{
+						// Lower down one item
+						kIdx--;
+						value = SortedPrice[kIdx];
+						if (kIdx > 0)
+							prevValue = SortedPrice[kIdx - 1];
 
-			//while (1)
-			//{
-			//	if (extraValue >= value)
-			//	{
-			//		answer = value;
-			//		break;
-			//	}
-			//	else if ((kIdx > 0 && extraValue >= prevValue && extraValue < value) || (kIdx == 0 && extraValue < value))
-			//	{
-			//		answer = extraValue;
-			//		break;
-			//	}
-			//	else
-			//	{
-			//		// Lower down one item
-			//		kIdx--;
-			//		value = SortedPrice[kIdx];
-			//		if (kIdx > 0)
-			//			prevValue = SortedPrice[kIdx - 1];
+						// extra heap root upgrade 
+						// The smallest node upgrades to next value
+						extraHeapArray[0]->seq_id += N; // day id jump to next increased day
+						unsigned long long v = price(Query[i].ES, extraHeapArray[0]->seq_id); // get upgraded value
+						extraHeapArray[0]->value = v; // update value
 
-			//		// extra heap root upgrade 
-			//		// The smallest node upgrades to next value
-			//		extraHeapArray[0]->seq_id += N; // day id jump to next increased day
-			//		unsigned long long v = price(Query[i].ES, extraHeapArray[0]->seq_id); // get upgraded value
-			//		extraHeapArray[0]->value = v; // update value
-
-			//		parentID = 0; // The root is upgraded
-			//		childID = 1;
-			//		while (childID < N) // child is traversed one by one
-			//		{
-			//			// Select the child with the smaller value
-			//			if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
-			//				childID++; // second child is smaller than first child
-			//			if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
-			//			{
-			//				break; // Done! Since the parent is smaller or equal to the smaller child
-			//			}
-			//			else
-			//			{
-			//				// Let the smaller child turn parent, and downgrade the parent to the child
-			//				// Swap child and parent
-			//				tmp = extraHeapArray[parentID];
-			//				extraHeapArray[parentID] = extraHeapArray[childID];
-			//				extraHeapArray[childID] = tmp;
-			//				// Since parent and child are swapped, we need to traverse down further
-			//				parentID = childID;
-			//				childID = parentID * 2 + 1;
-			//			}
-			//		}
-			//		extraValue = extraHeapArray[0]->value;
-			//	}
-			//}
-			//printf("%llu\n", answer);
+						parentID = 0; // The root is upgraded
+						childID = 1;
+						while (childID < N) // child is traversed one by one
+						{
+							// Select the child with the smaller value
+							if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
+								childID++; // second child is smaller than first child
+							if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
+							{
+								break; // Done! Since the parent is smaller or equal to the smaller child
+							}
+							else
+							{
+								// Let the smaller child turn parent, and downgrade the parent to the child
+								// Swap child and parent
+								tmp = extraHeapArray[parentID];
+								extraHeapArray[parentID] = extraHeapArray[childID];
+								extraHeapArray[childID] = tmp;
+								// Since parent and child are swapped, we need to traverse down further
+								parentID = childID;
+								childID = parentID * 2 + 1;
+							}
+						}
+						extraValue = extraHeapArray[0]->value;
+					}
+				}
+				printf("%llu\n", answer);
+			}
 		}
 	}
 

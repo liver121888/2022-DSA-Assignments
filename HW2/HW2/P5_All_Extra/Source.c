@@ -1,403 +1,349 @@
 #define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include "price.h"
-#pragma warning(push)
-#pragma warning(disable:6385)
-#pragma warning(disable:6386)
-#pragma warning(disable:6011)
-
-typedef struct Qnode
-{
-	int k;
-	int ES;
-} Qnode;
-
-typedef struct node
-{
-	unsigned long long value;
-	int seq_id;
-} node;
-
-typedef struct Snode
-{
-	int stock_id;
-	node** nodeHeap;
-}Snode;
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#include<time.h>
+#include"price.h"
 
 int FileFlag = 1;
-int DebugFlag = 1;
 
-int A, Q, N, ES, k, r;
-int maxk = 0;
-int* StockSerialNumber;
-node* tmp;
-Snode* Stmp;
-
-Qnode* Query;
-Snode** stockHeapArray;
-node** extraHeapArray;
-unsigned long long* SortedPrice;
-//unsigned long long price(int s, int t)
-//{
-//	if (PriceFlag == 1)
-//	{
-//		return price(s, t);
-//	}
-//	else
-//	{
-//		return (unsigned long long)(s + t);
-//	}
-//}
-
-
-void PrintArray(int select)
+typedef struct query
 {
-	//switch (select)
-	//{
-	//case(0):
-	//	// Print PriceHeap
-	//	printf("PriceHeap (value, stock_id, seq_id): \n");
-	//	for (int i = 0; i < A * N; i++)
-	//	{
-	//		printf("(%llu, %d, %d), ", PriceHeap[i]->value, PriceHeap[i]->stock_id, PriceHeap[i]->seq_id);
-	//	}
-	//	printf("\n");
-	//	break;
-	//case(1):
-	//	// Print SortedPrice
-	//	printf("SortedPrice (value): \n");
-	//	for (int i = 0; i < maxk; i++)
-	//	{
-	//		printf("%llu, ", SortedPrice[i]);
-	//	}
-	//	printf("\n");
-	//	break;
-	//case(2):
-	//	// Print PriceHeapExtra
-	//	printf("PriceHeapExtra (value, stock_id, seq_id): \n");
-	//	for (int i = 0; i < heaplen; i++)
-	//	{
-	//		printf("(%llu, %d, %d), ", PriceHeapExtra[i]->value, PriceHeapExtra[i]->stock_id, PriceHeapExtra[i]->seq_id);
-	//	}
-	//	printf("\n");
-	//	break;
-	//case(3):
-	//	// Print SortedPriceExtra
-	//	printf("SortedPriceExtra1, SortedPriceExtra2: \n");
-	//	printf("%llu, %llu", SortedPriceExtra1, SortedPriceExtra2);
-	//	printf("\n");
-	//	break;
-	//default:
-	//	break;
-	//}
+    int stockFlag;
+    int sweetK;
+    int currentCount; // counter of sequential draws for this query toward to the target sweetK
+    unsigned long long answer;
+} Query;
+
+typedef struct segmentNode
+{
+    unsigned long long value;
+    int seqID;   //sequence index;  unsigned int should be OK to save memory
+} SegmentNode;
+
+typedef struct stockNode
+{
+    int stockID; // unsigned int should be OK to save memory
+    unsigned char extra; // =1: extra, 0 not extra; basic
+    SegmentNode** segmentHeapArray;
+} StockNode;
+
+// Instead of using an object array whose orders are fixed, use pointer array for easier heapify operation
+// During the operation, only swap the pointers is required
+StockNode** stockHeapArray;
+
+int numOfStocks, numQuery, increasePeriod, totalNumber, arraySize;
+unsigned long long kSweet, extra;
+unsigned long long* stockIDs, * activeIDs;
+Query* queryArray;
+
+
+char answer[80];
+FILE* filePtr;
+
+
+// Construct the first heap array of StockNode according to their first min values.
+// It will be constructed as a min-heap, where the root is the smallest and all children are larger than their parents.
+// Once completed the root is the smallest node; yet the tree is not sorted (we don't need a sorted heap)!
+void StockHeapArrayFirstMinHipified()
+{
+    StockNode* temp;
+    // Start from last parent backward to do min heapify operation
+    for (int parent = totalNumber / 2; parent >= 0; parent--)
+    {
+        int parentID = parent;
+        int childID = parentID * 2 + 1;
+
+        while (childID < totalNumber) // child is traversed one by one
+        {
+            // Select the child with the smaller value
+            if (childID + 1 < totalNumber && stockHeapArray[childID + 1]->segmentHeapArray[0]->value < stockHeapArray[childID]->segmentHeapArray[0]->value)
+                childID++; // second child is smaller than first child
+            if (stockHeapArray[parentID]->segmentHeapArray[0]->value <= stockHeapArray[childID]->segmentHeapArray[0]->value)
+                break; // Done! Since the parent is smaller or equal to the smaller child
+            else
+            {
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                temp = stockHeapArray[parentID];
+                stockHeapArray[parentID] = stockHeapArray[childID];
+                stockHeapArray[childID] = temp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
+            }
+        }
+    }
 }
 
-int parentID;
-int childID;
-void NodeMinHeapify(node** heap)
+
+void SegmentHeapArrayFirstMinHeapified(SegmentNode** segmentHeap)
 {
-	for (int parent = N / 2; parent >= 0; parent--)
-	{
-		parentID = parent;
-		childID = 2 * parent + 1;
-		while (childID < N)
-		{
-			if (childID + 1 < N && heap[childID + 1]->value < heap[childID]->value)
-				childID++;
-			if (heap[parentID]->value <= heap[childID]->value)
-				break;
-			else
-			{
-				tmp = heap[parentID];
-				heap[parentID] = heap[childID];
-				heap[childID] = tmp;
-				parentID = childID;
-				childID = parentID * 2 + 1;
-			}
-		}
-	}
-}
+    SegmentNode* temp;
+    // Start from last parent backward to do min heapify operation
+    for (int parent = increasePeriod / 2; parent >= 0; parent--)
+    {
+        int parentID = parent;
+        int childID = parentID * 2 + 1;
 
-void constructSnodeHeap()
-{
-	for (int parent = A / 2; parent >= 0; parent--)
-	{
-		parentID = parent;
-		childID = parent * 2 + 1;
-
-		while (childID < A)
-		{
-			if (childID + 1 < A && stockHeapArray[childID + 1]->nodeHeap[0]->value < stockHeapArray[childID]->nodeHeap[0]->value)
-				childID++;
-			if (stockHeapArray[parentID]->nodeHeap[0]->value <= stockHeapArray[childID]->nodeHeap[0]->value)
-				break;
-			else
-			{
-				Stmp = stockHeapArray[parentID];
-				stockHeapArray[parentID] = stockHeapArray[childID];
-				stockHeapArray[childID] = Stmp;
-				parentID = childID;
-				childID = parentID * 2 + 1;
-			}
-		}
-
-	}
-}
-
-void buildSortedPrice()
-{
-	SortedPrice[0] = stockHeapArray[0]->nodeHeap[0]->value;
-	for (int k = 1; k < maxk; k++)
-	{
-		stockHeapArray[0]->nodeHeap[0]->seq_id += N;
-		stockHeapArray[0]->nodeHeap[0]->value = price(stockHeapArray[0]->stock_id, stockHeapArray[0]->nodeHeap[0]->seq_id);
-
-		parentID = 0;
-		childID = 1;
-		// Heapify the priceheap within the stock node
-		while (childID < N)
-		{
-			if (childID + 1 < N && stockHeapArray[0]->nodeHeap[childID + 1]->value < stockHeapArray[0]->nodeHeap[childID]->value)
-				childID++;
-			if (stockHeapArray[0]->nodeHeap[parentID]->value <= stockHeapArray[0]->nodeHeap[childID]->value)
-				break;
-			else
-			{
-				tmp = stockHeapArray[0]->nodeHeap[parentID];
-				stockHeapArray[0]->nodeHeap[parentID] = stockHeapArray[0]->nodeHeap[childID];
-				stockHeapArray[0]->nodeHeap[childID] = tmp;
-				parentID = childID;
-				childID = parentID * 2 + 1;
-			}
-		}
-		// Heapify entire stockHeap
-		parentID = 0;
-		childID = 1;
-		while (childID < A)
-		{
-			if (childID + 1 < A && stockHeapArray[childID + 1]->nodeHeap[0]->value < stockHeapArray[childID]->nodeHeap[0]->value)
-				childID++;
-			if (stockHeapArray[parentID]->nodeHeap[0]->value <= stockHeapArray[childID]->nodeHeap[0]->value)
-				break;
-			else
-			{
-				Stmp = stockHeapArray[parentID];
-				stockHeapArray[parentID] = stockHeapArray[childID];
-				stockHeapArray[childID] = Stmp;
-				parentID = childID;
-				childID = parentID * 2 + 1;
-			}
-		}
-		SortedPrice[k] = stockHeapArray[0]->nodeHeap[0]->value;
-	}
+        while (childID < increasePeriod) // child is traversed one by one
+        {
+            // Select the child with the smaller value
+            if (childID + 1 < increasePeriod && segmentHeap[childID + 1]->value < segmentHeap[childID]->value)
+                childID++; // second child is smaller than first child
+            if (segmentHeap[parentID]->value <= segmentHeap[childID]->value)
+                break; // Done! Since the parent is smaller or equal to the smaller child
+            else
+            {
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                temp = segmentHeap[parentID];
+                segmentHeap[parentID] = segmentHeap[childID];
+                segmentHeap[childID] = temp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
+            }
+        }
+    }
 }
 
 
 
 
-int main()
+
+int r;
+void main()
 {
 
-	FILE* ptr = 0;
-	if (FileFlag)
-	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW2\\HW2\\hw2_testdata\\P5\\4.in", "r");
-		r = fscanf(ptr, "%d %d %d", &A, &Q, &N);
-	}
-	else
-	{
-		r = scanf("%d %d %d", &A, &Q, &N);
-	}
+    FILE* filePtr = 0;
+    if (FileFlag)
+    {
+        filePtr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW2\\HW2\\hw2_testdata\\P5\\4.in", "r");
+        r = fscanf(filePtr, "%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
+    }
+    else
+    {
+        r = scanf("%d %d %d", &numOfStocks, &numQuery, &increasePeriod);
+    }
+    // Allocate memory of the basic stocks
+    StockNode* basticStocks = malloc(numOfStocks * sizeof(StockNode));
 
-	StockSerialNumber = malloc(sizeof(int) * A);
+    for (int i = 0; i < numOfStocks; i++)
+    {
+        // Get stock id for each stock node object
+        if (FileFlag)
+        {
+            r = fscanf(filePtr, "%d", &basticStocks[i].stockID); // or %I64u
 
-	for (int i = 0; i < A; i++)
-	{
-		if (FileFlag)
-		{
-			r = fscanf(ptr, "%d", &StockSerialNumber[i]);
-		}
-		else
-		{
-			r = scanf("%d", &StockSerialNumber[i]);
-		}
-	}
+        }
+        else
+        {
+            r = scanf("%d", &basticStocks[i].stockID); // or %
+        }
+        basticStocks[i].extra = 0;
+        // Allocate segment pointer heap array for each basic stock node
+        basticStocks[i].segmentHeapArray = malloc(increasePeriod * sizeof(SegmentNode*));
+    }
 
-	Query = malloc(sizeof(Qnode) * Q);
+    // Preview all queries of this problem and store their parameters
+    queryArray = malloc(sizeof(Query) * numQuery);
 
-	// read all queries
-	for (int i = 0; i < Q; i++)
-	{
-		if (FileFlag)
-		{
-			r = fscanf(ptr, "%d %d", &ES, &k);
-		}
-		else
-		{
-			r = scanf("%d %d", &ES, &k);
-		}
-		if (k > maxk)
-			maxk = k;
-		Query[i].ES = ES;
-		Query[i].k = k;
-	}
+    int numberOfExtraStrocks = 0;
+    // We need to store all of the extra stock IDs in this problem
+    int* extraIDArray = malloc(numQuery * sizeof(int));
 
+    // Pre-read all queries and store their information at query array
+    for (int j = 0; j < numQuery; j++)
+    {
+        if (FileFlag)
+        {
+            r = fscanf(filePtr, "%d %d", &queryArray[j].stockFlag, &queryArray[j].sweetK);
+        }
+        else
+        {
+            r = scanf("%d %d", &queryArray[j].stockFlag, &queryArray[j].sweetK);
+        }
+        queryArray[j].currentCount = 0;
+        // If an extra stock is introduced, check whether it has appeared before
+        if (queryArray[j].stockFlag != 0)
+        {
+            int ok = 1;
+            // Check duplication of this extra stock
+            for (int z = 0; z < numberOfExtraStrocks; z++)
+            {
+                if (queryArray[j].stockFlag == extraIDArray[z])
+                {
+                    ok = 0;
+                    break;
+                }
+            }
+            if (ok)
+            {
+                // a new extra stock; store its id
+                extraIDArray[numberOfExtraStrocks++] = queryArray[j].stockFlag;
+            }
+        }
+    }
 
-	stockHeapArray = malloc(sizeof(Snode*) * A);
+    // Now we can setup all involved stock nodes
+    totalNumber = numOfStocks + numberOfExtraStrocks;
+    stockHeapArray = malloc(totalNumber * sizeof(StockNode*));
+    // Copy the addresses of the allocated basic stock nodes
+    for (int i = 0; i < numOfStocks; i++)
+        stockHeapArray[i] = &basticStocks[i];
+    for (int i = numOfStocks; i < totalNumber; i++)
+    {
+        // For extra stock we need to allocate memory first
+        stockHeapArray[i] = malloc(sizeof(StockNode));
+        stockHeapArray[i]->stockID = extraIDArray[i - numOfStocks];
+        stockHeapArray[i]->extra = 1;
+        // Allocate segment pointer heap array for each extra stock node
+        stockHeapArray[i]->segmentHeapArray = malloc(increasePeriod * sizeof(SegmentNode*));
+    }
 
+    // Now build up the inner segment heap arrays of all of the involved stock nodes
+    for (int i = 0; i < totalNumber; i++)
+    {
+        for (int p = 0; p < increasePeriod; p++)
+        {
+            // Allocate memory for each segment of a stock
+            stockHeapArray[i]->segmentHeapArray[p] = malloc(sizeof(SegmentNode));
+            stockHeapArray[i]->segmentHeapArray[p]->seqID = p + 1; // 1 + p * increasePeriod;
+            stockHeapArray[i]->segmentHeapArray[p]->value = price(stockHeapArray[i]->stockID, stockHeapArray[i]->segmentHeapArray[p]->seqID);
+        }
+        // build up the min-heap of the inner segment nodes for this stock node
+        SegmentHeapArrayFirstMinHeapified(stockHeapArray[i]->segmentHeapArray);
+    }
 
-	for (int s = 0; s < A; s++)
-	{
-		stockHeapArray[s] = malloc(sizeof(Snode));
-		stockHeapArray[s]->stock_id = StockSerialNumber[s];
-		stockHeapArray[s]->nodeHeap = malloc(N * sizeof(node*));
-		for (int p = 0; p < N; p++)
-		{
-			stockHeapArray[s]->nodeHeap[p] = malloc(sizeof(node));
-			stockHeapArray[s]->nodeHeap[p]->seq_id = p + 1;
-			stockHeapArray[s]->nodeHeap[p]->value = price(stockHeapArray[s]->stock_id, stockHeapArray[s]->nodeHeap[p]->seq_id);
-		}
-		// Construct nodeHeap
-		NodeMinHeapify(stockHeapArray[s]->nodeHeap);
-	}
+    // Then build up the min-heap of the outer stock nodes
+    StockHeapArrayFirstMinHipified();
 
-	extraHeapArray = malloc(N * sizeof(node*));
-	for (int i = 0; i < N; i++)
-	{
-		extraHeapArray[i] = malloc(sizeof(node));
-	}
+    // Now start draw the current minimal segment of the current minimal stock, until all queries are solved
+    int numberSolved = 0;
 
+    SegmentNode* segmentTemp;
+    StockNode* stockTemp;
+    //unsigned long long minValue;
+    //unsigned long long minStockID;
 
-	SortedPrice = malloc(sizeof(unsigned long long) * maxk);
+    int nodeReduced;
+    int drawCount = 0;
+    while (numberSolved != numQuery)
+    {
 
-	constructSnodeHeap();
-	buildSortedPrice();
+    RootChanged:
 
-	int kIdx;
-	unsigned long long value;
-	unsigned long long prevValue;
-	unsigned long long extraValue;
-	unsigned long long answer;
+        nodeReduced = 0;
+        // loop through all queries to update their counters
+        for (int q = 0; q < numQuery; q++)
+        {
+            if (queryArray[q].currentCount == queryArray[q].sweetK) continue; // query is solved
 
-	// deal with queries
-	for (int i = 0; i < Q; i++)
-	{
-		// no extra stock
-		if (Query[i].ES == 0)
-		{
-			// minus 1 to get the index
-			printf("%llu\n", SortedPrice[Query[i].k - 1]);
-		}
-		else
-		{
-			//// Build extra stock
-			//StockSerialNumber[A] = Query[i].ES;
-			//printf("%llu\n", binarySeach());
-			//// Clear extra stock, SortedPriceExtra?
+            if (stockHeapArray[0]->extra == 0)
+            {
+                // Basic stock, all counter forward by one
+                queryArray[q].currentCount++;
+            }
+            else
+            {
+                // Extra stock, only the query have this extra stock need to forward its counter
+                if (stockHeapArray[0]->stockID == queryArray[q].stockFlag)
+                    queryArray[q].currentCount++;
+            }
 
-			for (int p = 0; p < N; p++)
-			{
-				// first assign non-sorted heap array 
-				extraHeapArray[p]->seq_id = p + 1; // 1 + p * increasePeriod;
-				extraHeapArray[p]->value = price(Query[i].ES, extraHeapArray[p]->seq_id);
-			}
+            if (queryArray[q].currentCount == queryArray[q].sweetK)
+            {
+                queryArray[q].answer = stockHeapArray[0]->segmentHeapArray[0]->value;;
+                numberSolved++;//One query is solved
 
-			for (int parent = N / 2; parent >= 0; parent--)
-			{
-				parentID = parent;
-				childID = parentID * 2 + 1;
+                // If this query is an extra stock; we need to remove this stock node. 
+                // Otherwise, useless draws will add up solving time
+                if (stockHeapArray[0]->extra != 0)
+                {
+                    nodeReduced = 1;
+                }
+            }
+        }
 
-				while (childID < N) // child is traversed one by one
-				{
-					// Select the child with the smaller value
-					if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
-						childID++; // second child is smaller than first child
-					if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
-						break; // Done! Since the parent is smaller or equal to the smaller child
-					else
-					{
-						// Let the smaller child turn parent, and downgrade the parent to the child
-						// Swap child and parent
-						tmp = extraHeapArray[parentID];
-						extraHeapArray[parentID] = extraHeapArray[childID];
-						extraHeapArray[childID] = tmp;
-						// Since parent and child are swapped, we need to traverse down further
-						parentID = childID;
-						childID = parentID * 2 + 1;
-					}
-				}
-			}
+        if (nodeReduced == 1)
+        {
+            // Replace the root node with the last node
+            stockHeapArray[0] = stockHeapArray[totalNumber - 1];
+            // Reduce the number of stock nodes
+            totalNumber--;
+            // Re min-heapify the stock node heap array
+            StockHeapArrayFirstMinHipified();
+            goto RootChanged;
+        }
 
-			kIdx = Query[i].k - 1;
-			value = SortedPrice[kIdx];
-			// next value is in sequence previous
-			prevValue = SortedPrice[kIdx - 1];
-			extraValue = extraHeapArray[0]->value;
+        // The smallest Stock node upgrades its heap to the next value
+        stockHeapArray[0]->segmentHeapArray[0]->seqID += increasePeriod; // day id jump to next increased day
+        unsigned long long v = price(stockHeapArray[0]->stockID, stockHeapArray[0]->segmentHeapArray[0]->seqID); // get upgraded value
+        stockHeapArray[0]->segmentHeapArray[0]->value = v; // update value
 
-			while (1)
-			{
-				if (extraValue >= value)
-				{
-					answer = value;
-					break;
-				}
-				else if ((kIdx > 0 && extraValue >= prevValue && extraValue < value) || (kIdx == 0 && extraValue < value))
-				{
-					answer = extraValue;
-					break;
-				}
-				else
-				{
-					// Lower down one item
-					kIdx--;
-					value = SortedPrice[kIdx];
-					if (kIdx > 0)
-						prevValue = SortedPrice[kIdx - 1];
+        // Top-down min heapify the nested min-heap of the stock node
+        int parentID = 0; // The root is upgraded
+        int childID = 1;
+        while (childID < increasePeriod) // child is traversed one by one
+        {
+            // Select the child with the smaller value
+            if (childID + 1 < increasePeriod && stockHeapArray[0]->segmentHeapArray[childID + 1]->value < stockHeapArray[0]->segmentHeapArray[childID]->value)
+                childID++; // second child is smaller than first child
+            if (stockHeapArray[0]->segmentHeapArray[parentID]->value <= stockHeapArray[0]->segmentHeapArray[childID]->value)
+            {
+                break; // Done! Since the parent is smaller or equal to the smaller child
+            }
+            else
+            {
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                segmentTemp = stockHeapArray[0]->segmentHeapArray[parentID];
+                stockHeapArray[0]->segmentHeapArray[parentID] = stockHeapArray[0]->segmentHeapArray[childID];
+                stockHeapArray[0]->segmentHeapArray[childID] = segmentTemp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
+            }
+        }
 
-					// extra heap root upgrade 
-					// The smallest node upgrades to next value
-					extraHeapArray[0]->seq_id += N; // day id jump to next increased day
-					unsigned long long v = price(Query[i].ES, extraHeapArray[0]->seq_id); // get upgraded value
-					extraHeapArray[0]->value = v; // update value
+        // The root stock has upgraded its heap, now hepify the outer stock node heap
+        parentID = 0; // The root stock has upgraded
+        childID = 1;
+        // Top-down min heapify the outer stock heap
+        while (childID < totalNumber) // child is traversed one by one
+        {
+            // Select the child with the smaller value
+            if (childID + 1 < totalNumber && stockHeapArray[childID + 1]->segmentHeapArray[0]->value < stockHeapArray[childID]->segmentHeapArray[0]->value)
+                childID++; // second child is smaller than first child
+            if (stockHeapArray[parentID]->segmentHeapArray[0]->value <= stockHeapArray[childID]->segmentHeapArray[0]->value)
+            {
+                break; // Done! Since the parent is smaller or equal to the smaller child
+            }
+            else
+            {
+                // Let the smaller child turn parent, and downgrade the parent to the child
+                // Swap child and parent
+                stockTemp = stockHeapArray[parentID];
+                stockHeapArray[parentID] = stockHeapArray[childID];
+                stockHeapArray[childID] = stockTemp;
+                // Since parent and child are swapped, we need to traverse down further
+                parentID = childID;
+                childID = parentID * 2 + 1;
+            }
+        }
+        drawCount++;
+    }
 
-					parentID = 0; // The root is upgraded
-					childID = 1;
-					while (childID < N) // child is traversed one by one
-					{
-						// Select the child with the smaller value
-						if (childID + 1 < N && extraHeapArray[childID + 1]->value < extraHeapArray[childID]->value)
-							childID++; // second child is smaller than first child
-						if (extraHeapArray[parentID]->value <= extraHeapArray[childID]->value)
-						{
-							break; // Done! Since the parent is smaller or equal to the smaller child
-						}
-						else
-						{
-							// Let the smaller child turn parent, and downgrade the parent to the child
-							// Swap child and parent
-							tmp = extraHeapArray[parentID];
-							extraHeapArray[parentID] = extraHeapArray[childID];
-							extraHeapArray[childID] = tmp;
-							// Since parent and child are swapped, we need to traverse down further
-							parentID = childID;
-							childID = parentID * 2 + 1;
-						}
-					}
-					extraValue = extraHeapArray[0]->value;
-				}
-			}
-			printf("%llu\n", answer);
-		}
-	}
+    // Print out answers for all queries
+    for (int i = 0; i < numQuery; i++)
+    {
+        printf("%llu\n", queryArray[i].answer);
+    }
 
-
-	if (FileFlag && ptr != NULL)
-	{
-		fclose(ptr);
-	}
-	return 0;
+    if (FileFlag)
+    {
+        fclose(filePtr);
+    }
+    return;
 }
-
-#pragma   warning(pop)  
