@@ -55,7 +55,7 @@ void main()
     int p2Start = 0;
 
     // Module value set
-    long long module = pow(2, 8 * sizeof(long long)) / range;
+    long long module = pow(2, 8 * sizeof(int)) / range;
 
     // The current active length covering target length, part length, and possible a middle character
     int active = length; 
