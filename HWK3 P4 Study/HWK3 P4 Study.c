@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
-#include<time.h>
+#include<string.h>
 
 
 //  aabc
@@ -22,7 +22,7 @@
 //  ababa
 
 
-char s[10000000];
+char s[10000010];
 int length;
 unsigned char low = 0x21;
 unsigned char up = 0x7E;
@@ -32,11 +32,15 @@ void main()
 {
     // char value 0x21 up to 0x7E
     unsigned char c;
-    length = 0;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-        s[length++] = c - low;
-    }
+    //length = 0;
+    //while ((c = getchar()) != '\n' && c != EOF)
+    //{
+    //    s[length++] = c - low;
+    //}
+    scanf("%s", s);
+    length = strlen(s);
+    for (int i = 0; i < length; i++)
+        s[i] -= low;
 
     // Target1+Part1 for suffix palindrome; Target1 start from s[0] and shift to right step by step.
     // Part1 reverses from the last characters.
