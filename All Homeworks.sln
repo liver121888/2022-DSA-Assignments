@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32106.194
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HW0_GCD4BigInt", "HW0\HW0\HW0.vcxproj", "{692D996D-2934-432B-B69C-79B88BCB9244}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK2 P5 Hierarchical Heap for DataSets and Extra Heap", "HWK2 P5 Hierarchical Heap for DataSets and Extra Heap\HWK2 P5 Hierarchical Heap for DataSets and Extra Heap.vcxproj", "{4EEB93FC-2284-4C0B-85A6-4F08DD497FA8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK3 P4 Study", "HWK3 P4 Study\HWK3 P4 Study.vcxproj", "{2A45FA4C-0381-48C8-AAE4-74D371EC2483}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK3 P5 Study", "HWK3 P5 Study\HWK3 P5 Study.vcxproj", "{0ADED86A-7CA8-45FC-86ED-72260EB34411}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -197,6 +199,18 @@ Global
 		{2A45FA4C-0381-48C8-AAE4-74D371EC2483}.Release|x64.Build.0 = Release|x64
 		{2A45FA4C-0381-48C8-AAE4-74D371EC2483}.Release|x86.ActiveCfg = Release|Win32
 		{2A45FA4C-0381-48C8-AAE4-74D371EC2483}.Release|x86.Build.0 = Release|Win32
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|Any CPU.Build.0 = Debug|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|x64.ActiveCfg = Debug|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|x64.Build.0 = Debug|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|x86.ActiveCfg = Debug|Win32
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Debug|x86.Build.0 = Debug|Win32
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|Any CPU.ActiveCfg = Release|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|Any CPU.Build.0 = Release|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|x64.ActiveCfg = Release|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|x64.Build.0 = Release|x64
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|x86.ActiveCfg = Release|Win32
+		{0ADED86A-7CA8-45FC-86ED-72260EB34411}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
