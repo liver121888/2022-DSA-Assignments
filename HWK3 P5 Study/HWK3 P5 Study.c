@@ -56,8 +56,10 @@ void main()
 		for (int j = 0; j < size; j++)
 		{
 			if (j == i) continue;
-			masks[i] += (range - 1) * RangeConstants[j];
-			//masks[i] = masks[i] % module;
+			masks[i] +=  (range - 1) * RangeConstants[j] ;
+
+			//masks[i] += ((range - 1) * RangeConstants[j]) % module;
+			// masks[i] = masks[i] % module;
 		}
 	}
 
@@ -70,6 +72,8 @@ void main()
 		{
 			char c = subString[i][j] - low;
 			values[i] += c * RangeConstants[j];
+
+			//values[i] += ( c * RangeConstants[j] ) % module;
 			//values[i] = values[i] % module;
 		}
 	}
