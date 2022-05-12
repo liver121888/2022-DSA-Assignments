@@ -4,192 +4,153 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #pragma warning(push)
 #pragma warning(disable:6385)
 #pragma warning(disable:6386)
 #pragma warning(disable:6011)
 
-// References:
-// Ref: https://www.geeksforgeeks.org/minimum-characters-added-front-make-string-palindrome/?ref=lbp
-// Ref: https://www.geeksforgeeks.org/minimum-number-appends-needed-make-string-palindrome/?ref=lbp
-// For finding the LCA of two nodes
+typedef struct idAndString
+{
+	char* string;
+	int id;
+} IDandString;
 
 
-int FileFlag = 1;
+int FileFlag = 0;
 int DebugFlag = 0;
 int re;
-char s[10 * 1000 * 1000 + 1];
-char* concat;
-int* lps;
-int concatlen;
-int len;
+int number, size, flag;
 
-int computeLPSArray(char* c)
-{
-	int index = 0;
-	lps[0] = 0;
-
-	// the loop calculates lps[i] for i = 1 to M-1
-	int i = 1;
-	while (i < concatlen)
-	{
-		if (c[i] == c[index])
-		{
-			index++;
-			lps[i] = index;
-			i++;
-		}
-		else // (str[i] != str[len])
-		{
-			// This is tricky. Consider the example.
-			// AAACAAAA and i = 7. The idea is similar
-			// to search step.
-			if (index != 0)
-			{
-				index = lps[index - 1];
-
-				// Also, note that we do not increment
-				// i here
-			}
-			else // if (len == 0)
-			{
-				lps[i] = 0;
-				i++;
-			}
-		}
-	}
-	return len - lps[concatlen - 1];
-}
-
-int Compute_Prefix_Function(char* P)
-{
-	int k = 0;
-	lps[0] = 0;
-	for (int q = 1; q < concatlen; q++)
-	{
-		while (k > 0 && P[k] != P[q])
-		{
-			k = lps[k - 1];
-		}
-		if (P[k] == P[q])
-			k = k + 1;
-		lps[q] = k;
-	}
-	if (DebugFlag)
-	{
-		printf("lps: \n");
-		for (int i = 0; i < concatlen; i++)
-			printf("%d, ", lps[i]);
-		printf("\n");
-	}
-	return len - lps[concatlen - 1];
-}
-
-
-
-
-
+const unsigned char low = 0x21;
+const unsigned char up = 0x7E;
+const int range = 0x7E - 0x21 + 1;
+const unsigned long long q = ULONG_MAX/94;
+IDandString** itemString, **sorted;
 
 int main()
 {
 	FILE* ptr = 0;
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P4\\1.in", "r");
-		re = fscanf(ptr, "%s", &s);
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\3.in", "r");
+		re = fscanf(ptr, "%d %d %d", &number, &size, &flag);
 	}
 	else
-		re = scanf("%s", &s);
-	len = strlen(s);
-	concatlen = 2 * len + 1;
-	concat = malloc(sizeof(char) * (concatlen));
-	// reversed is insert at front
-	for (int i = 0; i < len; i++)
-		concat[i] = s[len - 1 - i];
-	concat[len] = 7;
-	for (int i = len + 1; i < concatlen; i++)
-		concat[i] = s[i - (len + 1)];
+		re = scanf("%d %d %d", &number, &size, &flag);
 
-
-	if (DebugFlag)
+	itemString = malloc(sizeof(IDandString*) * number);
+	sorted = malloc(sizeof(IDandString*) * number);
+	for (int i = 0; i < number; i++)
 	{
-		for (int i = 0; i < concatlen; i++)
-			printf("%c, ", concat[i]);
-		printf("\n");
+		itemString[i] = malloc(sizeof(IDandString));
+		// may don't need size + 1
+		itemString[i]->string = malloc(sizeof(char) * (size + 1));
+		if (FileFlag)
+			re = fscanf(ptr, "%s", itemString[i]->string);
+		else
+			re = scanf("%s", itemString[i]->string);
+		itemString[i]->id = i;
+		for (int j = 0; j < size; j++) 
+			itemString[i]->string[j] = itemString[i]->string[j] - low;
 	}
 
-	lps = malloc(sizeof(int) * (concatlen));
-	int b = Compute_Prefix_Function(concat);
-	if (DebugFlag)
+	// Radix Sort + Counting Sort
+	int* countArray = malloc(sizeof(int) * range);
+	for (int s = 0; s < size; s++)
 	{
-		printf("b: %d\n", b);
-	}
-
-	// reversed is insert at back
-	for (int i = 0; i < len; i++)
-	{
-		concat[i] = s[i];
-	}
-	concat[len] = 7;
-	for (int i = len + 1; i < concatlen; i++)
-	{
-		concat[i] = s[concatlen - i - 1];
-	}
-	if (DebugFlag)
-	{
-		for (int i = 0; i < concatlen; i++)
-			printf("%c, ", concat[i]);
-		printf("\n");
-	}
-
-	int f = Compute_Prefix_Function(concat);
-	if (DebugFlag)
-	{
-		printf("f: %d\n", f);
-	}
-
-
-
-	if (f == b)
-	{
-		printf("%d\n", f);
-		for (int i = 0; i < f; i++)
+		// Reset counters
+		for (int r = 0; r < range; r++) 
+			countArray[r] = 0;
+		// Count value appearances
+		for (int i = 0; i < number; i++)
 		{
-			printf("%c", s[len - 1 - i]);
+			int v = (int)(itemString[i]->string[s]);
+			countArray[v] = countArray[v] + 1;
 		}
-		printf("%s\n", s);
-
-		if (f != 0)
+		// cumulate
+		for (int r = 1; r < range; r++) 
+			countArray[r] = countArray[r] + countArray[r - 1];
+		for (int i = number - 1; i >= 0; i--)
 		{
-			printf("%s", s);
-			for (int i = b - 1; i >= 0; i--)
+			int c = (int)(itemString[i]->string[s]);
+			int pos = countArray[c] - 1; // target position
+			sorted[pos] = itemString[i]; // assign pointer to the target position
+			countArray[c] = countArray[c] - 1;
+		}
+		// update the pointer list with the sorted pointers 
+		for (int i = 0; i < number; i++) 
+			itemString[i] = sorted[i];
+	}
+
+
+
+	// For flag = 0 will simply cross check pairs of substrings until we find the first
+	if (flag == 0)
+	{
+		int done = 0;
+		for (int i = 0; i < number; i++)
+		{
+			for (int j = i + 1; j < number; j++)
 			{
-				printf("%c", s[i]);
+				int differentCount = 0;
+				for (int s = 0; s < size; s++)
+				{
+					if (itemString[i]->string[s] != itemString[j]->string[s])
+					{
+						differentCount++;
+						if (differentCount > 1) break;
+					}
+				}
+				if (differentCount <= 1)
+				{
+					// i, j? j, i?
+					printf("Yes\n");
+					printf("%d ", itemString[j]->id);
+					printf("%d\n", itemString[i]->id);
+					//printf("Yes\n%d %d\n", itemString[j]->id, itemString[i]->id);
+					done = 1;
+					break;
+				}
 			}
-			printf("\n");
+			if (done) break;
 		}
-	}
-	else if (f < b)
-	{
-		printf("%d\n", f);
-		for (int i = 0; i < f; i++)
+		if (!done)
 		{
-			printf("%c", s[len - 1 - i]);
+			printf("No\n");
 		}
-		printf("%s\n", s);
 	}
 	else
 	{
-		printf("%d\n", b);
-		printf("%s", s);
-		for (int i = b - 1; i >= 0; i--)
+		// flag == 1
+		int similarCount = 0;
+		for (int i = 0; i < number; i++)
 		{
-			printf("%c", s[i]);
+			for (int j = i + 1; j < number; j++)
+			{
+				int differentCount = 0;
+				for (int s = 0; s < size; s++)
+				{
+					if (itemString[i]->string[s] != itemString[j]->string[s])
+					{
+						differentCount++;
+						if (differentCount > 1) break;
+					}
+				}
+				if (differentCount <= 1) similarCount++;
+			}
 		}
-		printf("\n");
+		if (similarCount == 0) printf("No\n");
+		else
+		{
+			printf("Yes\n");
+			printf("%d\n", similarCount);
+		}
 	}
 
-	if (FileFlag && ptr != NULL)
+
+
+	if (FileFlag)
 	{
 		fclose(ptr);
 	}
