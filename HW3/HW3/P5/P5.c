@@ -10,6 +10,7 @@
 #pragma warning(disable:6386)
 #pragma warning(disable:6011)
 
+
 typedef struct idAndString
 {
 	unsigned long long RKValue;
@@ -20,13 +21,20 @@ typedef struct idAndString
 
 int FileFlag = 1;
 int DebugFlag = 0;
+
+// remember to modify struct too!!!
+int ULLFLAG = 1;
+unsigned long long q = ULLONG_MAX / (0x7E - 0x21 + 1) + 1;
+//long long q = LLONG_MAX / (0x7E - 0x21 + 1) + 1;
+
 int re;
 int number, size, flag;
 
 const unsigned char low = 0x21;
 const unsigned char up = 0x7E;
 const int range = 0x7E - 0x21 + 1;
-unsigned long long q = ULLONG_MAX /(0x7E - 0x21 + 1) + 1;
+
+
 IDandString* itemString, *subString;
 
 
@@ -48,16 +56,24 @@ int compare(const void* arg1, const void* arg2)
 		return 1;
 }
 
-unsigned long long mod(unsigned long long arg1)
+unsigned long long mod(unsigned long long arg1, unsigned long long arg2)
 {
-	return arg1 % q > 0 ? arg1 % q : arg1 % q + q;;
+	return arg1 >= arg2 ? (arg1-arg2) % q : (arg1 + q - arg2) % q;
+}
+
+long long modll(long long arg1)
+{
+	return arg1 % q >= 0 ? arg1 % q : arg1 % q + q;
 }
 
 void printArray(IDandString* ptr, int len)
 {
 	for (int i = 0; i < len; i++)
 	{
-		printf("(%llu, %d), ", ptr[i].RKValue, ptr[i].id);
+		if (ULLFLAG)
+			printf("(%llu, %d), ", ptr[i].RKValue, ptr[i].id);
+		else
+			printf("(%lld, %d), ", ptr[i].RKValue, ptr[i].id);
 	}
 	printf("\n");
 }
@@ -68,7 +84,7 @@ int main()
 	FILE* ptr = 0;
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\4.in", "r");
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\0.in", "r");
 		re = fscanf(ptr, "%d %d %d", &number, &size, &flag);
 	}
 	else
@@ -79,7 +95,7 @@ int main()
 
 	itemString = malloc(sizeof(IDandString) * number);
 	subString = malloc(sizeof(IDandString) * number);
-	char* tmp = malloc(sizeof(char) * size + 1);
+	char* tmp = malloc(sizeof(char) * (size + 1));
 	for (int i = 0; i < number; i++)
 	{
 		itemString[i].id = i;
@@ -89,15 +105,19 @@ int main()
 			re = fscanf(ptr, "%s", tmp);
 		else
 			re = scanf("%s", tmp);
-		itemString[i].string = malloc(sizeof(char) * size + 1);
+		itemString[i].string = malloc(sizeof(char) * (size + 1));
 
 		for (int j = 0; j < size; j++)
 		{
-			itemString[i].string[j] = tmp[j] - low;
-			itemString[i].RKValue = itemString[i].RKValue * (unsigned long long)(range)
-						+ (unsigned long long)(tmp[j] - low);
+			if (itemString[i].string)
+			{
+				itemString[i].string[j] = tmp[j] - low;
+				if (ULLFLAG)
+					itemString[i].RKValue = (itemString[i].RKValue * (range) % q + (unsigned long long)(tmp[j] - low))%q;
+				else
+					itemString[i].RKValue = modll(modll(itemString[i].RKValue * (range)) + (long long)(tmp[j] - low));
+			}
 		}
-		itemString[i].RKValue = mod(itemString[i].RKValue);
 	}
 	if (DebugFlag)
 	{
@@ -116,35 +136,9 @@ int main()
 	}
 
 
-	//// Radix Sort + Counting Sort
-	//int* countArray = malloc(sizeof(int) * range);
-	//for (int s = 0; s < size; s++)
-	//{
-	//	// Reset counters
-	//	for (int r = 0; r < range; r++) 
-	//		countArray[r] = 0;
-	//	// Count value appearances
-	//	for (int i = 0; i < number; i++)
-	//	{
-	//		int v = (int)(itemString[i]->string[s]);
-	//		countArray[v] = countArray[v] + 1;
-	//	}
-	//	// cumulate
-	//	for (int r = 1; r < range; r++) 
-	//		countArray[r] = countArray[r] + countArray[r - 1];
-	//	for (int i = number - 1; i >= 0; i--)
-	//	{
-	//		int c = (int)(itemString[i]->string[s]);
-	//		int pos = countArray[c] - 1; // target position
-	//		sorted[pos] = itemString[i]; // assign pointer to the target position
-	//		countArray[c] = countArray[c] - 1;
-	//	}
-	//	// update the pointer list with the sorted pointers 
-	//	for (int i = 0; i < number; i++) 
-	//		itemString[i] = sorted[i];
-	//}
-
 	unsigned long long x = 1;
+	long long y = 1;
+
 	if (flag == 0)
 	{
 		found = 0;
@@ -164,9 +158,17 @@ int main()
 			for (int j = 0; j < number; j++)
 			{
 				subString[j].id = itemString[j].id;
-				subString[j].RKValue = mod(itemString[j].RKValue - mod((unsigned long long)(x * itemString[subString[j].id].string[i])));
+				if (ULLFLAG)
+					subString[j].RKValue = mod(itemString[subString[j].id].RKValue, (x * itemString[subString[j].id].string[i])%q);
+				else
+					subString[j].RKValue = modll(itemString[subString[j].id].RKValue - modll(y * itemString[subString[j].id].string[i]));
 			}
-			x = mod(x * range);
+
+			if (ULLFLAG)
+				x = (x * range) % q;
+			else
+				y = (y * range) % q;
+
 			if (DebugFlag)
 			{
 				printf("Non-Sorted subString: \n");
@@ -240,9 +242,17 @@ int main()
 			for (int j = 0; j < number; j++)
 			{
 				subString[j].id = itemString[j].id;
-				subString[j].RKValue = mod(itemString[j].RKValue - mod((unsigned long long)(x * itemString[subString[j].id].string[i])));
+				if (ULLFLAG)
+					subString[j].RKValue = mod(itemString[subString[j].id].RKValue, (x * itemString[subString[j].id].string[i]) % q);
+				else
+					subString[j].RKValue = modll(itemString[subString[j].id].RKValue - modll(y * itemString[subString[j].id].string[i]));
 			}
-			x = mod(x * range);
+
+			if (ULLFLAG)
+				x = (x * range) % q;
+			else
+				y = (y * range) % q;
+
 
 			if (DebugFlag)
 			{
@@ -296,4 +306,4 @@ int main()
 	}
 	return 0;
 }
-#pragma   warning(pop)  
+#pragma warning(pop)  
