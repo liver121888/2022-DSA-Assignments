@@ -1,15 +1,9 @@
-#define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h> // malloc / free
 #include <memory.h> // memset
-#pragma warning(push)
-#pragma warning(disable:6385)
-#pragma warning(disable:6386)
-#pragma warning(disable:6011)
- 
+
 // upload = 1 => upload judge
-int upload = 0;
+int upload = 1;
 
 // k : # of magic/ l : length of magic / flag : answer format
 int k, l, flag;
@@ -28,38 +22,29 @@ typedef struct data
 data* RK, * RK_tmp;
 
 // compare func for qsort
-int cmpfunc(const void* arg1, const void* arg2)
+int cmpfunc(const void* a, const void* b)
 {
-    /* Compare all of both strings: */
-    struct data* a = (struct data*)arg1;
-    struct data* b = (struct data*)arg2;
-
-    if (a->key < b->key)
+    if (((data*)a)->key < ((data*)b)->key)
     {
         return -1;
     }
-    else if (a->key == b->key)
+    else if (((data*)a)->key == ((data*)b)->key)
     {
         return 0;
     }
     else
         return 1;
-    //return (((data*)a)->key - ((data*)b)->key);
-}
-
-unsigned long long Mod(unsigned long long a, unsigned long long b)
-{
-    return a >= b ? (a - b) % q : (a + q - b) % q;
+    // return (((data *)a)->key - ((data *)b)->key);
 }
 
 int main()
 {
-    FILE* fp = 0;
+    FILE* fp;
     if (upload)
         scanf("%d %d %d", &k, &l, &flag);
     else
     {
-        fp = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\5.in", "r");
+        fp = fopen("D:\\nick\\Homework\\Senior\\DSA\\Homework\\b07501117\\9\\test\\5.in", "r");
         fscanf(fp, "%d %d %d", &k, &l, &flag);
     }
 
@@ -70,13 +55,13 @@ int main()
     }
 
     // input(k * l) : to store all input char
-    input = malloc(sizeof(char*) * k + 1);
+    input = malloc(sizeof(char*) * k);
     RK = malloc(sizeof(data) * k);
     RK_tmp = malloc(sizeof(data) * k);
 
     for (int i = 0; i < k; i++)
     {
-        input[i] = malloc(sizeof(char) * l);
+        input[i] = malloc(sizeof(char) * (l + 1));
         if (upload)
             scanf("%s", input[i]);
         else
@@ -95,15 +80,16 @@ int main()
     }
 
     unsigned long long count = 1;
-    unsigned long long x = 1;
     unsigned long long total = 0;
+
+    unsigned long long x = 1;
     for (int j = l - 1; j >= 0; j--)
     {
         // calculate Rabin-Karp values for missing char
         for (int i = 0; i < k; i++)
         {
             RK_tmp[i].idx = RK[i].idx;
-            RK_tmp[i].key = Mod(RK[i].key, (unsigned long long)(input[i][j] - 33) * x % q);
+            RK_tmp[i].key = ((RK[i].key + q) - (unsigned long long)(input[i][j] - 33) * x % q) % q;
         }
         x = x * 94 % q;
 
@@ -181,4 +167,3 @@ int main()
 
     return 0;
 }
-#pragma warning(pop)  

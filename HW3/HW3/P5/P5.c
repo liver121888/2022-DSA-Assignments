@@ -22,10 +22,7 @@ typedef struct idAndString
 int FileFlag = 1;
 int DebugFlag = 0;
 
-// remember to modify struct too!!!
-int ULLFLAG = 1;
 unsigned long long q = ULLONG_MAX / (0x7E - 0x21 + 1) + 1;
-//long long q = LLONG_MAX / (0x7E - 0x21 + 1) + 1;
 
 int re;
 int number, size, flag;
@@ -56,24 +53,12 @@ int compare(const void* arg1, const void* arg2)
 		return 1;
 }
 
-unsigned long long mod(unsigned long long arg1, unsigned long long arg2)
-{
-	return arg1 >= arg2 ? (arg1-arg2) % q : (arg1 + q - arg2) % q;
-}
-
-long long modll(long long arg1)
-{
-	return arg1 % q >= 0 ? arg1 % q : arg1 % q + q;
-}
 
 void printArray(IDandString* ptr, int len)
 {
 	for (int i = 0; i < len; i++)
 	{
-		if (ULLFLAG)
 			printf("(%llu, %d), ", ptr[i].RKValue, ptr[i].id);
-		else
-			printf("(%lld, %d), ", ptr[i].RKValue, ptr[i].id);
 	}
 	printf("\n");
 }
@@ -84,7 +69,7 @@ int main()
 	FILE* ptr = 0;
 	if (FileFlag)
 	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\0.in", "r");
+		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW3\\HW3\\hw3_testdata\\P5\\7.in", "r");
 		re = fscanf(ptr, "%d %d %d", &number, &size, &flag);
 	}
 	else
@@ -112,10 +97,7 @@ int main()
 			if (itemString[i].string)
 			{
 				itemString[i].string[j] = tmp[j] - low;
-				if (ULLFLAG)
-					itemString[i].RKValue = (itemString[i].RKValue * (range) % q + (unsigned long long)(tmp[j] - low))%q;
-				else
-					itemString[i].RKValue = modll(modll(itemString[i].RKValue * (range)) + (long long)(tmp[j] - low));
+				itemString[i].RKValue = (itemString[i].RKValue * (range) % q + (unsigned long long)(tmp[j] - low))%q;
 			}
 		}
 	}
@@ -137,7 +119,6 @@ int main()
 
 
 	unsigned long long x = 1;
-	long long y = 1;
 
 	if (flag == 0)
 	{
@@ -158,16 +139,10 @@ int main()
 			for (int j = 0; j < number; j++)
 			{
 				subString[j].id = itemString[j].id;
-				if (ULLFLAG)
-					subString[j].RKValue = mod(itemString[subString[j].id].RKValue, (x * itemString[subString[j].id].string[i])%q);
-				else
-					subString[j].RKValue = modll(itemString[subString[j].id].RKValue - modll(y * itemString[subString[j].id].string[i]));
+				//subString[j].RKValue = ( (itemString[subString[j].id].RKValue + q) - (unsigned long long)(itemString[subString[j].id].string[i])*x %q )%q;
+				subString[j].RKValue = ((itemString[j].RKValue + q) - (unsigned long long)(itemString[j].string[i]) * x % q) % q;
 			}
-
-			if (ULLFLAG)
-				x = (x * range) % q;
-			else
-				y = (y * range) % q;
+			x = (x * range) % q;
 
 			if (DebugFlag)
 			{
@@ -242,16 +217,10 @@ int main()
 			for (int j = 0; j < number; j++)
 			{
 				subString[j].id = itemString[j].id;
-				if (ULLFLAG)
-					subString[j].RKValue = mod(itemString[subString[j].id].RKValue, (x * itemString[subString[j].id].string[i]) % q);
-				else
-					subString[j].RKValue = modll(itemString[subString[j].id].RKValue - modll(y * itemString[subString[j].id].string[i]));
+				//subString[j].RKValue = ( (itemString[subString[j].id].RKValue + q) - (unsigned long long)(itemString[subString[j].id].string[i]) * x % q) % q;
+				subString[j].RKValue = ((itemString[j].RKValue + q) - (unsigned long long)(itemString[j].string[i]) * x % q) % q;
 			}
-
-			if (ULLFLAG)
-				x = (x * range) % q;
-			else
-				y = (y * range) % q;
+			x = (x * range) % q;
 
 
 			if (DebugFlag)
