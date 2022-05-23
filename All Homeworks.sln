@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK3 P5 Study", "HWK3 P5 St
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK P5 RadixSort", "HWK P5 RadixSort\HWK P5 RadixSort.vcxproj", "{E9DD87D6-4C25-48EB-A8E1-29B04A451479}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P4 Study", "HWK4 P4 Study\HWK4 P4 Study.vcxproj", "{F27FC9F2-81DC-4955-BF3F-E39BD512F769}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -225,6 +227,18 @@ Global
 		{E9DD87D6-4C25-48EB-A8E1-29B04A451479}.Release|x64.Build.0 = Release|x64
 		{E9DD87D6-4C25-48EB-A8E1-29B04A451479}.Release|x86.ActiveCfg = Release|Win32
 		{E9DD87D6-4C25-48EB-A8E1-29B04A451479}.Release|x86.Build.0 = Release|Win32
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|Any CPU.Build.0 = Debug|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|x64.ActiveCfg = Debug|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|x64.Build.0 = Debug|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|x86.ActiveCfg = Debug|Win32
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Debug|x86.Build.0 = Debug|Win32
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|Any CPU.ActiveCfg = Release|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|Any CPU.Build.0 = Release|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|x64.ActiveCfg = Release|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|x64.Build.0 = Release|x64
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|x86.ActiveCfg = Release|Win32
+		{F27FC9F2-81DC-4955-BF3F-E39BD512F769}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
