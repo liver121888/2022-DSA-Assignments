@@ -19,15 +19,18 @@ void insertAMachine(int p, int k)
 {
 	int count;
 	unsigned int next, prev, add,temp;
-	XorNode* nextNode;
+	XorNode* nextNode = 0;
+
+	// Create an instance and assign time value
 	XorNode* addNode = malloc(sizeof(XorNode));
 	addNode->time = k;
+
 	add = (unsigned int)addNode;
 
 	if (p == 0)
 	{
-		(unsigned int)(head->prevNext) = (unsigned int)(head->prevNext) ^ add;
-		addNode->prevNext = (unsigned int )head;
+		head->prevNext = (unsigned int)  head  ^  add;
+		addNode->prevNext = head;
 		head = addNode;
 		N = N + 1;
 		return;
@@ -35,8 +38,8 @@ void insertAMachine(int p, int k)
 	
 	if (p >= N)
 	{
-		(unsigned int)(tail->prevNext) = (unsigned int)(tail->prevNext) ^ add;
-		addNode->prevNext = (unsigned int)tail;
+		tail->prevNext = (unsigned int)(tail->prevNext) ^ add;
+		addNode->prevNext = tail;
 		tail = addNode;
 		N = N + 1;
 		return;
@@ -52,7 +55,7 @@ void insertAMachine(int p, int k)
 		prev = 0;
 		while (count != p)
 		{
-			next = ( (unsigned int)(tempNode->prevNext) ^ prev );
+			next =  (unsigned int)(tempNode->prevNext) ^ prev ;
 			prev = temp;
 			temp = next;
 			tempNode = (XorNode*)temp;
@@ -62,8 +65,8 @@ void insertAMachine(int p, int k)
 		nextNode = (XorNode*)next;
 		// Insert a node after temp
 		addNode->prevNext = temp ^ next;
-		(unsigned int)(tempNode->prevNext) = prev ^ add;
-		(unsigned int)(nextNode->prevNext) = (  (unsigned int)(nextNode->prevNext) ^ temp ) ^ add;
+		 tempNode->prevNext = prev ^ add;
+		 nextNode->prevNext =  (unsigned int)( nextNode->prevNext ) ^ temp  ^ add;
 	}
 	else
 	{
@@ -85,8 +88,8 @@ void insertAMachine(int p, int k)
 		nextNode = (XorNode*)next;
 		// Insert a node after temp
 		addNode->prevNext = temp ^ next;
-		(unsigned int)(tempNode->prevNext) = prev ^ add;
-		(unsigned int)(nextNode->prevNext) = ((unsigned int)(nextNode->prevNext) ^ temp) ^ add;
+		tempNode->prevNext = prev ^ add;
+		nextNode->prevNext = ((unsigned int)(nextNode->prevNext) ^ temp) ^ add;
 	}
 
 	N = N + 1;
@@ -100,9 +103,8 @@ void retireAMachine(int p)
  
 	if (p == 1)
 	{
-		next = (unsigned int)(head->prevNext);
-		nextNode = (XorNode*)next;
-		(unsigned int)(nextNode->prevNext) = (unsigned int)((unsigned int)(nextNode->prevNext)) ^ (unsigned int)head;
+		nextNode = head->prevNext;
+		 nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ (unsigned int)head;
 		head = nextNode;
 		N = N - 1;
 		return;
@@ -112,7 +114,7 @@ void retireAMachine(int p)
 	{
 		prev = (unsigned int)(tail->prevNext);
 		prevNode = (XorNode*)prev;
-		(unsigned int)(prevNode->prevNext) = (unsigned int)((unsigned int)(prevNode->prevNext)) ^ (unsigned int)tail;
+		 prevNode->prevNext  =  (unsigned int)(prevNode->prevNext)  ^ (unsigned int)tail;
 		tail = prevNode;
 		N = N - 1;
 		return;
@@ -137,8 +139,8 @@ void retireAMachine(int p)
 		next = ((unsigned int)(tempNode->prevNext) ^ prev);
 		nextNode = (XorNode*)next;
 		// Discard tempNode
-		(unsigned int)(prevNode->prevNext) = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
-		(unsigned int)(nextNode->prevNext) = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
+		prevNode->prevNext = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
+		nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
 	}
 	else
 	{
@@ -159,11 +161,12 @@ void retireAMachine(int p)
 		prevNode = (XorNode*)prev;
 		nextNode = (XorNode*)next;
 		// Discard tempNode
-		(unsigned int)(prevNode->prevNext) = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
-		(unsigned int)(nextNode->prevNext) = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
+		prevNode->prevNext = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
+		nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
 	}
 	N = N + 1;
 }
+
 
 void swapMachine(int l, int r)
 {
