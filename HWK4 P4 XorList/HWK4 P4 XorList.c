@@ -18,18 +18,16 @@ XorNode	* head, *tail, *tempNode;
 void insertAMachine(int p, int k)
 {
 	int count;
-	unsigned int next, prev, add,temp;
-	XorNode* nextNode = 0;
+	//unsigned int next, prev,  temp;
+	XorNode* nextNode = 0, *prevNode = 0, *nextNode = 0;
 
 	// Create an instance and assign time value
 	XorNode* addNode = malloc(sizeof(XorNode));
 	addNode->time = k;
 
-	add = (unsigned int)addNode;
-
 	if (p == 0)
 	{
-		head->prevNext = (unsigned int)  head  ^  add;
+		head->prevNext = (unsigned int)  head  ^ (unsigned int) addNode;
 		addNode->prevNext = head;
 		head = addNode;
 		N = N + 1;
@@ -38,7 +36,7 @@ void insertAMachine(int p, int k)
 	
 	if (p >= N)
 	{
-		tail->prevNext = (unsigned int)(tail->prevNext) ^ add;
+		tail->prevNext = (unsigned int)(tail->prevNext) ^ (unsigned int)addNode;
 		addNode->prevNext = tail;
 		tail = addNode;
 		N = N + 1;
@@ -50,46 +48,42 @@ void insertAMachine(int p, int k)
 		// from head
 
 		tempNode = head;
-		temp = (unsigned int)tempNode;
 		count = 1;
-		prev = 0;
+		prevNode = 0;
 		while (count != p)
 		{
-			next =  (unsigned int)(tempNode->prevNext) ^ prev ;
-			prev = temp;
-			temp = next;
-			tempNode = (XorNode*)temp;
+			nextNode =  (unsigned int) tempNode->prevNext ^ (unsigned int)prevNode;
+			prevNode = tempNode;
+			tempNode = nextNode;
 			count++;
 		}
-		next = ((unsigned int)(tempNode->prevNext) ^ prev);
-		nextNode = (XorNode*)next;
+		nextNode =  (unsigned int)tempNode->prevNext ^ (unsigned int)prevNode;
+
 		// Insert a node after temp
-		addNode->prevNext = temp ^ next;
-		 tempNode->prevNext = prev ^ add;
-		 nextNode->prevNext =  (unsigned int)( nextNode->prevNext ) ^ temp  ^ add;
+		addNode->prevNext = (unsigned int)tempNode ^ (unsigned int)nextNode;
+		 tempNode->prevNext = (unsigned int)prevNode ^ (unsigned int)addNode;
+		 nextNode->prevNext =  (unsigned int)( nextNode->prevNext ) ^ (unsigned int)tempNode ^ (unsigned int)addNode;
 	}
 	else
 	{
 		// from tail
 		tempNode = tail;
-		temp = (unsigned int)tempNode;
 
 		count = N;
-		next = 0;
+		nextNode = 0;
 		while (count != p)
 		{
-			prev = (unsigned int)(tempNode->prevNext) ^ next;
-			next = temp;
-			temp = prev;
-			tempNode = (XorNode*)temp;
+			prevNode = (unsigned int)(tempNode->prevNext) ^ (unsigned int)nextNode;
+			nextNode = tempNode;
+			tempNode = prevNode;
 			count--;
 		}
-		prev = (unsigned int)(tempNode->prevNext) ^ next;
-		nextNode = (XorNode*)next;
+		prevNode = (unsigned int)(tempNode->prevNext) ^ (unsigned int)nextNode;
+
 		// Insert a node after temp
-		addNode->prevNext = temp ^ next;
-		tempNode->prevNext = prev ^ add;
-		nextNode->prevNext = ((unsigned int)(nextNode->prevNext) ^ temp) ^ add;
+		addNode->prevNext = (unsigned int)tempNode ^ (unsigned int)nextNode;
+		tempNode->prevNext = (unsigned int)prevNode ^ (unsigned int)addNode;
+		nextNode->prevNext = ((unsigned int)(nextNode->prevNext) ^ (unsigned int)tempNode) ^ (unsigned int)addNode;
 	}
 
 	N = N + 1;
