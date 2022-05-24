@@ -9,173 +9,112 @@ typedef struct node
 {
 	int priority;
 	int id;
+	int time;
 	struct node* parent;
 	struct node* left;
 	struct node* right;
 } Node;
 
  
-int N, Q;
+int N, Q, tenN;
 Node* root;
-Node* temp;
+Node* tempNode;
 Node* left, * right, *current;
-void insertTempToTreap()
+Node** initialArray;
+
+void constructInitialTreap(char lr, Node* parent, int left, int right)
 {
-	if (root)
+	Node* center;
+	int idx = (left + right) / 2;
+	center = initialArray[idx];
+	center->priority = parent->priority - 10;
+	center->parent = parent;
+	if (lr == 'l') parent->left = center;
+	else parent->right = center;
+	if (right - left == 1) return;
+
+	if( left < idx ) constructInitialTreap('l', center, left, idx);
+	if( idx+1 < right ) constructInitialTreap('r', center, idx + 1, right);
+}
+
+
+Node* GetPthNode(int p)
+{
+	int count = 1;
+	tempNode = root;
+	while (count != p)
 	{
-		if (root->id <= temp->id)
-		{
-			// Left and middle
-			if( temp->id == root->id && temp->priority >= root->priority)
-			{
-				// set temp the root
-				left = root;
-				left->parent = temp;
-				temp->left = left;
-			}
-			else
-			{
-				current = root;
-				do
-				{
-
-				} while ();
-				// set temp to left of root
-				left = root->left;
-				left->parent = temp;
-				root->left = temp;
-				temp->parent = root;
-				temp->left = left;
-			}
-		}
-		else
-		{
-
-		}
 
 	}
-	else root = temp;
+
+
+
 }
+void insertAMachine(p, k)
+{
+	int count = 1;
+	tempNode = root;
+	while (count != p)
+	{
+
+	}
+
+}
+
+
+
 void main()
 {
-	scanf("%d %d %d", &N, &Q );
+	scanf("%d %d", &N, &Q );
 	// Create N nodes associated with random priority
+	initialArray = malloc(sizeof(Node*) * N);
+	tenN = 10 * N;
 	for (int i = 1; i <= N; i++)
 	{
-		temp = malloc(sizeof(Node));
-		temp->id = i;
-		temp->priority = rnd();
-		temp->left = temp->right = temp->parent = 0;
-		insertTempToTreap();
+		tempNode = malloc(sizeof(Node));
+		tempNode->id = i;
+		tempNode->left = tempNode->right = tempNode->parent = 0;
+		scanf("%d", &tempNode->time);
+		initialArray[i - 1] = tempNode;
 	}
-
-	// allocate a chuck of contijous memory.
-	all = malloc(sizeof(char) * number * size);
-	subString = malloc(sizeof(char*) * number);
-	values = malloc(sizeof(unsigned long long) * number);
-	// Module value set
-	module = pow(2, 8 * sizeof(int)) / range;
-	RangeConstants = malloc(sizeof(unsigned long long) * size);
-	for (int j = 0; j < size; j++)
-		RangeConstants[j] = (int)(pow(range, j));
-	masks = malloc(sizeof(unsigned long long) * size);
-	for (int i = 0; i < size; i++)
+	int idx = N / 2;
+	root = initialArray[idx];
+	root->parent = 0;
+	root->priority = tenN;
+	constructInitialTreap('l', root, 0, idx);
+	constructInitialTreap('r', root, idx + 1, N);
+	int cmd, p, k, l, r, x, y;
+	for (int i = 0; i < Q; i++)
 	{
-		masks[i] = 0;
-		for (int j = 0; j < size; j++)
+		scanf("%d", &cmd);
+		switch (cmd)
 		{
-			if (j == i) continue;
-			masks[i] += (range - 1) * RangeConstants[j];
-
-			//masks[i] += ((range - 1) * RangeConstants[j]) % module;
-			// masks[i] = masks[i] % module;
+		case 1:
+			scanf("%d %d", &p, &k);
+			insertAMachine(p, k);
+			break;
+		case 2:
+			scanf("%d", &p);
+			retireAMachine(p);
+			break;
+		case 3:
+			scanf("%d %d", &l, &r);
+			swapMachine(l, r);
+			break;
+		case 4:
+			scanf("%d %d %d %d", &l, &r, &x, &y);
+			swapMachineMachine(l, r, x, y);
+			break;
+		case 5:
+			scanf("%d %d %d ", &l, &r, &k);
+			truncateTimes(l, r, k);
+			break;
+		case 6:
+			scanf("%d %d", &l, &r);
+			printRebootTime(l, r);
+			break;
 		}
 	}
 
-	for (int i = 0; i < number; i++)
-	{
-		subString[i] = all + i * size;
-		scanf("%s", subString[i]);
-		values[i] = 0;
-		for (int j = 0; j < size; j++)
-		{
-			char c = subString[i][j] - low;
-			values[i] += c * RangeConstants[j];
-
-			//values[i] += ( c * RangeConstants[j] ) % module;
-			//values[i] = values[i] % module;
-		}
-	}
-
-	int yesNo = 0;
-	int similarCount = 0;
-	int done = 0;
-	for (int i = 0; i < number; i++)
-	{
-		for (int j = i + 1; j < number; j++)
-		{
-			unsigned long long xorResult = values[i] ^ values[j];
-			if (xorResult == 0)
-			{
-				if (flag == 0)
-				{
-					if (yesNo == 0)
-					{
-						printf("Yes\n");
-						yesNo = 1;
-					}
-					printf("%d %d\n", i, j);
-					done = 1;
-					break;
-				}
-				else similarCount++;
-			}
-			else
-			{
-				// Check whether only one character is different
-				int onlyOneCharacterIsDifferent = 0;
-				for (int k = 0; k < size; k++)
-				{
-					if ((xorResult & masks[k]) == 0)
-					{
-						onlyOneCharacterIsDifferent = 1;
-						break;
-					}
-				}
-				if (onlyOneCharacterIsDifferent == 1)
-				{
-					if (flag == 0)
-					{
-						if (yesNo == 0)
-						{
-							printf("Yes\n");
-							yesNo = 1;
-						}
-						printf("%d %d\n", i, j);
-						done = 1;
-						break;
-					}
-					else similarCount++;
-				}
-			}
-		}
-		if (done)break;
-	}
-	if (flag == 0 && yesNo == 0) printf("No\n");
-	else if (flag == 1)
-	{
-		if (similarCount == 0)printf("No\n");
-		else printf("Yes\n%d\n", similarCount);
-	}
-
-	//printf("\n");
-
-	//char answers[80];
-	//scanf("%s", answers);
-	//printf(answers);
-	//printf("\n");
-	//scanf("%s", answers);
-	//printf(answers);
-	//printf("\n");
 
 }
