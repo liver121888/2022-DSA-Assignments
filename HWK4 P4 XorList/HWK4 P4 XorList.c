@@ -19,7 +19,7 @@ void insertAMachine(int p, int k)
 {
 	int count;
 	//unsigned int next, prev,  temp;
-	XorNode* nextNode = 0, *prevNode = 0, *nextNode = 0;
+	XorNode* nextNode = 0, *prevNode = 0 ;
 
 	// Create an instance and assign time value
 	XorNode* addNode = malloc(sizeof(XorNode));
@@ -367,8 +367,8 @@ void truncateTimes(int l, int r, int k)
 void printRebootTime(int l, int r)
 {
 	int count;
-	unsigned int next, prev, add1, add2;
-	XorNode* nextNode1, * prevNode1, * nextNode2, * prevNode2;
+	XorNode* nextNode, *prevNode ;
+	//XorNode* nextNode1, * prevNode1, * nextNode2, * prevNode2;
 	XorNode* node1, * node2;
 	long long sum = 0;
 	// Forward 
@@ -376,24 +376,21 @@ void printRebootTime(int l, int r)
 	{
 		// from head start with node1
 		node1 = head;
-		add1 = (unsigned int)node1;
 		count = 1;
-		prev = 0;
+		prevNode = 0;
 		while (count != l)
 		{
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			prev = add1;
-			add1 = next;
-			node1 = (XorNode*)add1;
+			nextNode =  (unsigned int)(node1->prevNext) ^ (unsigned int)prevNode;
+			prevNode = node1;
+			node1 = nextNode;
 			count++;
 		}
 		sum += node1->time;
 		while (count != r + 1)
 		{
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			prev = add1;
-			add1 = next;
-			node1 = (XorNode*)add1;
+			nextNode = ((unsigned int)(node1->prevNext) ^ (unsigned int)prevNode);
+			prevNode = node1;
+			node1 = nextNode;
 			sum += node1->time;
 			count++;
 		}
@@ -403,25 +400,22 @@ void printRebootTime(int l, int r)
 		// Backward start with node2
 		// from tail
 		node2 = tail;
-		add2 = (unsigned int)node2;
 		count = N;
-		next = 0;
+		nextNode = 0;
 		while (count != r)
 		{
-			prev = (unsigned int)(node2->prevNext) ^ next;
-			next = add2;
-			add2 = prev;
-			node2 = (XorNode*)add2;
+			prevNode = (unsigned int)(node2->prevNext) ^ (unsigned int)nextNode;
+			nextNode = node2;
+			node2 = prevNode;
 			count--;
 		}
 		sum += node2->time;
 
 		while (count != l - 1)
 		{
-			prev = ((unsigned int)(node2->prevNext) ^ next);
-			next = add2;
-			add2 = prev;
-			node2 = (XorNode*)add2;
+			prevNode =  (unsigned int)(node2->prevNext) ^ (unsigned int)nextNode;
+			nextNode = node2;
+			node2 = prevNode;
 			sum += node2->time;
 			count--;
 		}
@@ -450,7 +444,7 @@ void main()
 		else
 		{
 			previous->prevNext = (unsigned int)previous->prevNext ^ (unsigned int)tempNode;
-			(unsigned int)(tempNode->prevNext) = tempNode;
+			tempNode->prevNext = previous;
 		}
 		if (i == N)
 		{
