@@ -680,7 +680,6 @@ void printRebootTime(int l, int r)
 {
 	int count;
 	XorNode* nextNode, *prevNode ;
-	//XorNode* nextNode1, * prevNode1, * nextNode2, * prevNode2;
 	XorNode* node1, * node2;
 	long long sum = 0;
 	// Forward 
