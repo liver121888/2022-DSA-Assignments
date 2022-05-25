@@ -103,7 +103,7 @@ void main()
 			break;
 		case 4:
 			scanf("%d %d %d %d", &l, &r, &x, &y);
-			swapMachineMachine(l, r, x, y);
+			swapTwoBlocks(l, r, x, y);
 			break;
 		case 5:
 			scanf("%d %d %d ", &l, &r, &k);

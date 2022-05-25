@@ -18,7 +18,7 @@ XorNode	* head, *tail, *tempNode;
 void insertAMachine(int p, int k)
 {
 	int count;
-	//unsigned int next, prev,  temp;
+	//unsigned long long next, prev,  temp;
 	XorNode* nextNode = 0, *prevNode = 0 ;
 
 	// Create an instance and assign time value
@@ -27,7 +27,7 @@ void insertAMachine(int p, int k)
 
 	if (p == 0)
 	{
-		head->prevNext = (unsigned int)  head  ^ (unsigned int) addNode;
+		head->prevNext = (unsigned long long)  (head->prevNext)  ^ (unsigned long long) addNode;
 		addNode->prevNext = head;
 		head = addNode;
 		N = N + 1;
@@ -36,14 +36,14 @@ void insertAMachine(int p, int k)
 	
 	if (p >= N)
 	{
-		tail->prevNext = (unsigned int)(tail->prevNext) ^ (unsigned int)addNode;
+		tail->prevNext = (unsigned long long)(tail->prevNext) ^ (unsigned long long)addNode;
 		addNode->prevNext = tail;
 		tail = addNode;
 		N = N + 1;
 		return;
 	}
 		
-	if (p < N / 2)
+	if (p < N / 2.0 )
 	{
 		// from head
 
@@ -52,17 +52,17 @@ void insertAMachine(int p, int k)
 		prevNode = 0;
 		while (count != p)
 		{
-			nextNode =  (unsigned int) tempNode->prevNext ^ (unsigned int)prevNode;
+			nextNode =  (unsigned long long)( tempNode->prevNext ) ^ (unsigned long long)prevNode;
 			prevNode = tempNode;
 			tempNode = nextNode;
 			count++;
 		}
-		nextNode =  (unsigned int)tempNode->prevNext ^ (unsigned int)prevNode;
+		nextNode =  (unsigned long long)( tempNode->prevNext) ^ (unsigned long long)prevNode;
 
 		// Insert a node after temp
-		addNode->prevNext = (unsigned int)tempNode ^ (unsigned int)nextNode;
-		 tempNode->prevNext = (unsigned int)prevNode ^ (unsigned int)addNode;
-		 nextNode->prevNext =  (unsigned int)( nextNode->prevNext ) ^ (unsigned int)tempNode ^ (unsigned int)addNode;
+		//addNode->prevNext = (unsigned long long)tempNode ^ (unsigned long long)nextNode;
+		// tempNode->prevNext = (unsigned long long)prevNode ^ (unsigned long long)addNode;
+		// nextNode->prevNext =  (unsigned long long)( nextNode->prevNext ) ^ (unsigned long long)tempNode ^ (unsigned long long)addNode;
 	}
 	else
 	{
@@ -73,18 +73,22 @@ void insertAMachine(int p, int k)
 		nextNode = 0;
 		while (count != p)
 		{
-			prevNode = (unsigned int)(tempNode->prevNext) ^ (unsigned int)nextNode;
+			prevNode = (unsigned long long)(tempNode->prevNext) ^ (unsigned long long)nextNode;
 			nextNode = tempNode;
 			tempNode = prevNode;
 			count--;
 		}
-		prevNode = (unsigned int)(tempNode->prevNext) ^ (unsigned int)nextNode;
+		prevNode = (unsigned long long)(tempNode->prevNext) ^ (unsigned long long)nextNode;
 
-		// Insert a node after temp
-		addNode->prevNext = (unsigned int)tempNode ^ (unsigned int)nextNode;
-		tempNode->prevNext = (unsigned int)prevNode ^ (unsigned int)addNode;
-		nextNode->prevNext = ((unsigned int)(nextNode->prevNext) ^ (unsigned int)tempNode) ^ (unsigned int)addNode;
+		//// Insert a node after temp
+		//addNode->prevNext = (unsigned long long)tempNode ^ (unsigned long long)nextNode;
+		//tempNode->prevNext = (unsigned long long)prevNode ^ (unsigned long long)addNode;
+		//nextNode->prevNext =  (unsigned long long)(nextNode->prevNext) ^ (unsigned long long)tempNode  ^ (unsigned long long)addNode;
 	}
+	// Insert a node after temp
+	addNode->prevNext = (unsigned long long)tempNode ^ (unsigned long long)nextNode;
+	tempNode->prevNext = (unsigned long long)prevNode ^ (unsigned long long)addNode;
+	nextNode->prevNext = (unsigned long long)(nextNode->prevNext) ^ (unsigned long long)tempNode ^ (unsigned long long)addNode;
 
 	N = N + 1;
 }
@@ -92,13 +96,17 @@ void insertAMachine(int p, int k)
 void retireAMachine(int p)
 {
 	int count;
-	unsigned int next, prev, temp;
+	//unsigned long long next, prev, temp;
 	XorNode* nextNode, *prevNode;
- 
+	XorNode* hitNode;
+
 	if (p == 1)
 	{
+		// get next node of head
 		nextNode = head->prevNext;
-		 nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ (unsigned int)head;
+		// update next node; remove head by xor operation
+		 nextNode->prevNext = (unsigned long long)(nextNode->prevNext) ^ (unsigned long long)head;
+		 // reassign new head
 		head = nextNode;
 		N = N - 1;
 		return;
@@ -106,58 +114,50 @@ void retireAMachine(int p)
 
 	if (p >= N)
 	{
-		prev = (unsigned int)(tail->prevNext);
-		prevNode = (XorNode*)prev;
-		 prevNode->prevNext  =  (unsigned int)(prevNode->prevNext)  ^ (unsigned int)tail;
+		// get prev node of tail
+		prevNode = tail->prevNext;
+		// update prev node; remove tail by xor operation
+		 prevNode->prevNext  =  (unsigned long long)(prevNode->prevNext)  ^ (unsigned long long)tail;
+		 // reassign new tail
 		tail = prevNode;
 		N = N - 1;
 		return;
 	}
 
-	if (p < N / 2)
+	if (p < N / 2.0 )
 	{
-		// from head
-		tempNode = head;
-		temp = (unsigned int)tempNode;
+		// start from head
+		hitNode = head;
 		count = 1;
-		prev = 0;
+		prevNode = 0;
 		while (count != p)
 		{
-			next = ((unsigned int)(tempNode->prevNext) ^ prev);
-			prev = temp;
-			temp = next;
-			tempNode = (XorNode*)temp;
+			nextNode = (unsigned long long)(hitNode->prevNext) ^ (unsigned long long)prevNode;
+			prevNode = hitNode;
+			hitNode = nextNode;
 			count++;
 		}
-		prevNode = (XorNode*)prev;
-		next = ((unsigned int)(tempNode->prevNext) ^ prev);
-		nextNode = (XorNode*)next;
-		// Discard tempNode
-		prevNode->prevNext = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
-		nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
+		nextNode =  (unsigned long long)(hitNode->prevNext) ^ (unsigned long long) prevNode ;
 	}
 	else
 	{
 		// from tail
-		tempNode = tail;
-		temp = (unsigned int)tempNode;
+		hitNode = tail;
 		count = N;
-		next = 0;
+		nextNode = 0;
 		while (count != p)
 		{
-			prev = (unsigned int)(tempNode->prevNext) ^ next;
-			next = temp;
-			temp = prev;
-			tempNode = (XorNode*)temp;
+			prevNode = (unsigned long long)(hitNode->prevNext) ^ (unsigned long long)nextNode;
+			nextNode = hitNode;
+			hitNode = prevNode;
 			count--;
 		}
-		prev = (unsigned int)(tempNode->prevNext) ^ next;
-		prevNode = (XorNode*)prev;
-		nextNode = (XorNode*)next;
-		// Discard tempNode
-		prevNode->prevNext = (unsigned int)(prevNode->prevNext) ^ temp ^ next;
-		nextNode->prevNext = (unsigned int)(nextNode->prevNext) ^ temp ^ prev;
+		prevNode = (unsigned long long)(hitNode->prevNext) ^ (unsigned long long)nextNode;
+
 	}
+	// Discard tempNode
+	prevNode->prevNext = (unsigned long long)(prevNode->prevNext) ^ (unsigned long long)hitNode ^ (unsigned long long)nextNode;
+	nextNode->prevNext = (unsigned long long)(nextNode->prevNext) ^ (unsigned long long)hitNode ^ (unsigned long long)prevNode;
 	N = N + 1;
 }
 
@@ -165,63 +165,51 @@ void retireAMachine(int p)
 void swapMachine(int l, int r)
 {
 	int count;
-	unsigned int next, prev, add1, add2;
-	XorNode* nextNode1=0, * prevNode1 =0, * nextNode2=0, * prevNode2=0;
+	XorNode* nextNode1=0, * prevNode1 =0, * nextNode2 = 0, * prevNode2 = 0;
 	XorNode* node1, * node2;
 
 	// Forward 
-	if (l < N / 2)
+	if (l < N / 2.0 )
 	{
 		// from head start with node1
 		node1 = head;
-		add1 = (unsigned int)node1;
 		count = 1;
-		prev = 0;
+		prevNode1 = 0;
 		while (count != l)
 		{
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			prev = add1;
-			add1 = next;
-			node1 = (XorNode*)add1;
+			nextNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode1;
+			prevNode1 = node1;
+			node1 = nextNode1;
 			count++;
 		}
-		prevNode1 = (XorNode*)prev;
-		next = ((unsigned int)(node1->prevNext) ^ prev);
-		nextNode1 = (XorNode*)next;
+		nextNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode1;
 
-		if (r < N / 2)
+		if (r < N / 2.0)
 		{
 			node2 = node1;
-			add2 = add1;
+			prevNode2 = prevNode1;
 			while (count != r)
 			{
-				next = ((unsigned int)(node2->prevNext) ^ prev);
-				prev = add2;
-				add2 = next;
-				node2 = (XorNode*)add2;
+				nextNode2 =  (unsigned long long)(node2->prevNext) ^ (unsigned long long)prevNode2;
+				prevNode2 = node2;
+				node2 = nextNode2;
 				count++;
 			}
-			prevNode2 = (XorNode*)prev;
-			next = ((unsigned int)(node2->prevNext) ^ prev);
-			nextNode2 = (XorNode*)next;
+			nextNode2 = (unsigned long long)(node2->prevNext) ^ (unsigned long long)prevNode2;
 		}
 		else
 		{
 			node2 = tail;
-			add2 = (unsigned int)node2;
 			count = N;
-			next = 0;
+			nextNode2 = 0;
 			while (count != r)
 			{
-				prev = (unsigned int)(node2->prevNext) ^ next;
-				next = add2;
-				add2 = prev;
-				node2 = (XorNode*)add2;
+				prevNode2 = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode2;
+				nextNode2 = node2;
+				node2 = prevNode2;
 				count--;
 			}
-			nextNode2 = (XorNode*)next;
-			prev = (unsigned int)(node2->prevNext) ^ next;
-			prevNode2 = (XorNode*)prev;
+			prevNode2 = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode2;
 		}
 	}
 	else
@@ -229,105 +217,434 @@ void swapMachine(int l, int r)
 		// Backward start with node2
 		// from tail
 		node2 = tail;
-		add2 = (unsigned int)node2;
 		count = N;
-		next = 0;
+		nextNode2 = 0;
 		while (count != r)
 		{
-			prev = (unsigned int)(node2->prevNext) ^ next;
-			next = add2;
-			add2 = prev;
-			node2 = (XorNode*)add2;
+			prevNode2 = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode2;
+			nextNode2 = node2;
+			node2 = prevNode2;
 			count--;
 		}
-		nextNode2 = (XorNode*)next;
-		prev = (unsigned int)(node2->prevNext) ^ next;
-		prevNode2 = (XorNode*)prev;
+		prevNode2 = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode2;
 
-		if (l >= N / 2)
+		if (l >= N / 2.0)
 		{
 			node1 = node2;
-			add1 = add2;
+			nextNode1 = nextNode2;
+
 			while (count != l)
 			{
-				prev = ((unsigned int)(node1->prevNext) ^ next);
-				next = add1;
-				add1 = prev;
-				node1 = (XorNode*)add1;
+				prevNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)nextNode1;
+				nextNode1 = node1;
+				node1 = prevNode1;
 				count--;
 			}
-			nextNode1 = (XorNode*)next;
-			prev = ((unsigned int)(node1->prevNext) ^ next);
-			nextNode1 = (XorNode*)prev;
+			prevNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)nextNode1;
 		}
 		else
 		{
 			// from head start with node1
 			node1 = head;
-			add1 = (unsigned int)node1;
 			count = 1;
-			prev = 0;
+			prevNode1 = 0;
 			while (count != l)
 			{
-				next = ((unsigned int)(node1->prevNext) ^ prev);
-				prev = add1;
-				add1 = next;
-				node1 = (XorNode*)add1;
+				nextNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode1;
+				prevNode1 = node1;
+				node1 = nextNode1;
 				count++;
 			}
-			prevNode1 = (XorNode*)prev;
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			nextNode1 = (XorNode*)next;
+			nextNode1 = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode1;
 		}
 
 	}
 
-	// 
-	prevNode1->prevNext  = (unsigned int)( prevNode1->prevNext)^ add1 ^ add2;
-	nextNode1->prevNext  = (unsigned int)( nextNode1->prevNext)^ add1 ^ add2;
-	prevNode2->prevNext  = (unsigned int)( prevNode2->prevNext)^ add2 ^ add1;
-	nextNode2->prevNext  = (unsigned int)( nextNode2->prevNext)^ add2 ^ add1;
+	//
+	unsigned long long node1xornode2 = (unsigned long long) node1  ^ (unsigned long long) node2;
+	if (prevNode1)
+	{
+		prevNode1->prevNext = (unsigned long long)(prevNode1->prevNext) ^ node1xornode2;
+	}
+	else
+	{
+		// update head
+		head = node2;
+	}
+	if (nextNode1)
+	{
+		nextNode1->prevNext = (unsigned long long)(nextNode1->prevNext) ^ node1xornode2;
+	}
+	else
+	{
+
+	}
+	if (prevNode2)
+	{
+		prevNode2->prevNext = (unsigned long long)(prevNode2->prevNext) ^ node1xornode2;
+	}
+	else
+	{
+
+	}
+	if (nextNode2)
+	{
+		nextNode2->prevNext = (unsigned long long)(nextNode2->prevNext) ^ node1xornode2;
+	}
+	else
+	{
+		// update tail
+		tail = node1;
+	}
+
+	// Swap node1 and node2
 	XorNode* t = node1->prevNext;
 	node1->prevNext = node2->prevNext;
 	node2->prevNext = t;
 }
  
-void swapMachineMachine(int l, int r, int x, int y)
+
+
+void swapTwoBlocks(int l, int r, int x, int y)
 {
-	swapMachine(l, r);
-	swapMachine(x,y);
+	int temp;
+
+	if (l > x)
+	{
+		temp = l;
+		l = x;
+		x = temp;
+		temp = r;
+		r = y;
+		y = temp;
+	}
+	int* lengths;
+	int traverseCase = 0;
+	// case 0   1->l->r->x->y 
+	//lengths[0] = y;
+	int minLength = y;
+	// case 1 1->l->r->x  y<-N
+	int length = x + N - y + 1;
+	if (length < minLength)
+	{
+		traverseCase = 1;
+		minLength = length;
+	}
+	// case 2 1->l->r  x<-y<-N;
+	length = r + N - x + 1;
+	if (length < minLength)
+	{
+		traverseCase = 2;
+		minLength = length;
+	}
+
+	// case 3 1->l r<-x<-y<-N;
+	length = l + N - r + 1;
+	if (length < minLength)
+	{
+		traverseCase = 3;
+		minLength = length;
+	}	
+	// case 4   l<-r<-x<-y<-N;
+	length = N - l + 1;
+	if (length < minLength)
+	{
+		traverseCase = 4;
+		minLength = length;
+	}
+
+	XorNode* left=0, * leftPrev = 0, * right = 0, * rightNext = 0, * X = 0, * XPrev = 0, * Y = 0, * YNext = 0;
+
+	XorNode* prevNode, * nextNode;
+	int count;
+	// Traverse the list
+	switch (traverseCase)
+	{
+		case 0: // case 0   1->l->r->x->y
+			prevNode = 0;
+			left = head;
+			count = 1;
+			while (count != l) // Find left node
+			{
+				nextNode = (unsigned long long)( left->prevNext ) ^ (unsigned long long) prevNode;
+				prevNode = left;
+				left = nextNode;
+				count++;
+			}
+			leftPrev = prevNode; // confirmed
+			right = left;
+			while (count != r) // Find right node
+			{
+				nextNode = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = right;
+				right = nextNode;
+				count++;
+			}
+			rightNext = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode; // confirm
+			X = right;
+			while (count != x) // Find x node
+			{
+				nextNode = (unsigned long long)(X->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = X;
+				X = nextNode;
+				count++;
+			}
+			XPrev = prevNode;
+			Y = X;
+			while (count != y) // Find y node
+			{
+				nextNode = (unsigned long long)(Y->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = Y;
+				Y = nextNode;
+				count++;
+			}
+			YNext = (unsigned long long)(Y->prevNext) ^ (unsigned long long) prevNode;
+			break;
+		case 1: // case 1 1->l->r->x  y<-N
+			prevNode = 0;
+			left = head;
+			count = 1;
+			while (count != l) // Find left node
+			{
+				nextNode = (unsigned long long)(left->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = left;
+				left = nextNode;
+				count++;
+			}
+			leftPrev = prevNode; // confirmed
+			right = left;
+			while (count != r) // Find right node
+			{
+				nextNode = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = right;
+				right = nextNode;
+				count++;
+			}
+			rightNext = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode; // confirm
+			X = right;
+			while (count != x) // Find x node
+			{
+				nextNode = (unsigned long long)(X->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = X;
+				X = nextNode;
+				count++;
+			}
+			XPrev = prevNode;
+
+			Y = tail;
+			nextNode = 0;
+			count = N;
+			while (count != y) // Find y node
+			{
+				prevNode = (unsigned long long)(Y->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = Y;
+				Y = prevNode;
+				count--;
+			}
+			YNext = nextNode;
+			break;
+		case 2: // case 2 1->l->r  x<-y<-N;
+
+			prevNode = 0;
+			left = head;
+			count = 1;
+			while (count != l) // Find left node
+			{
+				nextNode = (unsigned long long)(left->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = left;
+				left = nextNode;
+				count++;
+			}
+			leftPrev = prevNode; // confirmed
+			right = left;
+			while (count != r) // Find right node
+			{
+				nextNode = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = right;
+				right = nextNode;
+				count++;
+			}
+			rightNext = (unsigned long long)(right->prevNext) ^ (unsigned long long) prevNode; // confirm
+
+			Y = tail;
+			nextNode = 0;
+			count = N;
+			while (count != y) // Find y node
+			{
+				prevNode = (unsigned long long)(Y->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = Y;
+				Y = prevNode;
+				count--;
+			}
+			YNext = nextNode;
+
+			X = Y;
+			while (count != x) // Find x node
+			{
+				prevNode = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = X;
+				X = prevNode;
+				count--;
+			}
+			XPrev = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+			break;
+		case 3: // case 3 1->l r<-x<-y<-N;
+			prevNode = 0;
+			left = head;
+			count = 1;
+			while (count != l) // Find left node
+			{
+				nextNode = (unsigned long long)(left->prevNext) ^ (unsigned long long) prevNode;
+				prevNode = left;
+				left = nextNode;
+				count++;
+			}
+			leftPrev = prevNode; // confirmed
+
+			Y = tail;
+			nextNode = 0;
+			count = N;
+			while (count != y) // Find y node
+			{
+				prevNode = (unsigned long long)(Y->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = Y;
+				Y = prevNode;
+				count--;
+			}
+			YNext = nextNode;
+
+			X = Y;
+			while (count != x) // Find x node
+			{
+				prevNode = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = X;
+				X = prevNode;
+				count--;
+			}
+			XPrev = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+
+			right = X;
+			while (count != r) // Find right node
+			{
+				prevNode = (unsigned long long)(right->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = right;
+				right = prevNode;
+				count++;
+			}
+			rightNext = nextNode; 
+			break;
+		case 4: // case 4   l<-r<-x<-y<-N;
+			Y = tail;
+			nextNode = 0;
+			count = N;
+			while (count != y) // Find y node
+			{
+				prevNode = (unsigned long long)(Y->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = Y;
+				Y = prevNode;
+				count--;
+			}
+			YNext = nextNode;
+
+			X = Y;
+			while (count != x) // Find x node
+			{
+				prevNode = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = X;
+				X = prevNode;
+				count--;
+			}
+			XPrev = (unsigned long long)(X->prevNext) ^ (unsigned long long) nextNode;
+
+			right = X;
+			while (count != r) // Find right node
+			{
+				prevNode = (unsigned long long)(right->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = right;
+				right = prevNode;
+				count--;
+			}
+			rightNext = nextNode;
+
+			left = right;
+			while (count != l) // Find left node
+			{
+				prevNode = (unsigned long long)(left->prevNext) ^ (unsigned long long) nextNode;
+				nextNode = left;
+				left = prevNode;
+				count--;
+			}
+			leftPrev = prevNode = (unsigned long long)(left->prevNext) ^ (unsigned long long) nextNode;
+			break;
+	}
+	
+	// Reconnect swapped blocks
+
+	if (leftPrev)
+	{
+		// disengage with left node;  connect X
+		leftPrev->prevNext = (unsigned long long)(leftPrev->prevNext) ^ (unsigned long long)left ^ (unsigned long long)X;
+	}
+	else
+	{
+		// original left is head; new head is X
+		head = X;
+	}
+	// disengage with leftPrev; connect Xprev
+	left->prevNext = (unsigned long long)(left->prevNext) ^ (unsigned long long)leftPrev ^ (unsigned long long)XPrev;
+
+	// disengage with right node; connect Y
+	rightNext->prevNext = (unsigned long long)(rightNext->prevNext) ^ (unsigned long long)right ^ (unsigned long long)Y;
+	// disengage with rightNext; connect Ynext
+	right->prevNext = (unsigned long long)(right->prevNext) ^ (unsigned long long)rightNext ^ (unsigned long long)YNext;
+
+	// disengage with x node; connect left
+	XPrev->prevNext = (unsigned long long)(XPrev->prevNext) ^ (unsigned long long)X ^ (unsigned long long)left;
+	// disengage with x prev; connect left prev
+	X->prevNext = (unsigned long long)(X->prevNext) ^ (unsigned long long)XPrev ^ (unsigned long long)leftPrev;
+
+	if (YNext)
+	{
+		// disengage with Y node; connect 
+		YNext->prevNext = (unsigned long long)(YNext->prevNext) ^ (unsigned long long)Y ^ (unsigned long long)right;
+	}
+	else
+	{
+		// original y is tail; tail now is right
+		tail = right;
+	}
+	// disengage with Ynext; connect right next
+	Y->prevNext = (unsigned long long)(Y->prevNext) ^ (unsigned long long)YNext ^ (unsigned long long)rightNext;
+
 }
+
 
 void truncateTimes(int l, int r, int k)
 {
 	int count;
-	unsigned int next, prev, add1, add2;
-	XorNode* nextNode1, * prevNode1, * nextNode2, * prevNode2;
+	XorNode* nextNode, * prevNode, * nextNode2, * prevNode2;
 	XorNode* node1, * node2;
 
 	// Forward 
-	if (l < N / 2)
+	if (l < N / 2.0)
 	{
 		// from head start with node1
 		node1 = head;
-		add1 = (unsigned int)node1;
 		count = 1;
-		prev = 0;
+		prevNode = 0;
 		while (count != l)
 		{
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			prev = add1;
-			add1 = next;
-			node1 = (XorNode*)add1;
+			nextNode = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode;
+			prevNode = node1;
+			node1 = nextNode;
 			count++;
 		}
 		if (node1->time > k) node1->time = k;
-		while (count != r + 1)
+		while (count < r)
 		{
-			next = ((unsigned int)(node1->prevNext) ^ prev);
-			prev = add1;
-			add1 = next;
-			node1 = (XorNode*)add1;
+			nextNode = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode;
+			prevNode = node1;
+			node1 = nextNode;
 			if (node1->time > k) node1->time = k;
 			count++;
 		}
@@ -337,30 +654,25 @@ void truncateTimes(int l, int r, int k)
 		// Backward start with node2
 		// from tail
 		node2 = tail;
-		add2 = (unsigned int)node2;
 		count = N;
-		next = 0;
+		nextNode = 0;
 		while (count != r)
 		{
-			prev = (unsigned int)(node2->prevNext) ^ next;
-			next = add2;
-			add2 = prev;
-			node2 = (XorNode*)add2;
+			prevNode = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode;
+			nextNode = node2;
+			node2 = prevNode;
 			count--;
 		}
 		if (node2->time > k) node2->time = k;
-		if (l >= N / 2)
+ 
+		while (count > l)
 		{
-			while (count != l-1)
-			{
-				prev = ((unsigned int)(node2->prevNext) ^ next);
-				next = add2;
-				add2 = prev;
-				node2 = (XorNode*)add2;
-				if (node2->time > k) node2->time = k;
-				count--;
-			}
-		}
+			prevNode = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode;
+			nextNode = node2;
+			node2 = prevNode;
+			if (node2->time > k) node2->time = k;
+			count--;
+		}	 
 	}
 }
 
@@ -372,7 +684,7 @@ void printRebootTime(int l, int r)
 	XorNode* node1, * node2;
 	long long sum = 0;
 	// Forward 
-	if (l < N / 2)
+	if (l < N / 2.0 )
 	{
 		// from head start with node1
 		node1 = head;
@@ -380,15 +692,15 @@ void printRebootTime(int l, int r)
 		prevNode = 0;
 		while (count != l)
 		{
-			nextNode =  (unsigned int)(node1->prevNext) ^ (unsigned int)prevNode;
+			nextNode =  (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode;
 			prevNode = node1;
 			node1 = nextNode;
 			count++;
 		}
 		sum += node1->time;
-		while (count != r + 1)
+		while (count < r  )
 		{
-			nextNode = ((unsigned int)(node1->prevNext) ^ (unsigned int)prevNode);
+			nextNode = (unsigned long long)(node1->prevNext) ^ (unsigned long long)prevNode;
 			prevNode = node1;
 			node1 = nextNode;
 			sum += node1->time;
@@ -404,16 +716,16 @@ void printRebootTime(int l, int r)
 		nextNode = 0;
 		while (count != r)
 		{
-			prevNode = (unsigned int)(node2->prevNext) ^ (unsigned int)nextNode;
+			prevNode = (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode;
 			nextNode = node2;
 			node2 = prevNode;
 			count--;
 		}
 		sum += node2->time;
 
-		while (count != l - 1)
+		while (count > l)
 		{
-			prevNode =  (unsigned int)(node2->prevNext) ^ (unsigned int)nextNode;
+			prevNode =  (unsigned long long)(node2->prevNext) ^ (unsigned long long)nextNode;
 			nextNode = node2;
 			node2 = prevNode;
 			sum += node2->time;
@@ -438,12 +750,12 @@ void main()
 		scanf("%d", &tempNode->time);
 		if (previous == 0)
 		{
-			(unsigned int)(tempNode->prevNext) = 0;
+			tempNode->prevNext = 0;
 			head = tempNode;
 		}
 		else
 		{
-			previous->prevNext = (unsigned int)previous->prevNext ^ (unsigned int)tempNode;
+			previous->prevNext = (unsigned long long)previous->prevNext ^ (unsigned long long)tempNode;
 			tempNode->prevNext = previous;
 		}
 		if (i == N)
@@ -473,7 +785,7 @@ void main()
 			break;
 		case 4:
 			scanf("%d %d %d %d", &l, &r, &x, &y);
-			swapMachineMachine(l, r, x, y);
+			swapTwoBlocks(l, r, x, y);
 			break;
 		case 5:
 			scanf("%d %d %d ", &l, &r, &k);
