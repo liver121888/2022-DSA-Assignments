@@ -3,190 +3,293 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+
 #pragma warning(push)
 #pragma warning(disable:6385)
 #pragma warning(disable:6386)
 #pragma warning(disable:6011)
 
+typedef struct disjointSet 
+{
+    // TODO: Determine fields to use by your method
+    int leaderHash;
+    int recordedTag;
+    int size;
+} DisjointSet;
+
+
+typedef struct shopPair
+{
+    // TODO: Determine fields to use by your method
+    int s1;
+    int s2;
+} ShopPair;
+
+DisjointSet *ds;
+DisjointSet **dsHistory;
+
+ShopPair* opShopsOrDays;
+// init set
+bool *set;
 int FileFlag = 1;
 int DebugFlag = 0;
-int re;
-char s[10 * 1000 * 1000 + 1];
-char* concat;
-int* lps;
-int concatlen;
-int len;
+int shopNumberInitial;
+int shopNumber;
+int* shopNumberHistory;
+int daysM;
+int dayBoom;
+char* operations;
 
-int computeLPSArray(char* c)
+void makeset(int i) 
 {
-	int index = 0;
-	lps[0] = 0;
-
-	// the loop calculates lps[i] for i = 1 to M-1
-	int i = 1;
-	while (i < concatlen)
-	{
-		if (c[i] == c[index])
-		{
-			index++;
-			lps[i] = index;
-			i++;
-		}
-		else // (str[i] != str[len])
-		{
-			// This is tricky. Consider the example.
-			// AAACAAAA and i = 7. The idea is similar
-			// to search step.
-			if (index != 0)
-			{
-				index = lps[index - 1];
-
-				// Also, note that we do not increment
-				// i here
-			}
-			else // if (len == 0)
-			{
-				lps[i] = 0;
-				i++;
-			}
-		}
-	}
-	return len - lps[concatlen - 1];
+    // TODO: Initialize a set with hash value
+    DisjointSet* n = malloc(sizeof(DisjointSet));
+    if (n != NULL)
+    {
+        n->leaderHash = i;
+        n->size = 1;
+        ds[i] = *n;
+    }
 }
 
-int Compute_Prefix_Function(char* P)
+inline void static init(int i) 
 {
-	int k = 0;
-	lps[0] = 0;
-	for (int q = 1; q < concatlen; q++)
-	{
-		while (k > 0 && P[k] != P[q])
-		{
-			k = lps[k - 1];
-		}
-		if (P[k] == P[q])
-			k = k + 1;
-		lps[q] = k;
-	}
-	if (DebugFlag)
-	{
-		printf("lps: \n");
-		for (int i = 0; i < concatlen; i++)
-			printf("%d, ", lps[i]);
-		printf("\n");
-	}
-	return len - lps[concatlen - 1];
+    if (!set[i]) {
+        makeset(i);
+        set[i] = 1;
+    }
 }
 
-
-
-
-
-
-int main()
+int find_set(int day, int i) 
 {
-	FILE* ptr = 0;
-	if (FileFlag)
-	{
-		ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\0.in", "r");
-		re = fscanf(ptr, "%s", &s);
-	}
-	else
-		re = scanf("%s", &s);
-	len = strlen(s);
-	concatlen = 2 * len + 1;
-	concat = malloc(sizeof(char) * (concatlen));
-	// reversed is insert at front
-	for (int i = 0; i < len; i++)
-		concat[i] = s[len - 1 - i];
-	concat[len] = 7;
-	for (int i = len + 1; i < concatlen; i++)
-		concat[i] = s[i - (len + 1)];
-	
+    int tmp;
+    // TODO: Implement your find algorithm here
+    if (ds[i].leaderHash != i)
+    {
+        tmp = ds[i].leaderHash;
+        ds[i].leaderHash = find_set(day, ds[i].leaderHash);
+        dsHistory[day][i].leaderHash = tmp;
+    }
+    return ds[i].leaderHash;
+}
 
-	if (DebugFlag)
-	{
-		for (int i = 0; i < concatlen; i++)
-			printf("%c, ", concat[i]);
-		printf("\n");
-	}
+int find_set_get(int i)
+{
+    // TODO: Implement your find algorithm here
+    if (ds[i].leaderHash != i)
+        find_set_get(ds[i].leaderHash);
+    return ds[i].leaderHash;
+}
 
-	lps = malloc(sizeof(int) * (concatlen));
-	int b = Compute_Prefix_Function(concat);
-	if (DebugFlag)
-	{
-		printf("b: %d\n", b);
-	}
+void merge(int day, int ra, int rb) 
+{
 
-	// reversed is insert at back
-	for (int i = 0; i < len; i++)
-	{
-		concat[i] = s[i];
-	}
-	concat[len] = 7;
-	for (int i = len + 1; i < concatlen; i++)
-	{
-		concat[i] = s[concatlen - i - 1];
-	}
-	if (DebugFlag)
-	{
-		for (int i = 0; i < concatlen; i++)
-			printf("%c, ", concat[i]);
-		printf("\n");
-	}
+    int a = find_set(day, ra), b = find_set(day, rb);
+    // TODO: Implement your union algorithm here
+    if (a == b)
+        return;
+    else
+    {
+        dsHistory[day][a].size = ds[a].size;
+        dsHistory[day][a].leaderHash = ds[a].leaderHash;
+        dsHistory[day][b].leaderHash = ds[b].leaderHash;
+        dsHistory[day][b].size = ds[b].size;
 
-	int f = Compute_Prefix_Function(concat);
-	if (DebugFlag)
-	{
-		printf("f: %d\n", f);
-	}
+        if (ds[a].size <= ds[b].size)
+        {
+            // a <= b, merge a into b
+            ds[a].leaderHash = ds[b].leaderHash;
+            ds[b].size += ds[a].size;
+        }
+        else
+        {
+            // a > b, merge b into a
+            ds[b].leaderHash = ds[a].leaderHash;
+            ds[a].size += ds[b].size;
+        }
 
+    }
+    shopNumber--;
+}
 
+void reverse(int day, bool isdemerge)
+{
+    for (int i = 1; i < shopNumberInitial + 1; i++)
+    {
+        if (dsHistory[day][i].size > 0)
+        {
+            ds[i].size = dsHistory[day][i].size;
+            ds[i].leaderHash = dsHistory[day][i].leaderHash;
+        }
+    }
+    if (isdemerge)  
+        shopNumber++;
+    else
+    {
+        shopNumber = shopNumberHistory[day];
+        shopNumber -= opShopsOrDays[day].s2;
+    }
+}
 
-	if (f == b)
-	{
-		printf("%d\n", f);
-		for (int i = 0; i < f; i++)
-		{
-			printf("%c", s[len - 1 - i]);
-		}
-		printf("%s\n", s);
+void saveState(int theDayBoomHappened, int rollbackDay)
+{
+    for (int i = 1; i < shopNumberInitial + 1; i++)
+    {
+        if (dsHistory[rollbackDay][i].size > 0)
+            if (dsHistory[theDayBoomHappened][i].recordedTag == 0)
+            {
+                dsHistory[theDayBoomHappened][i].leaderHash = ds[i].leaderHash;
+                dsHistory[theDayBoomHappened][i].size = ds[i].size;
+                dsHistory[theDayBoomHappened][i].recordedTag = 1;
+            }
+    }
+}
 
-		if (f != 0)
-		{
-			printf("%s", s);
-			for (int i = b - 1; i >= 0; i--)
-			{
-				printf("%c", s[i]);
-			}
-			printf("\n");
-		}
-	}
-	else if (f < b)
-	{
-		printf("%d\n", f);
-		for (int i = 0; i < f; i++)
-		{
-			printf("%c", s[len - 1 - i]);
-		}
-		printf("%s\n", s);
-	}
-	else
-	{
-		printf("%d\n", b);
-		printf("%s", s);
-		for (int i = b - 1; i >= 0; i--)
-		{
-			printf("%c", s[i]);
-		}
-		printf("\n");
-	}
+void printShop(int d) 
+{
+    printf("-------------------------\n");
+    printf("Day: %d\n", d);
+    for (int i = 1; i < shopNumberInitial + 1; i++)
+        printf("S_%d = lead: %d /// size: %d, ", i, ds[i].leaderHash, ds[i].size);
+    printf("\n-------------------------\n");
+}
 
-	if (FileFlag && ptr != NULL)
-	{
-		fclose(ptr);
-	}
-	return 0;
+void printHistory(int d)
+{
+    printf("History: \n");
+    for (int j = 1; j < d + 1; j++)
+    {
+        printf("*****\n");
+        printf("H_Day: %d\n", j);
+        for (int i = 1; i < shopNumberInitial + 1; i++)
+        {
+            if (dsHistory[j][i].size > 0)
+                printf("S_%d = lead: %d /// size: %d, ", i, dsHistory[j][i].leaderHash, dsHistory[j][i].size);
+            else
+                printf("S_%d = lead: NA /// size: NA, ", i);
+        }
+        printf("\n");
+    }
+    printf("*****\n");
+}
+
+void printShopNumberHistory()
+{
+    printf("ShopNumberHistory: \n");
+    for (int j = 0; j < daysM + 1; j++)
+        printf("D%d: %d, ", j, shopNumberHistory[j]);
+    printf("\n++++++++\n");
+}
+
+int main() 
+{
+    // TODO: Implement your algorithm here
+    int r;
+    int firstShop, secondShop;
+    char op[10];
+    FILE* ptr = 0;
+    if (FileFlag)
+    {
+        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\3.in", "r");
+        r = fscanf(ptr, "%d %d", &shopNumberInitial, &daysM);
+    }
+    else
+        r = scanf("%d %d", &shopNumberInitial, &daysM);
+    // we ignore the space at index 0
+    ds = malloc(sizeof(DisjointSet) * (shopNumberInitial + 1));
+    dsHistory = malloc(sizeof(DisjointSet*) * (daysM + 1));
+    shopNumberHistory = malloc(sizeof(int) * (daysM + 1));
+    for (int i = 0; i < daysM + 1; i++)
+    {
+        shopNumberHistory[i] = -1;
+        dsHistory[i] = malloc(sizeof(DisjointSet) * (shopNumberInitial + 1));
+        for (int j = 1; j < shopNumberInitial + 1; j++)
+        {
+            dsHistory[i][j].recordedTag = 0;
+            dsHistory[i][j].size = -1;
+        }
+    }
+
+    set = malloc(sizeof(bool) * (shopNumberInitial + 1));
+    operations = malloc(sizeof(char) * (daysM + 1));
+    opShopsOrDays = malloc(sizeof(ShopPair) * (daysM + 1));
+    for (int i = 1; i < shopNumberInitial + 1; i++)
+        set[i] = 0;
+    shopNumber = shopNumberInitial;
+    shopNumberHistory[0] = shopNumber;
+    for (int i = 1; i < shopNumberInitial + 1; i++)
+        init(i);
+
+    if (DebugFlag)
+        printShop(0);
+    for (int i = 1; i < daysM + 1; i++)
+    {
+        if (FileFlag)
+            r = fscanf(ptr, "%s", &op);
+        else
+            r = scanf("%s", &op);
+        // store op in operations
+        operations[i] = op[0];
+        switch (op[0])
+        {
+        case('q'):
+            printf("%d\n", shopNumber);
+            // do nothing on opShops
+            break;
+        case('m'):
+            if (FileFlag)
+                r = fscanf(ptr, "%d %d", &firstShop, &secondShop);
+            else
+                r = scanf("%d %d", &firstShop, &secondShop);
+            merge(i, firstShop, secondShop);
+            opShopsOrDays[i].s1 = firstShop;
+            opShopsOrDays[i].s2 = secondShop;
+            break;
+        case('b'):
+            if (DebugFlag)
+                printHistory(i);
+            if (FileFlag)
+                r = fscanf(ptr, "%d", &dayBoom);
+            else
+                r = scanf("%d", &dayBoom);
+            int tmp = shopNumber;
+            opShopsOrDays[i].s1 = dayBoom;
+            for (int j = i - 1; j >= dayBoom + 1; j--)
+            {
+                switch (operations[j])
+                {
+                case('m'):
+                    saveState(i, j);
+                    reverse(j, 1);
+                    break;
+                case('b'):
+                    saveState(i, j);
+                    reverse(j, 0);
+                    break;
+                case('q'):
+                default:
+                    break;
+                }
+            }
+            int delta = shopNumber - tmp;
+            opShopsOrDays[i].s2 = delta;
+            break;
+        default:
+            break;
+        }
+        shopNumberHistory[i] = shopNumber;
+        if (DebugFlag)
+            printShop(i);
+    }
+    if (DebugFlag)
+        printShopNumberHistory();
+
+    if (FileFlag)
+    {
+        fclose(ptr);
+    }
+    return 0;
 }
 #pragma   warning(pop)  
