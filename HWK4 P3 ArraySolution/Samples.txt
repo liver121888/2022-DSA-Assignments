@@ -36,3 +36,12 @@ Sample Output 1
 2
 1
 
+
+MaySample1
+10 10
+merge 1 5
+merge 7 10
+merge 7 5
+merge 8 9
+merge 9 3
+query

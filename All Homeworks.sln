@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P3", "HWK4 P3\HWK4 P3.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P3 ArraySolution", "HWK4 P3 ArraySolution\HWK4 P3 ArraySolution.vcxproj", "{C0E99B2C-9792-4C55-9656-EEFE98088C3D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P3 Cheat", "HWK4 P3 Cheat\HWK4 P3 Cheat.vcxproj", "{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -295,6 +297,18 @@ Global
 		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x64.Build.0 = Release|x64
 		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x86.ActiveCfg = Release|Win32
 		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x86.Build.0 = Release|Win32
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|Any CPU.Build.0 = Debug|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|x64.ActiveCfg = Debug|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|x64.Build.0 = Debug|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|x86.ActiveCfg = Debug|Win32
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Debug|x86.Build.0 = Debug|Win32
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|Any CPU.ActiveCfg = Release|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|Any CPU.Build.0 = Release|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|x64.ActiveCfg = Release|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|x64.Build.0 = Release|x64
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|x86.ActiveCfg = Release|Win32
+		{BDC271A8-0EF3-4DD1-B6DC-813EA3541BF4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
