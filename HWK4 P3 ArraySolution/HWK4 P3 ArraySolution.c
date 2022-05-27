@@ -85,6 +85,9 @@ void main()
 	// Allocate temp array for merge operation to temporary store slaves
 	int* buffer = malloc(sizeof(int) * N);
 
+	State* previousStoredState = 0;
+	int stateChanged = 1;
+
 	// Start executing the stored commands
 	for (int day = 1; day <= M; day++)
 	{
@@ -94,15 +97,25 @@ void main()
 		State* yesterdayState = commandArray[day - 1].dayState;
 		if (yesterdayState) // if yesterday state is not null, meaning the yesterday is a boom target
 		{
-			// copy current state as yesterday's state for booming restore
-			yesterdayState->groupCount = currentState->groupCount; 
-			yesterdayState->groupIds = malloc(sizeof(int) * N);
-			for (int i = 0; i < N; i++) yesterdayState->groupIds[i] = currentState->groupIds[i] ;
-			yesterdayState->elements = malloc(sizeof(int) * N);
-			for (int i = 0; i < N; i++) yesterdayState->elements[i] = currentState->elements[i];
-			// Group number keep reducing 
-			yesterdayState->bounds = malloc(sizeof(int) * (yesterdayState->groupCount + 1));
-			for (int i = 0; i < yesterdayState->groupCount + 1; i++) yesterdayState->bounds[i] = currentState->bounds[i];
+			if (stateChanged == 0 && previousStoredState)
+			{
+				// Directly shallow copy the previous stored state
+				yesterdayState = previousStoredState;
+			}
+			else
+			{
+				// copy current state as yesterday's state for booming restore
+				yesterdayState->groupCount = currentState->groupCount;
+				yesterdayState->groupIds = malloc(sizeof(int) * N);
+				for (int i = 0; i < N; i++) yesterdayState->groupIds[i] = currentState->groupIds[i];
+				yesterdayState->elements = malloc(sizeof(int) * N);
+				for (int i = 0; i < N; i++) yesterdayState->elements[i] = currentState->elements[i];
+				// Group number keep reducing 
+				yesterdayState->bounds = malloc(sizeof(int) * (yesterdayState->groupCount + 1));
+				for (int i = 0; i < yesterdayState->groupCount + 1; i++) yesterdayState->bounds[i] = currentState->bounds[i];
+				previousStoredState = yesterdayState;
+			}
+
 		}		
 		
 		int master, slave, temp;
@@ -110,6 +123,7 @@ void main()
 		switch (commandArray[day].first)
 		{
 		case -1: // query
+			stateChanged = 0;
 			printf("%d\n", currentState->groupCount);
 			break;
 
@@ -123,12 +137,13 @@ void main()
 				currentState->elements[i] = commandArray[boomDay].dayState->elements[i];
 			for (int i = 0; i < currentState->groupCount + 1; i++)
 				currentState->bounds[i] = commandArray[boomDay].dayState->bounds[i];
+			stateChanged = 1;
 			break;
 
 		default: // merge two elements
 			master = currentState->groupIds[commandArray[day].first - 1];
 			slave = currentState->groupIds[commandArray[day].second - 1];
-			if (master == slave) break;
+			if (master == slave) break; // merge fails and state is not change
 			// We alway let later group merged to previous group; slave merges to master
 			if (master > slave) // Swap
 			{
@@ -164,7 +179,7 @@ void main()
 				currentState->bounds[i] = currentState->bounds[i + 1];
 			// 5. decrease group number by 1
 			currentState->groupCount--;
-
+			stateChanged = 1;
 			break;
 		}
 	}
