@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P4 XorList", "HWK4 P4 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P3", "HWK4 P3\HWK4 P3.vcxproj", "{A391F965-324B-4BAE-BAB8-F081B3C9850D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWK4 P3 ArraySolution", "HWK4 P3 ArraySolution\HWK4 P3 ArraySolution.vcxproj", "{C0E99B2C-9792-4C55-9656-EEFE98088C3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +283,18 @@ Global
 		{A391F965-324B-4BAE-BAB8-F081B3C9850D}.Release|x64.Build.0 = Release|x64
 		{A391F965-324B-4BAE-BAB8-F081B3C9850D}.Release|x86.ActiveCfg = Release|Win32
 		{A391F965-324B-4BAE-BAB8-F081B3C9850D}.Release|x86.Build.0 = Release|Win32
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|Any CPU.Build.0 = Debug|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|x64.ActiveCfg = Debug|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|x64.Build.0 = Debug|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|x86.ActiveCfg = Debug|Win32
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Debug|x86.Build.0 = Debug|Win32
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|Any CPU.ActiveCfg = Release|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|Any CPU.Build.0 = Release|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x64.ActiveCfg = Release|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x64.Build.0 = Release|x64
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x86.ActiveCfg = Release|Win32
+		{C0E99B2C-9792-4C55-9656-EEFE98088C3D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

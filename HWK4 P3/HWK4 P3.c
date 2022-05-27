@@ -25,7 +25,7 @@ typedef struct node
 } Node;
 
 Node** nodeArray;
-Operation* operationArray;
+Operation* commandArray;
 
 void mergeItoJGroup(int i, int j)
 {
@@ -55,8 +55,8 @@ void main()
 {	
 	scanf("%d %d", N, M);
 
-	operationArray = malloc(sizeof(Operation) * ( M+1) );
-	operationArray[0].first = -1;
+	commandArray = malloc(sizeof(Operation) * ( M+1) );
+	commandArray[0].first = -1;
 
 	for (int day = 1; day <= M; day++)
 	{
@@ -64,16 +64,16 @@ void main()
 		switch (cmd[0])
 		{
 		case 'm': // merge
-			scanf("%d %d", &operationArray[day].first, &operationArray[day].second);
+			scanf("%d %d", &commandArray[day].first, &commandArray[day].second);
 			break;
 		case 'q': // query
-			operationArray[day].first = -1;
+			commandArray[day].first = -1;
 			break;
 		case 'b': // boom
-			operationArray[day].first = -2;
+			commandArray[day].first = -2;
 			int boomDay;
 			scanf("%d", &boomDay);
-			operationArray[day].second = boomDay;
+			commandArray[day].second = boomDay;
 
 			break;
 		}
