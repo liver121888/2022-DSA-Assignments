@@ -113,8 +113,8 @@ void main()
 				// Group number keep reducing 
 				yesterdayState->bounds = malloc(sizeof(int) * (yesterdayState->groupCount + 1));
 				for (int i = 0; i < yesterdayState->groupCount + 1; i++) yesterdayState->bounds[i] = currentState->bounds[i];
-				previousStoredState = yesterdayState;
 			}
+			previousStoredState = yesterdayState;
 
 		}		
 		
