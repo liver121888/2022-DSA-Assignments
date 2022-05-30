@@ -5,31 +5,20 @@
 #include<string.h>
 
 
-// A double-linked list
+// A single-linked list
 typedef struct node
 {
 	struct node* groupNode;
-	struct node* prevNode;
 	struct node* nextNode;
 	struct node* end;
 	int size;
 } Node;
 
 
-//typedef struct operation
-//{
-//	// slave group merged to master
-//	int master;
-//	int slave;
-//	int day;
-//	struct operation * prevOp;
-//
-//} Operation;
-
 int N, M;
 char cmd[20];
 Node* nodeArray;
-//Operation *operationStack;
+
 
 typedef struct command
 {
@@ -80,27 +69,38 @@ void main()
 		}
 	}
 
+
 	// Prepare the working memory for state changing
 	nodeArray = malloc(sizeof(Node) * N);
 	for (int i = 0; i < N; i++)
 	{
+		// group head and this group list end are itself
 		nodeArray[i].end = nodeArray[i].groupNode = &nodeArray[i];
-		nodeArray[i].prevNode = 0;
+		// No next node
 		nodeArray[i].nextNode = 0;
+		// Group size = 1
 		nodeArray[i].size = 1;
 	}
 
 	int groupCount = N;
 	int firstID, secondID;
 	Node* master, * slave, * temp;
-	Node* previousStoredState = 0;
+
+	// In addition to current state array, we keep a record of previously stored state
+	// A state is an array of pointers to nodes.
+	Node** previousStoredState = 0;
+
+	// In the very beginning the state changed flag is 1
+	// flag is set when merged or boom happened
+	// flag will be reset when a new copy of current state is stored.
+	// So if successive boom days does not change state, we will shallow copy the state
 	int stateChanged = 1;
 
 	// Start executing the stored commands
 	for (int day = 1; day <= M; day++)
 	{
 		// Before stepping in this new day Check last day day-1 to see if it is a boom 
-		// target (including day 0). If it is, allocated memory for state data and  
+		// target (including day 0). If it is, allocated memory for current state data and  
 		// copy values of current state to them.
 		Node** yesterdayState = commandArray[day - 1].dayState;
 		if (yesterdayState == 99) // if yesterday state is 99, meaning the yesterday is a boom target
@@ -112,12 +112,17 @@ void main()
 			}
 			else
 			{
+				// Yesterday was newly updated we need to allocate memory to store it
 				// copy current state as yesterday's state for booming restore
 				yesterdayState = malloc(sizeof(Node*) * (N + 1));
 				for (int i = 0; i < N; i++)
 					yesterdayState[i] = nodeArray[i].groupNode;
+				// We hide the group number in the last addition element
 				yesterdayState[N] = groupCount;
+				// Record this is the newly created boom state
 				previousStoredState = yesterdayState;
+				// reset falg
+				stateChanged = 0;
 			}
 			commandArray[day - 1].dayState = yesterdayState;
 		}
@@ -135,37 +140,44 @@ void main()
 			// Update current State values from stored dayState
 			for (int i = 0; i < N; i++)
 			{
+				// pick up the group reference for element i
 				nodeArray[i].groupNode = commandArray[boomDay].dayState[i];
+				// reset size to 1
 				nodeArray[i].size = 1;
-				nodeArray[i].prevNode = nodeArray[i].nextNode = 0;
-				nodeArray[i].end = &nodeArray[i];
+				nodeArray[i].nextNode = 0;
+				nodeArray[i].end = &nodeArray[i]; // itself
 			}
+			// Get the group size stored, we don't need to trace it
 			groupCount = (int)(commandArray[boomDay].dayState[N]);
 
+			// Reconnect the element list of each group.
 			for (int i = 0; i < N; i++)
 			{
+				// The head of group do nothing
 				if (nodeArray[i].groupNode == &nodeArray[i]) continue;
+				// get the group head for this element; add this element to the end of the group
 				master = nodeArray[i].groupNode;
 				master->end->nextNode = &nodeArray[i];
-				nodeArray[i].prevNode = master->end;
 				master->end = &nodeArray[i];
 				master->size++;
 			}
+			// This day is updated; set flag
 			stateChanged = 1;
 			break;
 
 		default: // merge two elements
 			master = nodeArray[commandArray[day].first - 1].groupNode;
 			slave = nodeArray[commandArray[day].second - 1].groupNode;
-			if (master == slave) break;
-			// merge both groups
+			if (master == slave) break; // Invalid merge do nothing
+ 
+			// merge both groups; Swap them to make slave the small group; 
 			if (master->size < slave->size)
 			{
 				temp = master;
 				master = slave;
 				slave = temp;
 			}
-			// set groupNode of each slave node to master
+			// set groupNode of each slave to master
 			temp = slave;
 			while (temp)
 			{
@@ -176,10 +188,9 @@ void main()
 			master->size += slave->size;
 			// attach slave to end of master;
 			master->end->nextNode = slave;
-			slave->prevNode = master->end;
+			//slave->prevNode = master->end;
 			master->end = slave->end;
-			stateChanged = 1;
-			// Push statck
+			stateChanged = 1; // set flag
 			groupCount--;
 			break;
 		}
