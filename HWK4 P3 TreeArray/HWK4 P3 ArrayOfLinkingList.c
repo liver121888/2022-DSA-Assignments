@@ -102,29 +102,28 @@ void main()
 		// Before stepping in this new day Check last day day-1 to see if it is a boom 
 		// target (including day 0). If it is, allocated memory for current state data and  
 		// copy values of current state to them.
-		Node** yesterdayState = commandArray[day - 1].dayState;
-		if (yesterdayState == 99) // if yesterday state is 99, meaning the yesterday is a boom target
+		int yesterDay = day - 1;
+		if( commandArray[yesterDay].dayState  == 99) // if yesterday state is 99, meaning the yesterday is a boom target
 		{
 			if (stateChanged == 0 && previousStoredState)
 			{
 				// Directly shallow copy the previous stored state
-				yesterdayState = previousStoredState;
+				commandArray[yesterDay].dayState = previousStoredState;
 			}
 			else
 			{
 				// Yesterday was newly updated we need to allocate memory to store it
 				// copy current state as yesterday's state for booming restore
-				yesterdayState = malloc(sizeof(Node*) * (N + 1));
+				commandArray[yesterDay].dayState = malloc(sizeof(Node*) * (N + 1));
 				for (int i = 0; i < N; i++)
-					yesterdayState[i] = nodeArray[i].groupNode;
+					commandArray[yesterDay].dayState[i] = nodeArray[i].groupNode;
 				// We hide the group number in the last addition element
-				yesterdayState[N] = groupCount;
+				commandArray[yesterDay].dayState[N] = groupCount;
 				// Record this is the newly created boom state
-				previousStoredState = yesterdayState;
+				previousStoredState = commandArray[yesterDay].dayState[N];
 				// reset falg
 				stateChanged = 0;
 			}
-			commandArray[day - 1].dayState = yesterdayState;
 		}
 
 		// Execute command		
@@ -161,8 +160,17 @@ void main()
 				master->end = &nodeArray[i];
 				master->size++;
 			}
-			// This day is updated; set flag
-			stateChanged = 1;
+			// This day is updated; we should set flag // stateChanged = 1;
+			// However, since this is a boom day and a state is loaded
+			// From now one the state is changed. But the coming days 
+			// can directly make a shallow copy from the boomed state
+			// Therefor we update the previoustate directly with the loaded state
+			// and set stateChanged to 0.
+			// save memory and cpu time tool
+			previousStoredState = commandArray[boomDay].dayState;
+			// reset falg
+			stateChanged = 0;
+			
 			break;
 
 		default: // merge two elements
