@@ -13,15 +13,13 @@
 
 typedef struct operate
 {
-    // TODO: Determine fields to use by your method
-    char op[10];
+    char op[6];
     int v1;
     int v2;
 } Operate;
 
 typedef struct disjointSet
 {
-    // TODO: Determine fields to use by your method
     int leaderHash;
     int size;
 } DisjointSet;
@@ -48,7 +46,7 @@ typedef struct q {
 }Q;
 
 // init set
-bool* set;
+//bool* set;
 int FileFlag = 1;
 int DebugFlag = 0;
 int shopNumberInitial;
@@ -74,14 +72,14 @@ void makeset(int i)
     }
 }
 
-inline void static init(int i)
-{
-    if (!set[i]) 
-    {
-        makeset(i);
-        set[i] = 1;
-    }
-}
+//inline void static init(int i)
+//{
+//    if (!set[i]) 
+//    {
+//        makeset(i);
+//        set[i] = 1;
+//    }
+//}
 
 int find_set(int i)
 {
@@ -271,7 +269,6 @@ int main()
         shopNumberHistory[i].cnt = -1;
         dsHistory[i] = malloc(sizeof(DisjointSet) * (shopNumberInitial + 1));
     }
-    ds = malloc(sizeof(DisjointSet) * (shopNumberInitial + 1));
 
     G = malloc(sizeof(Graph));
     G->nodeNumber = daysM + 1;
@@ -287,13 +284,14 @@ int main()
 
     T = malloc(sizeof(OPDay*) * (daysM + 1));
 
-    set = malloc(sizeof(bool) * (shopNumberInitial + 1));
-    for (int i = 1; i < shopNumberInitial + 1; i++)
-        set[i] = 0;
+    //set = malloc(sizeof(bool) * (shopNumberInitial + 1));
+    //for (int i = 1; i < shopNumberInitial + 1; i++)
+    //    set[i] = 0;
     shopNumber = shopNumberInitial;
     //shopNumberHistory[0] = shopNumber;
+    ds = malloc(sizeof(DisjointSet) * (shopNumberInitial + 1));
     for (int i = 1; i < shopNumberInitial + 1; i++)
-        init(i);
+        makeset(i);
     isBoom = malloc(sizeof(bool) * (shopNumberInitial + 1));
 
     OPDay* prevn = malloc(sizeof(OPDay));
@@ -354,22 +352,6 @@ int main()
     for (int i = 0; i < daysM + 1; i++)
         if (shopNumberHistory[i].isquery == true)
             printf("%d\n", shopNumberHistory[i].cnt);
-    // here should be a tmp to store the initial state
-    //for (int i = 1; i < daysM + 1; i++)
-    //{
-    //    switch (previousDay[i].op[0])
-    //    {
-    //    case('q'):
-    //        break;
-    //    case('m'):
-    //        break;
-    //    case('b'):
-    //        break;
-    //    default:
-    //        break;
-    //    }
-    //}
-
     if (FileFlag)
         fclose(ptr);
     return 0;

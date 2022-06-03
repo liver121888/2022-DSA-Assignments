@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "P4", "P4\P4.vcxproj", "{F81
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "P3_Multiverse", "P3_Multiverse\P3_Multiverse.vcxproj", "{C7E3AB28-D9ED-46C7-9682-F85D9DE3CCF8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "P3_Multi_No_Compression", "P3_Multi_No_Compression\P3_Multi_No_Compression.vcxproj", "{5C602218-4A32-4103-8CE8-F7A0E0303247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{C7E3AB28-D9ED-46C7-9682-F85D9DE3CCF8}.Release|x64.Build.0 = Release|x64
 		{C7E3AB28-D9ED-46C7-9682-F85D9DE3CCF8}.Release|x86.ActiveCfg = Release|Win32
 		{C7E3AB28-D9ED-46C7-9682-F85D9DE3CCF8}.Release|x86.Build.0 = Release|Win32
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Debug|x64.ActiveCfg = Debug|x64
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Debug|x64.Build.0 = Debug|x64
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Debug|x86.ActiveCfg = Debug|Win32
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Debug|x86.Build.0 = Debug|Win32
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Release|x64.ActiveCfg = Release|x64
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Release|x64.Build.0 = Release|x64
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Release|x86.ActiveCfg = Release|Win32
+		{5C602218-4A32-4103-8CE8-F7A0E0303247}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
