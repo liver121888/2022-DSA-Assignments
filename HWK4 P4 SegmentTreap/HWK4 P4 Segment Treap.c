@@ -5,25 +5,39 @@
 #include<string.h>
 
 
-typedef struct node
+typedef struct segTreapNode
 {
-	int priority;
-	int id;
-	int time;
-	struct node* parent;
-	struct node* left;
-	struct node* right;
-} Node;
+	int start, end;
+	int sum;
+	struct segTreapNode* parent;
+	struct segTreapNode* left;
+	struct segTreapNode* right;
+} SegTreapNode;
 
  
 int N, Q, tenN;
-Node* root;
-Node* tempNode;
-Node* left, * right, *current;
-Node** initialArray;
+SegTreapNode* root;
 
-void constructInitialTreap(char lr, Node* parent, int left, int right)
+
+
+SegTreapNode* ConstructNode(int start, int end, SegTreapNode* parent, int value )
 {
+	SegTreapNode* node = malloc(sizeof(SegTreapNode));
+	node->parent = parent;
+	node->left = start;
+	node->right = end;
+	if (start == end)
+	{
+		node->left = 0;
+		node->right = 0;
+		node->sum = value;
+	}
+	else
+	{
+		int mid = (start + end ) / 2;
+		node->left = ConstructNode(start, mid);
+		node->right = ConstructNode()
+	}
 	Node* center;
 	int idx = (left + right) / 2;
 	center = initialArray[idx];
