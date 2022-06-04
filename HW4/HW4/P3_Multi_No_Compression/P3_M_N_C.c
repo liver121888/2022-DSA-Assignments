@@ -233,7 +233,7 @@ int main()
     FILE* ptr = 0;
     if (fileFlag)
     {
-        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\4.in", "r");
+        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\6.in", "r");
         r = fscanf(ptr, "%d %d", &shopNumberInitial, &daysM);
     }
     else
