@@ -18,33 +18,37 @@ int N, Q;
 SegTreapNode* root;
 
 int leftsum, rightsum;
+	int rangeStart;
+	int rangeEnd;
+	int total;
 
-void printRebootTime(SegTreapNode* seg, int start, int end)
+void printRebootTime(SegTreapNode* seg )
 {
 
-	if (seg->start == start && seg->end == end)
+	if (seg->start == rangeStart && seg->end == rangeEnd)
 	{
-		leftsum = seg->sum;
-		rightsum = 0;
+		total += seg->sum;
 	}
-	else if (start > seg->end || end < seg->start )
+	else if (rangeStart > seg->end || rangeEnd < seg->start )
 	{
 		return;
 	}
 	else
 	{
-		if (seg->start == start && seg->end < end)
+		if (seg->start == rangeStart && seg->end < rangeEnd)
 		{
-			leftsum = seg->sum;
+			total += seg->sum;
+			rangeStart = seg->end + 1;
 		}
-		else if (seg->end == end && seg->start > start)
+		else if (seg->end == rangeEnd && seg->start > rangeStart)
 		{
-			rightsum = seg->sum;
+			total += seg->sum;
+			rangeEnd = seg->start - 1;
 		}
 		else
 		{
-			if (seg->left)printRebootTime(seg->left, start, end);
-			if (seg->right)printRebootTime(seg->right, start, end);
+			if (seg->left)printRebootTime(seg->left );
+			if (seg->right)printRebootTime(seg->right );
 		}
 	}
 }
@@ -56,10 +60,58 @@ void treeExtend(SegTreapNode* seg)
 	if (seg->left) treeExtend(seg->left);
 	if (seg->right) treeExtend(seg->right);
 }
+void treeReduced(SegTreapNode* seg)
+{
+	seg->start--;
+	seg->end--;
+	if (seg->left) treeReduced(seg->left);
+	if (seg->right) treeReduced(seg->right);
+}
 
 void insertAMachine(SegTreapNode* seg, int p, int k )
 {
 	SegTreapNode* temp;
+	if (p == 0)
+	{
+		treeExtend(seg);
+
+		// create a new parent node
+		SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+		inserted->left = inserted->right = 0; inserted->sum = k;
+		inserted->start = inserted->end = 1;
+
+		SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+		parent->right = seg->left; seg->left->parent = parent;
+		parent->left = inserted; inserted->parent = parent;
+		parent->sum = parent->left->sum + parent->right->sum;
+		parent->start = 1;	parent->end = parent->right->end;
+
+		seg->left = parent; parent->parent = seg; 
+		seg->sum = seg->left->sum + seg->right->sum;
+		seg->start = 1;
+
+		// END
+		return;
+	}
+	else if (p == N)
+	{
+		// create a new node and a parent node
+		SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+		inserted->left = inserted->right = 0; inserted->sum = k;
+		inserted->start = inserted->end = N+1;
+
+		SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+		parent->left = seg->right; seg->right->parent = parent;
+		parent->right = inserted; inserted->parent = parent;
+		parent->sum = parent->left->sum + parent->right->sum;
+		parent->start = parent->left->start; parent->end = parent->right->end;
+
+		seg->right = parent; parent->parent = seg;
+		seg->sum += k; 
+		seg->end = seg->right->end;
+		// End
+		return;
+	}
 
 	if (seg->end < p) return;
 	if (seg->start > p)
@@ -70,43 +122,37 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 	{
 		if (seg->end == p)
 		{
-			// create a new parent node
-			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
-			parent->parent = seg;
-			parent->left = seg->right;
-			seg->right = parent;
+		// create a new node and a parent node
 			SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
-			parent->right = inserted;
-			parent->end = p;
-			parent->start = parent->left->start;
-
-			inserted->parent = parent;
-			inserted->left = inserted->right = 0;
-			inserted->sum = k;
+			inserted->left = inserted->right = 0; inserted->sum = k;
 			inserted->start = inserted->end = p;
+
+			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+			parent->left = seg->right; seg->right->parent = parent;
+			parent->right = inserted; inserted->parent = parent;
 			parent->sum = parent->left->sum + parent->right->sum;
-			seg->sum = seg->left->sum + seg->right->sum;
+			parent->start = parent->left->start; parent->end = parent->right->end;
+
+			seg->right = parent; parent->parent = seg;
+			seg->sum += k;
 			seg->end = seg->right->end;
 		}
 		else if (seg->start == p)
 		{
 			// create a new parent node
-			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
-			parent->parent = seg;
-			parent->right = seg->left;
-			seg->left = parent;
 			SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
-			parent->left = inserted;
-			parent->start = p;
-			parent->end = parent->right->end;
-
-			inserted->parent = parent;
-			inserted->left = inserted->right = 0;
-			inserted->sum = k;
+			inserted->left = inserted->right = 0; inserted->sum = k;
 			inserted->start = inserted->end = p;
+
+			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+			parent->right = seg->left; seg->left->parent = parent;
+			parent->left = inserted; inserted->parent = parent;
 			parent->sum = parent->left->sum + parent->right->sum;
+			parent->start = p;	parent->end = parent->right->end;
+
+			seg->left = parent; parent->parent = seg;
 			seg->sum = seg->left->sum + seg->right->sum;
-			seg->start = seg->parent->start;
+			seg->start = p;
 		}
 		else
 		{
@@ -116,11 +162,80 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 			if (seg->right) insertAMachine(seg->right, p, k);
 		}
 	}
+
+
 }
+
+void retireAMachine(SegTreapNode* seg, int p)
+{
+	if ( seg->end < p) return;
+	if (seg->start > p)
+	{
+		treeReduced(seg);
+	}
+	else
+	{
+		if (seg->end == p && seg->start == p)
+		{
+			if (seg->parent->left == seg)
+			{
+				// left child
+				if (seg->parent->parent == 0)
+				{
+					root = seg->parent->right;
+				}
+				else
+				{
+					if (seg->parent == seg->parent->parent->right)
+						seg->parent->parent->right = seg->parent->right;
+					else
+						seg->parent->parent->left = seg->parent->right;
+				}
+			}
+			else
+			{
+				// right child
+				if (seg->parent->parent == 0)
+				{
+					root = seg->parent->left;
+				}
+				else
+				{
+					if (seg->parent == seg->parent->parent->right)
+						seg->parent->parent->right = seg->parent->left;
+					else
+						seg->parent->parent->left = seg->parent->left;
+				}
+			}
+			SegTreapNode* temp = seg->parent->parent;
+			while (1)
+			{
+				temp->sum -= seg->sum;
+				//temp->end--;
+				if (temp->parent == 0)break;
+				temp = temp->parent;
+			}
+			//free(seg->parent);
+			//free(seg);
+		}
+		else
+		{
+			// drill down
+			seg->end--;
+			if (seg->left) retireAMachine(seg->left, p);
+			if (seg->right)retireAMachine(seg->right, p);
+		}
+
+	}
+
+
+}
+
 
 SegTreapNode* array0;
 SegTreapNode* array1;
 SegTreapNode* root;
+int total;
 
 void main()
 {
@@ -172,6 +287,7 @@ void main()
 			array1[i].start = array1[i].left->start;
 			array1[i].end = array1[i].right->end;
 			array1[i].sum = array1[i].left->sum + array1[i].right->sum;
+			array1[i].parent = 0;
 		}
 		if (odd) size = size + 1;
 		array0 = array1;
@@ -188,14 +304,16 @@ void main()
 		case 1:
 			scanf("%d %d", &p, &k);
 			insertAMachine(root, p, k);
+			N = N + 1;
 			break;
 		case 2:
 			scanf("%d", &p);
-		//	retireAMachine(p);
+		   retireAMachine(root, p);
+		   N = N - 1;
 			break;
 		case 3:
 			scanf("%d %d", &l, &r);
-	//		swapMachine(l, r);
+	       // swapMachine(l, r);
 			break;
 		case 4:
 			scanf("%d %d %d %d", &l, &r, &x, &y);
@@ -207,10 +325,10 @@ void main()
 			break;
 		case 6:
 			scanf("%d %d", &l, &r);
-			leftsum = -1;
-			rightsum = -1;
-			printRebootTime(root, l, r);
-			printf("%d\n", leftsum + rightsum);
+			total = 0;
+			rangeStart = l; rangeEnd = r;
+			printRebootTime(root );
+			printf("%d\n", total );
 			break;
 		}
 	}
