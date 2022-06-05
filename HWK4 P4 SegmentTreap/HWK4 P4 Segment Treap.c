@@ -15,18 +15,119 @@ typedef struct segTreapNode
 
  
 int N, Q;
-SegTreapNode* root;
+SegTreapNode* root, * temp;
 
 int leftsum, rightsum;
-	int rangeStart;
-	int rangeEnd;
-	int total;
+int rangeStart;
+int rangeEnd;
+int total;
+int timeLimit;
+int trimedAmount;
+
+void trimDownSegmentServers(SegTreapNode* stop, SegTreapNode* seg)
+{
+	if (seg->start == seg->end)
+	{
+		if (seg->sum > timeLimit)
+		{
+			int delta = seg->sum - timeLimit;
+			trimedAmount += delta;
+			// change sum and update parents
+			temp = seg;
+			while (temp != stop)
+			{
+				temp->sum -= delta;
+				temp = temp->parent;
+			}
+		}
+	}
+	else
+	{
+		if (seg->left) trimDownSegmentServers(stop, seg->left);
+		if (seg->right) trimDownSegmentServers(stop,seg->right);
+	}
+}
+
+void truncateTimes(SegTreapNode* seg)
+{
+
+	if (seg->start == rangeStart && seg->end == rangeEnd)
+	{
+		// One body block (or the complete block, or head+first body, or last body +tail) is found
+
+		trimedAmount = 0;
+		trimDownSegmentServers(seg, seg);
+		// update parents
+		if (trimedAmount > 0)
+		{
+			temp = seg;
+			while (temp)
+			{
+				temp->sum -= trimedAmount;
+				temp = temp->parent;
+			}
+		}
+	}
+	else if (rangeStart > seg->end || rangeEnd < seg->start)
+	{
+		return;
+	}
+	else
+	{
+		if (seg->start == rangeStart && seg->end < rangeEnd)
+		{
+			// Head block found
+			trimedAmount = 0;
+			trimDownSegmentServers(seg, seg);
+			// update parents
+			if (trimedAmount > 0)
+			{
+				temp = seg;
+				while (temp)
+				{
+					temp->sum -= trimedAmount;
+					temp = temp->parent;
+				}
+			}
+
+			// update search range
+			rangeStart = seg->end + 1;
+
+		}
+		else if (seg->end == rangeEnd && seg->start > rangeStart)
+		{
+			// Tail block found
+			trimedAmount = 0;
+			trimDownSegmentServers(seg, seg);
+			// update parents
+			if (trimedAmount > 0)
+			{
+				temp = seg;
+				while (temp)
+				{
+					temp->sum -= trimedAmount;
+					temp = temp->parent;
+				}
+			}
+
+			// update search range
+			rangeEnd = seg->start - 1;
+		}
+		else
+		{
+			if (seg->left)truncateTimes(seg->left);
+			if (seg->right)truncateTimes(seg->right);
+		}
+	}
+}
+
 
 void printRebootTime(SegTreapNode* seg )
 {
 
 	if (seg->start == rangeStart && seg->end == rangeEnd)
 	{
+		// One body block (or the complete block, or head+first body, or last body +tail) is found
 		total += seg->sum;
 	}
 	else if (rangeStart > seg->end || rangeEnd < seg->start )
@@ -37,12 +138,16 @@ void printRebootTime(SegTreapNode* seg )
 	{
 		if (seg->start == rangeStart && seg->end < rangeEnd)
 		{
+			// Head block found
 			total += seg->sum;
+			// update search range
 			rangeStart = seg->end + 1;
 		}
 		else if (seg->end == rangeEnd && seg->start > rangeStart)
 		{
+			// Tail block found
 			total += seg->sum;
+			// update search range
 			rangeEnd = seg->start - 1;
 		}
 		else
@@ -60,6 +165,7 @@ void treeExtend(SegTreapNode* seg)
 	if (seg->left) treeExtend(seg->left);
 	if (seg->right) treeExtend(seg->right);
 }
+
 void treeReduced(SegTreapNode* seg)
 {
 	seg->start--;
@@ -321,7 +427,9 @@ void main()
 			break;
 		case 5:
 			scanf("%d %d %d ", &l, &r, &k);
-	//		truncateTimes(l, r, k);
+			rangeStart = l; rangeEnd = r;
+			timeLimit = k;
+			truncateTimes(root);
 			break;
 		case 6:
 			scanf("%d %d", &l, &r);
