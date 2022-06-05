@@ -4,27 +4,65 @@
 #include<string.h>
 
 
-typedef struct segTreapNode
+typedef struct smtpNode
 {
 	int start, end;
 	int sum;
-	struct segTreapNode* parent;
-	struct segTreapNode* left;
-	struct segTreapNode* right;
-} SegTreapNode;
+	struct smtpNode* parent;
+	struct smtpNode* left;
+	struct smtpNode* right;
+} SmtpNode;
 
  
 int N, Q;
-SegTreapNode* root, * temp;
+SmtpNode* root, * temp;
 
 int leftsum, rightsum;
-int rangeStart;
-int rangeEnd;
+int rangeStart, otherStart;
+int rangeEnd, otherEnd;
 int total;
 int timeLimit;
 int trimedAmount;
 
-void trimDownSegmentServers(SegTreapNode* stop, SegTreapNode* seg)
+void swapTwoBlocks(SmtpNode* seg)
+{
+	if (seg->start == rangeStart && seg->end == rangeEnd)
+	{
+		// One body block (or the complete block, or head+first body, or last body +tail) is found
+		 
+	}
+	else if (rangeStart > seg->end || rangeEnd < seg->start)
+	{
+		return;
+	}
+	else
+	{
+		if (seg->start == rangeStart && seg->end < rangeEnd)
+		{
+			// Head block found
+ 
+			// update search range
+			rangeStart = seg->end + 1;
+		}
+		else if (seg->end == rangeEnd && seg->start > rangeStart)
+		{
+			// Tail block found
+ 
+
+			// update search range
+			rangeEnd = seg->start - 1;
+		}
+		else
+		{
+			if (seg->left)printRebootTime(seg->left);
+			if (seg->right)printRebootTime(seg->right);
+		}
+	}
+}
+
+
+
+void trimDownSegmentServers(SmtpNode* stop, SmtpNode* seg)
 {
 	if (seg->start == seg->end)
 	{
@@ -48,7 +86,7 @@ void trimDownSegmentServers(SegTreapNode* stop, SegTreapNode* seg)
 	}
 }
 
-void truncateTimes(SegTreapNode* seg)
+void truncateTimes(SmtpNode* seg)
 {
 
 	if (seg->start == rangeStart && seg->end == rangeEnd)
@@ -122,7 +160,7 @@ void truncateTimes(SegTreapNode* seg)
 }
 
 
-void printRebootTime(SegTreapNode* seg )
+void printRebootTime(SmtpNode* seg )
 {
 
 	if (seg->start == rangeStart && seg->end == rangeEnd)
@@ -158,7 +196,7 @@ void printRebootTime(SegTreapNode* seg )
 	}
 }
 
-void treeExtend(SegTreapNode* seg)
+void treeExtend(SmtpNode* seg)
 {
 	seg->start++;
 	seg->end++;
@@ -166,7 +204,7 @@ void treeExtend(SegTreapNode* seg)
 	if (seg->right) treeExtend(seg->right);
 }
 
-void treeReduced(SegTreapNode* seg)
+void treeReduced(SmtpNode* seg)
 {
 	seg->start--;
 	seg->end--;
@@ -174,19 +212,19 @@ void treeReduced(SegTreapNode* seg)
 	if (seg->right) treeReduced(seg->right);
 }
 
-void insertAMachine(SegTreapNode* seg, int p, int k )
+void insertAMachine(SmtpNode* seg, int p, int k )
 {
-	SegTreapNode* temp;
+	SmtpNode* temp;
 	if (p == 0)
 	{
 		treeExtend(seg);
 
 		// create a new parent node
-		SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+		SmtpNode* inserted = malloc(sizeof(SmtpNode));
 		inserted->left = inserted->right = 0; inserted->sum = k;
 		inserted->start = inserted->end = 1;
 
-		SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+		SmtpNode* parent = malloc(sizeof(SmtpNode));
 		parent->right = seg->left; seg->left->parent = parent;
 		parent->left = inserted; inserted->parent = parent;
 		parent->sum = parent->left->sum + parent->right->sum;
@@ -202,11 +240,11 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 	else if (p == N)
 	{
 		// create a new node and a parent node
-		SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+		SmtpNode* inserted = malloc(sizeof(SmtpNode));
 		inserted->left = inserted->right = 0; inserted->sum = k;
 		inserted->start = inserted->end = N+1;
 
-		SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+		SmtpNode* parent = malloc(sizeof(SmtpNode));
 		parent->left = seg->right; seg->right->parent = parent;
 		parent->right = inserted; inserted->parent = parent;
 		parent->sum = parent->left->sum + parent->right->sum;
@@ -229,11 +267,11 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 		if (seg->end == p)
 		{
 		// create a new node and a parent node
-			SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+			SmtpNode* inserted = malloc(sizeof(SmtpNode));
 			inserted->left = inserted->right = 0; inserted->sum = k;
 			inserted->start = inserted->end = p;
 
-			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+			SmtpNode* parent = malloc(sizeof(SmtpNode));
 			parent->left = seg->right; seg->right->parent = parent;
 			parent->right = inserted; inserted->parent = parent;
 			parent->sum = parent->left->sum + parent->right->sum;
@@ -246,11 +284,11 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 		else if (seg->start == p)
 		{
 			// create a new parent node
-			SegTreapNode* inserted = malloc(sizeof(SegTreapNode));
+			SmtpNode* inserted = malloc(sizeof(SmtpNode));
 			inserted->left = inserted->right = 0; inserted->sum = k;
 			inserted->start = inserted->end = p;
 
-			SegTreapNode* parent = malloc(sizeof(SegTreapNode));
+			SmtpNode* parent = malloc(sizeof(SmtpNode));
 			parent->right = seg->left; seg->left->parent = parent;
 			parent->left = inserted; inserted->parent = parent;
 			parent->sum = parent->left->sum + parent->right->sum;
@@ -272,7 +310,7 @@ void insertAMachine(SegTreapNode* seg, int p, int k )
 
 }
 
-void retireAMachine(SegTreapNode* seg, int p)
+int retireAMachine(SmtpNode* seg, int p)
 {
 	if ( seg->end < p) return;
 	if (seg->start > p)
@@ -313,7 +351,7 @@ void retireAMachine(SegTreapNode* seg, int p)
 						seg->parent->parent->left = seg->parent->left;
 				}
 			}
-			SegTreapNode* temp = seg->parent->parent;
+			SmtpNode* temp = seg->parent->parent;
 			while (1)
 			{
 				temp->sum -= seg->sum;
@@ -321,6 +359,7 @@ void retireAMachine(SegTreapNode* seg, int p)
 				if (temp->parent == 0)break;
 				temp = temp->parent;
 			}
+			return seg->sum;
 			//free(seg->parent);
 			//free(seg);
 		}
@@ -328,8 +367,8 @@ void retireAMachine(SegTreapNode* seg, int p)
 		{
 			// drill down
 			seg->end--;
-			if (seg->left) retireAMachine(seg->left, p);
-			if (seg->right)retireAMachine(seg->right, p);
+			if (seg->left) return retireAMachine(seg->left, p);
+			if (seg->right)return retireAMachine(seg->right, p);
 		}
 
 	}
@@ -337,47 +376,62 @@ void retireAMachine(SegTreapNode* seg, int p)
 
 }
 
-
-SegTreapNode* array0;
-SegTreapNode* array1;
-SegTreapNode* root;
+void siplit(SmtpNode* seg, int p)
+{
+	if (seg->start < p && p < seg->end)
+	{
+		int lm = seg->left->end;
+		if (lm == p || lm + 1 == p) return; 
+		if (p >= lm)
+		{
+			// split left from start~lm => start~p and p+1~lm   
+		}
+		else
+		{
+			// change right from lm+1 - end
+		}
+	}
+}
+SmtpNode* array;
+SmtpNode* array1;
+SmtpNode* root;
 int total;
 
 void main()
 {
 	scanf("%d %d", &N, &Q );
 	// Create N nodes associated with random priority
-	array0 = malloc(sizeof(SegTreapNode) * (N));
+	array = malloc(sizeof(SmtpNode) * (N));
 	for (int i = 0; i < N; i++)
 	{
-		array0[i].start = array0[i].end = i+1;
-		array0[i].parent = array0[i].left = array0[i].right = 0;
-		scanf("%d", &array0[i].sum);
+		array[i].start = array[i].end = i+1;
+		array[i].parent = array[i].left = array[i].right = 0;
+		scanf("%d", &array[i].sum);
 	}
 	// create upper nodes orphan 
 	int size = N;
 	int odd = 0;
-	SegTreapNode* orphan = 0;
+	SmtpNode* orphan = 0;
 	do
 	{
 		if (size % 2 == 1)
 		{
 			odd = 1;
-			if( orphan == 0 ) orphan = &array0[size-1];
+			if( orphan == 0 ) orphan = &array[size-1];
 			size = size / 2;
-			array1 = malloc(sizeof(SegTreapNode) * (size+1));
+			array1 = malloc(sizeof(SmtpNode) * (size+1));
 		}
 		else
 		{
 			odd = 0;
 			size = size / 2;
-			array1 = malloc(sizeof(SegTreapNode) * (size));
+			array1 = malloc(sizeof(SmtpNode) * (size));
 		}
 		for (int i = 0; i < size; i++)
 		{
 			int twoi = 2 * i;
-			array1[i].left = &array0[twoi];
-			array0[twoi].parent = &array1[i];
+			array1[i].left = &array[twoi];
+			array[twoi].parent = &array1[i];
 			if ( i == size - 1 && odd == 0 && orphan)
 			{
 				array1[i].right = orphan;
@@ -386,8 +440,8 @@ void main()
 			}
 			else
 			{
-				array1[i].right = &array0[twoi + 1];
-				array0[twoi + 1].parent = &array1[i];
+				array1[i].right = &array[twoi + 1];
+				array[twoi + 1].parent = &array1[i];
 			}
 
 			array1[i].start = array1[i].left->start;
@@ -396,9 +450,9 @@ void main()
 			array1[i].parent = 0;
 		}
 		if (odd) size = size + 1;
-		array0 = array1;
+		array = array1;
 	} while (size > 1);
-	root = &array0[0];
+	root = &array[0];
 
 
 	int cmd, p, k, l, r, x, y;
@@ -419,11 +473,26 @@ void main()
 			break;
 		case 3:
 			scanf("%d %d", &l, &r);
-	       // swapMachine(l, r);
+			k = retireAMachine(root, r);
+			insertAMachine(root, p, k);
 			break;
 		case 4:
 			scanf("%d %d %d %d", &l, &r, &x, &y);
-		//	swapTwoBlocks(l, r, x, y);
+			int t;
+			if (x < l)
+			{
+				t = x;
+				x = l;
+				l = t;
+				t = y;
+				y = r;
+				r = t;
+			}
+
+
+			rangeStart = l;	rangeEnd = r;
+			otherStart = x; otherEnd = y;
+			swapTwoBlocks(root);
 			break;
 		case 5:
 			scanf("%d %d %d ", &l, &r, &k);
