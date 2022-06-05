@@ -13,7 +13,8 @@
 #pragma warning(disable:6011)
 
 typedef struct node {
-    int priority, serialNum, size;
+    int priority, size;
+    bool rev;
     long long bootTime, timeSum, lazy;
     struct node* left, *right;
 } Node;
@@ -25,6 +26,10 @@ Node* server;
 
 // ref: https://www.geeksforgeeks.org/treap-set-2-implementation-of-search-insert-and-delete/
 //      https://oemiliatano.github.io/2020/04/19/Treap/
+//      https://www.796t.com/content/1580044082.html
+//      https://youtu.be/erKlLEXLKyY
+//      https://youtu.be/8Rej5VVHVkY
+
 
 // A utility function to print tree
 void printTreap(Node* root, bool isFirst)
@@ -35,12 +40,12 @@ void printTreap(Node* root, bool isFirst)
     if (root)
     {
         printTreap(root->left, false);
-        printf("SN: %d | bT: %lld | pri: %d | size: %d | lazy: %lld | timeSum: %lld ", root->serialNum,
+        printf("bT: %lld | priority: %d | size: %d | lazy: %lld | timeSum: %lld ", 
             root->bootTime, root->priority, root->size, root->lazy, root->timeSum);
         if (root->left)
-            printf("| left: %d ", root->left->serialNum);
+            printf("| left: %lld ", root->left->bootTime);
         if (root->right)
-            printf("| right: %d ", root->right->serialNum);
+            printf("| right: %lld ", root->right->bootTime);
         printf("\n");
         printTreap(root->right, false);
     }
@@ -66,10 +71,22 @@ void pull(Node* t)
     t->timeSum = t->bootTime + getTimeSum(t->left) + getTimeSum(t->right);
 }
 
+Node* tmp;
 void push(Node* t)
 {
     if (t == NULL)
         return;
+    if (t->rev)
+    {
+        tmp = t->left;
+        t->left = t->right;
+        t->right = tmp;
+        if (t->left)
+            t->left->rev ^= 1;
+        if (t->right)
+            t->right->rev ^= 1;
+        t->rev = 0;
+    }
     t->bootTime += t->lazy;
     t->timeSum += t->lazy;
     if (t->left != NULL)
@@ -79,31 +96,26 @@ void push(Node* t)
     t->lazy = 0;
 }
 
-
-
-
-Node* tmp;
 Node* merge(Node* a, Node* b)
 {
-    if (a == NULL || b == NULL) return a ? a : b;
+    if (a == NULL || b == NULL) 
+        return a ? a : b;
     if (a->priority > b->priority)
     {
-        tmp = merge(a->right, b);
-        a->right = tmp;
+        push(a);
+        a->right = merge(a->right, b);
         pull(a);
         return a;
     }
     else
     {
-        tmp = merge(a, b->left);
-        b->left = tmp;
+        push(b);
+        b->left = merge(a, b->left);
         pull(b);
         return b;
     }
 }
 
-//Node*& a, Node*& b
-bool flag = 1;
 void split(Node* t, int k, Node** a, Node** b)
 {
     if (t == NULL)
@@ -111,102 +123,69 @@ void split(Node* t, int k, Node** a, Node** b)
         *a = *b = NULL;
         return;
     }
-
-    if (!flag)
+    push(t);
+    // the size of this node's left subtree is bigger than k
+    if (getSize(t->left) >= k)
     {
-        if (t->serialNum <= k)
-        {
-            *a = t;
-            split(t->right, k, &((*a)->right), b);
-        }
-        else
-        {
-            *b = t;
-            split(t->left, k, a, &((*b)->left));
-        }
+        *b = t;
+        push(*b);
+        // point b to the whole tree, hand over to left subtree
+        split(t->left, k, a, &((*b)->left));
+        pull(*b);
     }
     else
     {
-        push(t);
-        //此節點的左子樹數量大於等於k
-        if (getSize(t->left) >= k)
-        {
-            *b = t;
-            push(*b);
-            //將b指向整個樹，向左子樹處理。
-            split(t->left, k, a, &((*b)->left));
-            pull(*b);
-        }
-        else
-        {
-            *a = t;
-            push(*a);
-            split(t->right, k - getSize(t->left) - 1, &((*a)->right), b);
-            pull(*a);
-        }
+        *a = t;
+        push(*a);
+        split(t->right, k - getSize(t->left) - 1, &((*a)->right), b);
+        pull(*a);
     }
 }
 
-/* Utility function to add a new key */
-Node* newNode(int key, int bT)
+Node* newNode(int bT)
 {
     Node* temp = malloc(sizeof(Node));
-    temp->serialNum = key;
     temp->priority = rand();
     temp->left = temp->right = NULL;
     temp->size = 1;
     temp->lazy = 0;
+    temp->rev = 0;
     temp->bootTime = bT;
     temp->timeSum = bT;
     return temp;
 }
 
-int kth(Node* t, int k)
-{
-    int lsz = getSize(t->left) + 1;
-    if (lsz < k)
-        return kth(t->right, k - lsz);
-    else if (lsz == k)
-        return t->serialNum;
-    else
-        return kth(t->left, k);
-}
+//int kth(Node* t, int k)
+//{
+//    //int lsz = getSize(t->left) + 1;
+//    //if (lsz < k)
+//    //    return kth(t->right, k - lsz);
+//    //else if (lsz == k)
+//    //    return t->serialNum;
+//    //else
+//    //    return kth(t->left, k);
+//}
 
 Node* insertNode(Node* root, int key, int bT)
 {
-    Node* lt = 0, * rt = 0;
+    Node* lt = 0, * rt = NULL;
     split(root, key, &lt, &rt);
-    return merge(merge(lt, newNode(key, bT)), rt);
+    return merge(merge(lt, newNode(bT)), rt);
 }
-
-
-
-void updateKey(Node* root, bool isPlus)
-{
-    // Base Cases: root is null or key is present at root
-    if (root == NULL)
-        return;
-    updateKey(root->left, isPlus);
-    if (isPlus)
-        root->serialNum++;
-    else
-        root->serialNum--;
-    updateKey(root->right, isPlus);
-}
-
 
 Node* addNode(Node* root, int place, int bT)
 {
     Node* temp = 0, * temp2 = 0;
     Node* lt = 0, * rt = 0;
-    split(root, place, &lt, &rt);
-    temp2 = newNode(place + 1, bT);
-    updateKey(rt, true);
+    if (place == 0 || place ==  numMachineN)
+        split(root, place, &lt, &rt);
+    else
+        split(root, place, &lt, &rt);
+    temp2 = newNode(bT);
     temp = merge(merge(lt, temp2), rt);
     numMachineN++;
     return temp;
 }
-
 
 
 Node* deleteNode(Node* root, int key)
@@ -214,27 +193,41 @@ Node* deleteNode(Node* root, int key)
     Node* temp = 0;
     Node* lt = 0, * rt = 0, *lt2, *rt2;
     split(root, key, &lt, &rt);
-    //split(root, key - 1, &lt, &rt);
     split(lt, key - 1, &lt2, &rt2);
-    updateKey(rt, false);
     temp = merge(lt2, rt);
     numMachineN--;
     return temp;
 }
 
-void reverseNode()
+Node* reverseNode(Node* root, int l, int r)
 {
-
+    Node* lt = 0, * rt = 0, * lt2, * rt2;
+    split(root, l - 1, &lt, &rt);
+    split(rt, r - l + 1, &lt2, &rt2);
+    lt2->rev ^= 1;
+    return merge(merge(lt, lt2), rt2);
 }
 
-void swapNode()
+Node* swapNode(Node* root, int l, int r, int x, int y)
 {
+    Node* lt = 0, * rt = 0, * lt2, * rt2, * lt3, *rt3, *lt4, *rt4;
+    split(root, l - 1, &lt, &rt);
+    split(rt, r - l + 1, &lt2, &rt2);
 
+    split(rt2, x - r - 1, &lt3, &rt3);
+    split(rt3, y - x + 1, &lt4, &rt4);
+    return merge(merge(merge(merge(lt, lt4), lt3), lt2), rt4);
 }
 
-void rebootNode()
+Node* upgradeNode(Node* root, int l, int r, int k)
 {
+    Node* lt, * rt, * lt2, * rt2;
+    split(root, l - 1, &lt, &rt);
+    split(rt, r - l + 1, &lt2, &rt2);
 
+    inorderupgrade(lt2, k);
+
+    return merge(lt, merge(lt2, rt2));
 }
 
 Node* query(Node* root, int l, int r, long long* q)
@@ -242,25 +235,20 @@ Node* query(Node* root, int l, int r, long long* q)
     Node *lt, *rt, *lt2, *rt2;
     Node* nuroot;
     split(root, l - 1, &lt, &rt);
-    split(rt, r, &lt2, &rt2);
+    //printTreap(rt, true);
+    split(rt, r - l + 1, &lt2, &rt2);
     *q = lt2->timeSum;
-    nuroot = merge (lt, merge(lt2, rt2));
+    nuroot = merge(lt, merge(lt2, rt2));
     return nuroot;
 }
 
-// C function to search a given key in a given BST
-Node* search(Node* root, int key)
+int inorderupgrade(Node* root, int target)
 {
     // Base Cases: root is null or key is present at root
-    if (root == NULL || root->serialNum == key)
-        return root;
-
-    // Key is greater than root's key
-    if (root->serialNum < key)
-        return search(root->right, key);
-
-    // Key is smaller than root's key
-    return search(root->left, key);
+    if (root == NULL)
+        return 0;
+    inorderupgrade(root->left, target);
+    inorderupgrade(root->right, target);
 }
 
 
@@ -270,7 +258,7 @@ int main() {
     FILE* ptr = 0;
     if (fileFlag)
     {
-        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P4\\0.in", "r");
+        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P4\\4.in", "r");
         sr = fscanf(ptr, "%d %d", &numMachineN, &numRecordQ);
     }
     else
@@ -329,21 +317,21 @@ int main() {
                 sr = fscanf(ptr, "%d %d", &l, &r);
             else
                 sr = scanf("%d %d", &l, &r);
-            reverseNode();
+            server = reverseNode(server, l, r);
             break;
         case 4:
             if (fileFlag)
                 sr = fscanf(ptr, "%d %d %d %d", &l, &r, &x, &y);
             else
                 sr = scanf("%d %d %d %d", &l, &r, &x, &y);
-            swapNode();
+            server = swapNode(server, l, r, x, y);
             break;
         case 5:
             if (fileFlag)
                 sr = fscanf(ptr, "%d %d %d", &l, &r, &k);
             else
                 sr = scanf("%d %d %d", &l, &r, &k);
-            rebootNode();
+            server = upgradeNode(server, l, r, k);
             break;
         case 6:
             if (fileFlag)
@@ -356,6 +344,8 @@ int main() {
         default:
             break;
         }
+        if (debugFlag)
+            printTreap(server, true);
     }
     if (fileFlag)
     {
