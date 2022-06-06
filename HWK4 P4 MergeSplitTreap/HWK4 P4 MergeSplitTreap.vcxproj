@@ -129,6 +129,9 @@
   <ItemGroup>
     <ClCompile Include="HWK4 P4 MergeSplitTreap.c" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="ExtraTestSamples.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -167,15 +167,17 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 	node->groupTime = node->time;
 	if (node->left)
 	{
-		do node->left->priority = rand();
-		while (node->left->priority >= node->priority);
+		//do node->left->priority = rand();
+		//while (node->left->priority >= node->priority);
+		node->left->priority = node->priority - 1;
 		node->groupSize += recursiveAssignChildrenPriority(node->left, &subTotal);
 		node->groupTime += subTotal;
 	}
 	if (node->right)
 	{
-		do node->right->priority = rand();
-		while (node->right->priority >= node->priority);
+		//do node->right->priority = rand();
+		//while (node->right->priority >= node->priority);
+		node->right->priority = node->priority - 2;
 		node->groupSize += recursiveAssignChildrenPriority(node->right, &subTotal);
 		node->groupTime += subTotal;
 	}
@@ -183,12 +185,42 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 	return node->groupSize;
 }
 
+void unitTestOnInitialTreap()
+{
+	do
+	{
+		printf("Specify N (-1:quit) = ");
+		scanf("%d", &N);
+		if (N == -1)break;
+		// Create N nodes associated with random priority
+		array = malloc(sizeof(SmtpNode) * (N));
+		for (int i = 0; i < N; i++)
+		{
+			array[i].left = array[i].right = 0;
+			array[i].time = rand() % 100;
+		}
+
+		root = recursiveConstruct(0, N - 1);
+		root->priority = RAND_MAX * 2;
+		unsigned long long totalTime;
+		root->groupSize = recursiveAssignChildrenPriority(root, &totalTime);
+
+		if (root->groupSize != N) printf("ERROR 1");
+		unsigned long long to = 0;
+		for (int i = 0; i < N; i++)
+			to += array[i].time;
+		if (to != root->groupTime) printf("ERROR 1");
+	} while (1);
+}
 
 void main()
 {
 	SmtpNode* front, * rear, * head, * middle, * tail, * newOne;
 	int cmd, p, k, l, r, x, y;
 	unsigned long long totalTime;
+	printf("RAND_MAX = %d", RAND_MAX);
+	unitTestOnInitialTreap();
+
 
 	scanf("%d %d", &N, &Q);
 	// Create N nodes associated with random priority
@@ -200,8 +232,14 @@ void main()
 	}
 
 	root = recursiveConstruct(0, N-1);
-	root->priority = rand();
+	root->priority = RAND_MAX;
 	root->groupSize = recursiveAssignChildrenPriority(root, &totalTime );
+
+	if (root->groupSize != N) printf("ERROR 1");
+unsigned long long to = 0;
+for (int i = 0; i < N; i++)
+	to += array[i].time;
+if (to != root->groupTime) printf("ERROR 1");
 
 	for (int i = 0; i < Q; i++)
 	{
@@ -210,7 +248,7 @@ void main()
 		{
 		case 1: // add a new server to location p with boot time k
 			newOne = malloc(sizeof(SmtpNode));
-			newOne->priority = rand(); newOne->left = newOne->right = 0;
+			newOne->priority = rand() * 2; newOne->left = newOne->right = 0;
 			newOne->groupSize = 1;
 			scanf("%d %d", &p, &newOne->time);
 			newOne->groupTime = newOne->time;
