@@ -7,7 +7,7 @@
 typedef struct smtpNode
 {
 	int start, end;
-	int sum;
+	int time;
 	struct smtpNode* parent;
 	struct smtpNode* left;
 	struct smtpNode* right;
@@ -21,7 +21,7 @@ int leftsum, rightsum;
 int rangeStart, otherStart;
 int rangeEnd, otherEnd;
 int total;
-int timeLimit;
+int TimeLimit;
 int trimedAmount;
 
 void swapTwoBlocks(SmtpNode* seg)
@@ -66,15 +66,15 @@ void trimDownSegmentServers(SmtpNode* stop, SmtpNode* seg)
 {
 	if (seg->start == seg->end)
 	{
-		if (seg->sum > timeLimit)
+		if (seg->time > TimeLimit)
 		{
-			int delta = seg->sum - timeLimit;
+			int delta = seg->time - TimeLimit;
 			trimedAmount += delta;
 			// change sum and update parents
 			temp = seg;
 			while (temp != stop)
 			{
-				temp->sum -= delta;
+				temp->time -= delta;
 				temp = temp->parent;
 			}
 		}
@@ -101,7 +101,7 @@ void truncateTimes(SmtpNode* seg)
 			temp = seg;
 			while (temp)
 			{
-				temp->sum -= trimedAmount;
+				temp->time -= trimedAmount;
 				temp = temp->parent;
 			}
 		}
@@ -123,7 +123,7 @@ void truncateTimes(SmtpNode* seg)
 				temp = seg;
 				while (temp)
 				{
-					temp->sum -= trimedAmount;
+					temp->time -= trimedAmount;
 					temp = temp->parent;
 				}
 			}
@@ -143,7 +143,7 @@ void truncateTimes(SmtpNode* seg)
 				temp = seg;
 				while (temp)
 				{
-					temp->sum -= trimedAmount;
+					temp->time -= trimedAmount;
 					temp = temp->parent;
 				}
 			}
@@ -166,7 +166,7 @@ void printRebootTime(SmtpNode* seg )
 	if (seg->start == rangeStart && seg->end == rangeEnd)
 	{
 		// One body block (or the complete block, or head+first body, or last body +tail) is found
-		total += seg->sum;
+		total += seg->time;
 	}
 	else if (rangeStart > seg->end || rangeEnd < seg->start )
 	{
@@ -177,14 +177,14 @@ void printRebootTime(SmtpNode* seg )
 		if (seg->start == rangeStart && seg->end < rangeEnd)
 		{
 			// Head block found
-			total += seg->sum;
+			total += seg->time;
 			// update search range
 			rangeStart = seg->end + 1;
 		}
 		else if (seg->end == rangeEnd && seg->start > rangeStart)
 		{
 			// Tail block found
-			total += seg->sum;
+			total += seg->time;
 			// update search range
 			rangeEnd = seg->start - 1;
 		}
@@ -221,17 +221,17 @@ void insertAMachine(SmtpNode* seg, int p, int k )
 
 		// create a new parent node
 		SmtpNode* inserted = malloc(sizeof(SmtpNode));
-		inserted->left = inserted->right = 0; inserted->sum = k;
+		inserted->left = inserted->right = 0; inserted->time = k;
 		inserted->start = inserted->end = 1;
 
 		SmtpNode* parent = malloc(sizeof(SmtpNode));
 		parent->right = seg->left; seg->left->parent = parent;
 		parent->left = inserted; inserted->parent = parent;
-		parent->sum = parent->left->sum + parent->right->sum;
+		parent->time = parent->left->time + parent->right->time;
 		parent->start = 1;	parent->end = parent->right->end;
 
 		seg->left = parent; parent->parent = seg; 
-		seg->sum = seg->left->sum + seg->right->sum;
+		seg->time = seg->left->time + seg->right->time;
 		seg->start = 1;
 
 		// END
@@ -241,17 +241,17 @@ void insertAMachine(SmtpNode* seg, int p, int k )
 	{
 		// create a new node and a parent node
 		SmtpNode* inserted = malloc(sizeof(SmtpNode));
-		inserted->left = inserted->right = 0; inserted->sum = k;
+		inserted->left = inserted->right = 0; inserted->time = k;
 		inserted->start = inserted->end = N+1;
 
 		SmtpNode* parent = malloc(sizeof(SmtpNode));
 		parent->left = seg->right; seg->right->parent = parent;
 		parent->right = inserted; inserted->parent = parent;
-		parent->sum = parent->left->sum + parent->right->sum;
+		parent->time = parent->left->time + parent->right->time;
 		parent->start = parent->left->start; parent->end = parent->right->end;
 
 		seg->right = parent; parent->parent = seg;
-		seg->sum += k; 
+		seg->time += k; 
 		seg->end = seg->right->end;
 		// End
 		return;
@@ -268,40 +268,40 @@ void insertAMachine(SmtpNode* seg, int p, int k )
 		{
 		// create a new node and a parent node
 			SmtpNode* inserted = malloc(sizeof(SmtpNode));
-			inserted->left = inserted->right = 0; inserted->sum = k;
+			inserted->left = inserted->right = 0; inserted->time = k;
 			inserted->start = inserted->end = p;
 
 			SmtpNode* parent = malloc(sizeof(SmtpNode));
 			parent->left = seg->right; seg->right->parent = parent;
 			parent->right = inserted; inserted->parent = parent;
-			parent->sum = parent->left->sum + parent->right->sum;
+			parent->time = parent->left->time + parent->right->time;
 			parent->start = parent->left->start; parent->end = parent->right->end;
 
 			seg->right = parent; parent->parent = seg;
-			seg->sum += k;
+			seg->time += k;
 			seg->end = seg->right->end;
 		}
 		else if (seg->start == p)
 		{
 			// create a new parent node
 			SmtpNode* inserted = malloc(sizeof(SmtpNode));
-			inserted->left = inserted->right = 0; inserted->sum = k;
+			inserted->left = inserted->right = 0; inserted->time = k;
 			inserted->start = inserted->end = p;
 
 			SmtpNode* parent = malloc(sizeof(SmtpNode));
 			parent->right = seg->left; seg->left->parent = parent;
 			parent->left = inserted; inserted->parent = parent;
-			parent->sum = parent->left->sum + parent->right->sum;
+			parent->time = parent->left->time + parent->right->time;
 			parent->start = p;	parent->end = parent->right->end;
 
 			seg->left = parent; parent->parent = seg;
-			seg->sum = seg->left->sum + seg->right->sum;
+			seg->time = seg->left->time + seg->right->time;
 			seg->start = p;
 		}
 		else
 		{
 			seg->end++;
-			seg->sum += k;
+			seg->time += k;
 			if (seg->left) insertAMachine(seg->left, p, k);
 			if (seg->right) insertAMachine(seg->right, p, k);
 		}
@@ -354,12 +354,12 @@ int retireAMachine(SmtpNode* seg, int p)
 			SmtpNode* temp = seg->parent->parent;
 			while (1)
 			{
-				temp->sum -= seg->sum;
+				temp->time -= seg->time;
 				//temp->end--;
 				if (temp->parent == 0)break;
 				temp = temp->parent;
 			}
-			return seg->sum;
+			return seg->time;
 			//free(seg->parent);
 			//free(seg);
 		}
@@ -406,7 +406,7 @@ void main()
 	{
 		array[i].start = array[i].end = i+1;
 		array[i].parent = array[i].left = array[i].right = 0;
-		scanf("%d", &array[i].sum);
+		scanf("%d", &array[i].time);
 	}
 	// create upper nodes orphan 
 	int size = N;
@@ -446,7 +446,7 @@ void main()
 
 			array1[i].start = array1[i].left->start;
 			array1[i].end = array1[i].right->end;
-			array1[i].sum = array1[i].left->sum + array1[i].right->sum;
+			array1[i].time = array1[i].left->time + array1[i].right->time;
 			array1[i].parent = 0;
 		}
 		if (odd) size = size + 1;
@@ -497,7 +497,7 @@ void main()
 		case 5:
 			scanf("%d %d %d ", &l, &r, &k);
 			rangeStart = l; rangeEnd = r;
-			timeLimit = k;
+			TimeLimit = k;
 			truncateTimes(root);
 			break;
 		case 6:

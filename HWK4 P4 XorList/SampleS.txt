@@ -40,6 +40,14 @@ Sample Output 2
 16
 
 
+splitTest
+5 1000
+4 8 7 6 3
+0 1
+0 0
+0 5
+0 4
+
 
 Truncate Input 1
 5 1000
