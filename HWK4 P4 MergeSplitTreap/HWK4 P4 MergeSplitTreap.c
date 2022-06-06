@@ -3,7 +3,6 @@
 #include<stdlib.h>
 #include<string.h>
 
-
 typedef struct smtpNode
 {
 	int priority;
@@ -16,33 +15,10 @@ typedef struct smtpNode
 
 
 int N, Q;
-SmtpNode* root, * temp;
-
-int leftsum, rightsum;
-int rangeStart, otherStart;
-int rangeEnd, otherEnd;
-int total;
 int TimeLimit;
-int trimedAmount;
-
 SmtpNode* array;
 SmtpNode* root;
-int total;
 
-//void push(SmtpNode* node)
-//{
-//	if (node == 0) return;
-//	
-//}
-//void pull(SmtpNode* node)
-//{
-//
-//}
-
-void updateSubTreeSize(SmtpNode* node)
-{
-	node->groupSize = 1 + node->left->groupSize + node->right->groupSize;
-}
 
 //  注意！因為應用於 ordered 的 list，左邊的 subtree 排在 右邊的 subtree 前面。
 //  因此 frontPart 必須是 排序較小 左側的 子樹， rearPart 必須是排序較大 右側的子樹
@@ -70,6 +46,7 @@ SmtpNode* merge(SmtpNode* frontPart, SmtpNode* rearPart) //將根節點為 a 和
 	rearPart->groupTime = (rearPart->left ? rearPart->left->groupTime : 0) + (rearPart->right ? rearPart->right->groupTime : 0) + rearPart->time;
 	return rearPart; // New Parent; New root;
 }
+
 
 // Split the tree after the k-th listed ordered node.
 // If k = 0; no split. If k = N; no split.
@@ -104,16 +81,11 @@ void split(SmtpNode* node, int k, SmtpNode** frontPart, SmtpNode** rearPart) //�
 			// 分割後扇出的 rear 是 本 node 分割的 rear part。 分割產出的 front part 是 本 node 新的右子節點。
 			// 交右側子節點進行分割，序號經扣減，產出的 front 成為 本node的新右子節點，rear是本 node 分割的 右後半部。
 			split(node->right, k - leftCount - 1, &node->right, rearPart);
-			//pull(node);
 			// 更新 size (只有右側子樹變動）
 			node->groupSize = ( node->right ? node->right->groupSize : 0 )+
 				( node->left ? node->left->groupSize : 0  ) + 1;
 			node->groupTime = (node->right ? node->right->groupTime : 0) +
 				(node->left ? node->left->groupTime : 0) + node->time;
-
-			//int gg = (*rearPart)->groupSize;
-			//(*rearPart)->groupSize = (*rearPart)->right ? (*rearPart)->right->groupSize : 0 +
-			//	(*rearPart)->left ? (*rearPart)->left->groupSize : 0 + 1;
 		}
 		else
 		{
@@ -130,21 +102,14 @@ void split(SmtpNode* node, int k, SmtpNode** frontPart, SmtpNode** rearPart) //�
 		{
 			*rearPart = node;
 
-			//push(node);
 			// 由左側子節點找 k 序位節點分割。
 			// 分割出的左側成為本node分割的 左前 front part。分割出的後側，成為本node更新的左子節點。
 			split(node->left, k, frontPart, &node->left); //只剩左子樹要分割
-			//pull(node);
 			// 更新 size (只有左側子樹變動）
 			node->groupSize = ( node->right ? node->right->groupSize : 0  ) +
 				(node->left ? node->left->groupSize : 0 ) + 1;
 			node->groupTime = (node->right ? node->right->groupTime : 0) +
 				(node->left ? node->left->groupTime : 0) + node->time;
-
-			//int gg = (*frontPart)->subTreeSize;
-			//(*frontPart)->subTreeSize = (*frontPart)->right ? (*frontPart)->right->subTreeSize : 0 +
-			//	(*frontPart)->left ? (*frontPart)->left->subTreeSize : 0 + 1;
-
 		}
 		else
 		{
@@ -153,8 +118,8 @@ void split(SmtpNode* node, int k, SmtpNode** frontPart, SmtpNode** rearPart) //�
 			*frontPart = 0; // no front part
 		}
 	}
-
 }
+
 
 void inverse(SmtpNode* node)
 {
@@ -167,7 +132,6 @@ void inverse(SmtpNode* node)
 }
 
 
-
 SmtpNode* recursiveConstruct(int start, int end)
 {
 	if (start > end) return 0;
@@ -178,6 +142,7 @@ SmtpNode* recursiveConstruct(int start, int end)
 	return &array[mid];
 }
  
+
 unsigned long long recursiveSuppressTime(SmtpNode* node )
 {
 	// TimeLimit
@@ -194,11 +159,12 @@ unsigned long long recursiveSuppressTime(SmtpNode* node )
 	return node->groupTime;
 }
 
+
 int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 {
+	unsigned long long subTotal = 0;
 	node->groupSize = 1;
 	node->groupTime = node->time;
-	unsigned long long subTotal = 0;
 	if (node->left)
 	{
 		do node->left->priority = rand();
@@ -217,8 +183,13 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 	return node->groupSize;
 }
 
+
 void main()
 {
+	SmtpNode* front, * rear, * head, * middle, * tail, * newOne;
+	int cmd, p, k, l, r, x, y;
+	unsigned long long totalTime;
+
 	scanf("%d %d", &N, &Q);
 	// Create N nodes associated with random priority
 	array = malloc(sizeof(SmtpNode) * (N));
@@ -226,16 +197,12 @@ void main()
 	{
 		array[i].left = array[i].right = 0;
 		scanf("%d", &array[i].time);
-
 	}
 
 	root = recursiveConstruct(0, N-1);
 	root->priority = rand();
-	unsigned long long totalTime;
 	root->groupSize = recursiveAssignChildrenPriority(root, &totalTime );
 
-	SmtpNode* front, * rear, * head, * middle, * tail, * newOne;
-	int cmd, p, k, l, r, x, y;
 	for (int i = 0; i < Q; i++)
 	{
 		scanf("%d", &cmd);
@@ -329,6 +296,5 @@ void main()
 			break;
 		}
 	}
-
 
 }
