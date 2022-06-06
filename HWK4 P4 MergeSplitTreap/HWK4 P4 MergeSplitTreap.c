@@ -208,14 +208,6 @@ void main()
 		scanf("%d", &cmd);
 		switch (cmd)
 		{
-		case -1:
-			inverse(root);
-			inverse(root);
-		case 0:
-			scanf("%d", &p);
-			split(root,p, &front, &rear);
-			root = merge(front, rear);
-			break;
 		case 1: // add a new server to location p with boot time k
 			newOne = malloc(sizeof(SmtpNode));
 			newOne->priority = rand(); newOne->left = newOne->right = 0;
@@ -228,8 +220,7 @@ void main()
 			else
 			{
 				split(root, p, &front, &rear);
-				front =	merge(front, newOne);
-				root = merge(front, rear);
+				root = merge( merge(front, newOne), rear);
 			}
 			N = N + 1;
 			break;
@@ -253,15 +244,14 @@ void main()
 			}
 			N = N - 1;
 			break;
-		case 3: // Reverse the orders
+		case 3: // Reverse the orders  (boundary conditions of l = 1 and r = N can be check for efficient code)
 			scanf("%d %d", &l, &r);
 			split(root, r, &front, &tail);
 			split(front, l-1, &head, &middle);
 			inverse(middle);
-			front = merge(head, middle);
-			root = merge(front, tail);
+			root = merge( merge(head, middle), tail);
 			break;
-		case 4: // Block swap
+		case 4: // Blocks swap (boundary conditions of l = 1 and r = N can be check for efficient code)
 			scanf("%d %d %d %d", &l, &r, &x, &y);
 			int temp;
 			if (l > x)
@@ -273,26 +263,38 @@ void main()
 			split( head, x-1, & head, & rear);
 			split(head, r, &head, &middle);
 			split(head, l-1, &head, &front);
-			root = merge(head, rear);
-			root = merge(root, middle);
-			root = merge(root, front);
-			root = merge(root, tail);
+			root = merge(merge( merge(merge(head, rear), middle), front) , tail);
 			break;
-		case 5: // trim times
+		case 5: // trim times (boundary conditions of l = 1 and r = N can be check for efficient code)
 			scanf("%d %d %d ", &l, &r, &TimeLimit);
 			split(root, r, &front, &tail);
 			split(front, l - 1, &head, &middle);
 			recursiveSuppressTime(middle);
-			front = merge(head, middle);
-			root = merge(front, tail);
+			root = merge(merge(head, middle) , tail);
 			break;
-		case 6: // Print infor
+		case 6: // Print group time information
 			scanf("%d %d", &l, &r);
-			split(root, r, &front, &tail);
-			split(front, l - 1, &head, &middle);
-			printf("%d\n", middle->groupTime);
-			front = merge(head, middle);
-			root = merge(front, tail);
+			if( l == 1 && r == N)
+				printf("%d\n", root->groupTime);
+			else if (l == 1)
+			{
+				split(root, r, &front, &tail);
+				printf("%d\n", front->groupTime);
+				root = merge(front, tail);
+			} 
+			else if (r == N)
+			{
+				split(root, l - 1, &front, &tail);
+				printf("%d\n", tail->groupTime);
+				root = merge(front, tail);
+			}
+			else
+			{
+				split(root, r, &front, &tail);
+				split(front, l - 1, &head, &middle);
+				printf("%d\n", middle->groupTime);
+				root = merge(merge(head, middle), tail);
+			}
 			break;
 		}
 	}
