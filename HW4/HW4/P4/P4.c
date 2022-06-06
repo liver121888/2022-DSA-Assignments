@@ -221,13 +221,13 @@ Node* swapNode(Node* root, int l, int r, int x, int y)
 
 Node* upgradeNode(Node* root, int l, int r, int k)
 {
-    Node* lt, * rt, * lt2, * rt2;
-    split(root, l - 1, &lt, &rt);
-    split(rt, r - l + 1, &lt2, &rt2);
+    //Node* lt, * rt, * lt2, * rt2;
+    //split(root, l - 1, &lt, &rt);
+    //split(rt, r - l + 1, &lt2, &rt2);
 
-    inorderupgrade(lt2, k);
+    //inorderupgrade(lt2, k);
 
-    return merge(lt, merge(lt2, rt2));
+    //return merge(lt, merge(lt2, rt2));
 }
 
 Node* query(Node* root, int l, int r, long long* q)
@@ -331,7 +331,7 @@ int main() {
                 sr = fscanf(ptr, "%d %d %d", &l, &r, &k);
             else
                 sr = scanf("%d %d %d", &l, &r, &k);
-            server = upgradeNode(server, l, r, k);
+            //server = upgradeNode(server, l, r, k);
             break;
         case 6:
             if (fileFlag)

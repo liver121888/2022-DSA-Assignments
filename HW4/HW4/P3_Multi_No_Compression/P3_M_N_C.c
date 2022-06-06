@@ -38,10 +38,11 @@ typedef struct node
 typedef struct graph {
     bool* visited;
     Node** adjLists;
+    int nodeNumber;
 }Graph;
 
 int fileFlag = 1;
-int debugFlag = 0;
+int debugFlag = 1;
 int shopNumberInitial;
 int shopNumber;
 int* shopNumberHistory;
@@ -100,10 +101,13 @@ void demerge(int ra, int rb, int day)
         return;
     else
     {
-        int tmp = find_set(dsHistory[day]);
-        ds[dsHistory[day]].leaderHash = dsHistory[day];
-        ds[tmp].size -= ds[dsHistory[day]].size;
-        shopNumber++;
+        if (dsHistory[day] >= 0)
+        {
+            int tmp = find_set(dsHistory[day]);
+            ds[dsHistory[day]].leaderHash = dsHistory[day];
+            ds[tmp].size -= ds[dsHistory[day]].size;
+            shopNumber++;
+        }
     }
 }
 
@@ -142,22 +146,22 @@ void connect(int origin, int destination)
 void printG()
 {
     printf("##########\n");
-    int i = 0;
-    //Node* tmp = G->adjLists[i];
-    //while (tmp)
-    //{
-    //    printf("Day %d: \n", i);
-    //    printf("%d, ", tmp->day);
-    //    tmp = tmp->next;
-    //    i++;
-    //}
-    printf("\n");
+    for (int i = 0; i < G->nodeNumber; i++) {
+        Node* tmp = G->adjLists[i];
+        printf("Day %d: \n", i);
+        while (tmp)
+        {
+            printf("%d, ", tmp->day);
+            tmp = tmp->next;
+        }
+        printf("\n");
+    }
     printf("##########\n");
 }
 
 
 //// ref: https://www.programiz.com/dsa/graph-dfs
-//// DFS algo
+// DFS algo
 void DFS(int vertex) {
     if (G->visited[vertex] == 1)
         return;
@@ -181,12 +185,14 @@ void DFS(int vertex) {
     Node* temp = G->adjLists[vertex];
     while (temp != NULL)
     {
-        DFS(temp->day);
+        if (!G->visited[temp->day])
+            DFS(temp->day);
         temp = temp->next;
     }
     int tmpindex = vertex + 1;
     if (tmpindex <= daysM)
-        if (!(T[tmpindex]->operate.op[0] == 'b'))
+    {
+        if (!G->visited[tmpindex] && !(T[tmpindex]->operate.op[0] == 'b'))
             DFS(tmpindex);
         else
         {
@@ -194,6 +200,10 @@ void DFS(int vertex) {
             //while (tmpindex>=1 && !(T[tmpindex]->operate.op[0] == 'b'))
             while (tmpindex > 0 && !(T[tmpindex]->operate.op[0] == 'b'))
             {
+                if (debugFlag && tmpindex == vertex)
+                {
+                    printf("reverse\n");
+                }
                 switch (T[tmpindex]->operate.op[0])
                 {
                 case('q'):
@@ -206,14 +216,37 @@ void DFS(int vertex) {
                 }
                 tmpindex--;
             }
-        } 
+        }
+    }
+    else
+    {
+        //special case when tmpindex = daysM + 1, we should reverse too
+        tmpindex = vertex;
+        while (tmpindex > 0 && !(T[tmpindex]->operate.op[0] == 'b'))
+        {
+            if (debugFlag && tmpindex == vertex)
+            {
+                printf("reverse\n");
+            }
+            switch (T[tmpindex]->operate.op[0])
+            {
+            case('q'):
+                break;
+            case('m'):
+                demerge(T[tmpindex]->operate.v1, T[tmpindex]->operate.v2, tmpindex);
+                break;
+            default:
+                break;
+            }
+            tmpindex--;
+        }
+    }
 }
 
 
 
+
 void DFSMODI(int vertex) {
-    if (G->visited[vertex] == true)
-        return;
     if (debugFlag)
         printf("Visit %d \n", vertex);
     G->visited[vertex] = true;
@@ -222,8 +255,10 @@ void DFSMODI(int vertex) {
     {
         if (G->adjLists[temp->day])
             DFSMODI(temp->day);
+
+
         int tmpindex = vertex + 1;
-        while (G->visited[tmpindex] != true && tmpindex <= daysM && T[tmpindex]->operate.op[0] != 'b')
+        while (tmpindex <= daysM && T[tmpindex]->operate.op[0] != 'b')
         {
             switch (T[tmpindex]->operate.op[0])
             {
@@ -242,7 +277,7 @@ void DFSMODI(int vertex) {
             if (debugFlag)
             {
                 printf("Visit %d \n", tmpindex);
-                printShop(tmpindex);
+                //printShop(tmpindex);
             }
             //printShopNumberHistory();
             if (G->adjLists[tmpindex])
@@ -285,7 +320,7 @@ int main()
     FILE* ptr = 0;
     if (fileFlag)
     {
-        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\6.in", "r");
+        ptr = fopen("D:\\Senior_Spring\\DSA\\NTUCSIE-2022-DSA-Assignments\\HW4\\HW4\\hw4_testdata\\P3\\7.in", "r");
         r = fscanf(ptr, "%d %d", &shopNumberInitial, &daysM);
     }
     else
@@ -296,11 +331,13 @@ int main()
     for (int i = 0; i < daysM + 1; i++)
     {
         shopNumberHistory[i] = -1;
+        dsHistory[i] = -1;
     }
 
     G = malloc(sizeof(Graph));
     G->adjLists = malloc((daysM + 1) * sizeof(Node*));
     G->visited = malloc((daysM + 1) * sizeof(bool));
+    G->nodeNumber = daysM + 1;
     for (int i = 0; i < (daysM + 1); i++)
     {
         G->adjLists[i] = NULL;
@@ -363,32 +400,37 @@ int main()
         }
         T[i] = n;
     }
-
-    DFSMODI(0);
-    for (int i = 1; i < daysM + 1; i++)
+    if (debugFlag)
     {
-        if (!(G->visited[i]))
-        {
-            switch (T[i]->operate.op[0])
-            {
-            case('q'):
-                // save query, later print
-                shopNumberHistory[i] = shopNumber;
-                break;
-            case('m'):
-                merge(T[i]->operate.v1, T[i]->operate.v2, i);
-                break;
-            case('b'):
-                break;
-            default:
-                break;
-            }
-        }
-        if (debugFlag)
-            printShop(i);
-        DFSMODI(i);
+        printG();
     }
-    //DFS(0);
+
+    //for (int i = 0; i < daysM + 1; i++)
+    //{
+    //    if (!(G->visited[i]))
+    //    {
+    //        switch (T[i]->operate.op[0])
+    //        {
+    //        case('q'):
+    //            // save query, later print
+    //            shopNumberHistory[i] = shopNumber;
+    //            break;
+    //        case('m'):
+    //            merge(T[i]->operate.v1, T[i]->operate.v2, i);
+    //            break;
+    //        case('b'):
+    //            break;
+    //        default:
+    //            break;
+    //        }
+    //        G->visited[i] = 1;
+    //    }
+    //    if (debugFlag)
+    //        printShop(i);
+    //    if (G->adjLists != NULL)
+    //        DFSMODI(i);
+    //}
+    DFS(0);
 
 
     for (int i = 0; i < daysM + 1; i++)
