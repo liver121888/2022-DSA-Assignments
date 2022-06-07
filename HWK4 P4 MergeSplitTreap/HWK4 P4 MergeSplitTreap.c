@@ -185,42 +185,225 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 	return node->groupSize;
 }
 
-void unitTestOnInitialTreap()
-{
-	do
-	{
-		printf("Specify N (-1:quit) = ");
-		scanf("%d", &N);
-		if (N == -1)break;
-		// Create N nodes associated with random priority
-		array = malloc(sizeof(SmtpNode) * (N));
-		for (int i = 0; i < N; i++)
-		{
-			array[i].left = array[i].right = 0;
-			array[i].time = rand() % 100;
-		}
-
-		root = recursiveConstruct(0, N - 1);
-		root->priority = RAND_MAX * 2;
-		unsigned long long totalTime;
-		root->groupSize = recursiveAssignChildrenPriority(root, &totalTime);
-
-		if (root->groupSize != N) printf("ERROR 1");
-		unsigned long long to = 0;
-		for (int i = 0; i < N; i++)
-			to += array[i].time;
-		if (to != root->groupTime) printf("ERROR 1");
-	} while (1);
-}
+// testing function; uncomment it to activate it
+//void unitTestOnInitialTreap()
+//{
+//	do
+//	{
+//		printf("\n*** Specify element number N (-1:quit) = ");
+//		scanf("%d", &N);
+//		if (N == -1)break;
+//		// Create N nodes associated with random priority
+//		array = malloc(sizeof(SmtpNode) * (N));
+//		for (int i = 0; i < N; i++)
+//		{
+//			array[i].left = array[i].right = 0;
+//			array[i].time = rand() % 100;
+//		}
+//
+//		root = recursiveConstruct(0, N - 1);
+//		root->priority = RAND_MAX * 2;
+//		unsigned long long totalTime;
+//		root->groupSize = recursiveAssignChildrenPriority(root, &totalTime);
+//
+//		if (root->groupSize != N) printf("\nERROR 1");
+//		unsigned long long to = 0;
+//		for (int i = 0; i < N; i++)
+//			to += array[i].time;
+//		if (to != root->groupTime) printf("\nERROR 1");
+//
+//		printf("\n***　Number of single split-merge tests (-1:quit ) = ");
+//		scanf("%d", &Q);
+//		SmtpNode* front, * rear;
+//		if (Q != -1)
+//		{
+//			for (int i = 0; i < Q; i++)
+//			{
+//				int pos = 1 + rand() % N ;
+//				split(root, pos, &front, &rear );
+//				int sz = 0;
+//				if (front)  sz += front->groupSize;
+//				if (rear) sz += rear->groupSize;
+//				if( sz != N ) printf("\nERROR 3 split at %d ", pos);
+//				unsigned long long sum = 0;
+//				if (front) sum += front->groupTime;
+//				if (rear) sum += rear->groupTime;
+//				if( sum != totalTime) printf("\nERROR 4 split at %d ", pos);
+//				root = merge(front, rear);
+//				if (root->groupSize != N) printf("\nERROR 5 after merge ");
+//				unsigned long long to = 0;
+//				for (int i = 0; i < N; i++)
+//					to += array[i].time;
+//				if (to != root->groupTime) printf("\nERROR 6 after merge ");
+//				if (totalTime != root->groupTime) printf("\nERROR 7 after merge ");
+//			}
+//		}
+//		SmtpNode* tail, *middle, *head;
+//
+//		printf("\n*** Times of print tests (-1:quit ) = ");
+//		scanf("%d", &Q);
+//		if( Q != 1)
+//		{
+//			for (int i = 0; i < Q; i++)
+//			{
+//				// Print Test
+//				int l = 1 + rand() % N;
+//				int r = 1 + rand() % N;
+//				if (l > r)
+//				{
+//					int temp = l;
+//					l = r;
+//					r = temp;
+//				}
+//				unsigned long long v = 0;
+//				for (int i = l-1; i <= r-1; i++)
+//					v += array[i].time;
+//
+//				unsigned long long ans;
+//				if (l == 1 && r == N)
+//				{
+//			//		printf("%d\n", root->groupTime);
+//					ans = root->groupTime;
+//				}
+//				else if (l == 1)
+//				{
+//					split(root, r, &front, &tail);
+//				//	printf("%d\n", front->groupTime);
+//					ans = front->groupTime;
+//					root = merge(front, tail);
+//				}
+//				else if (r == N)
+//				{
+//					split(root, l - 1, &front, &tail);
+//				//	printf("%d\n", tail->groupTime);
+//					ans = tail->groupTime;
+//
+//					root = merge(front, tail);
+//				}
+//				else
+//				{
+//					split(root, r, &front, &tail);
+//					split(front, l - 1, &head, &middle);
+//			//		printf("%d\n", middle->groupTime);
+//					ans = middle->groupTime;
+//
+//					root = merge(merge(head, middle), tail);
+//				}
+//				if (ans != v) printf("\n Q= %d  l = %d  r = %d  ERROR 8 after merge %d != %d\n", i, l, r, ans, v);
+//				//else printf(" ans = %d  v = %d\n", ans, v);
+//			}
+//		}
+//
+//
+//		printf("\n*** Number of three split tests (-1:quit ) = ");
+//		scanf("%d", &Q);
+//		if (Q != 1)
+//		{
+//			for (int i = 0; i < Q; i++)
+//			{
+//				// Print Test
+//				int l =1 + rand()  % N;
+//				int r =1 +  rand()  % N;
+//				if (l > r)
+//				{
+//					int temp = l;
+//					l = r;
+//					r = temp;
+//				}
+//				unsigned long long v = 0;
+//				for (int i = l - 1; i <= r - 1; i++)
+//					v += array[i].time;
+//				int c = 0;
+//
+//				split(root, r, &front, &tail);
+//				if (tail) c += tail->groupSize;
+//				split(front, l - 1, &front, &middle);
+//				if(front) c += front->groupSize;
+//				if (middle) c += middle->groupSize;
+//
+//				if (N != c) printf("\n ERROR 9 after 3-split l = %d r= %d   c = %d N = %d \n",  l, r, c, N);
+//
+//				root = merge(merge(front, middle), tail);
+//
+//				if (root->groupSize != N) printf("ERROR 10  after  3-merge l = %d r= %d  merge %d !=  N %d\n", l, r, root->groupSize, N );
+//				//else printf(" ans = %d  v = %d\n", ans, v);
+//			}
+//		}
+//
+//		printf("\n*** Number of Two Blocks Swap tests (-1:quit ) = ");
+//		scanf("%d", &Q);
+//		if (Q != 1)
+//		{
+//			for (int i = 0; i < Q; i++)
+//			{
+//				// Print Test
+//				int l = 1 + rand() % N;
+//				int r = 1 + rand() % N;
+//				int x = 1 + rand() % N;
+//				int y = 1 + rand() % N;
+//
+//				if (l > r)
+//				{
+//					int temp = l;
+//					l = r;
+//					r = temp;
+//				}
+//				if (x > y)
+//				{
+//					int temp = x;
+//					x = y;
+//					y = temp;
+//				}
+//				if (l > x)
+//				{
+//					int temp = l;
+//					l = x;
+//					x = temp;
+//					temp = r;
+//					r = y;
+//					y = temp;
+//				}
+//				if (r > x)
+//				{
+//					int temp = x;
+//					x = r;
+//					r = temp;
+//				}
+//
+//				split(root, y, &head, &tail);
+//				split(head, x - 1, &head, &rear);
+//				split(head, r, &head, &middle);
+//				split(head, l - 1, &head, &front);
+//
+//				int c = 0;
+//
+//				if (tail) c += tail->groupSize;
+//				if (rear) c += rear->groupSize;
+//				if (middle) c += middle->groupSize;
+//				if (front) c += front->groupSize;
+//				if (head) c += head->groupSize;
+//
+//				if (N != c) printf("\n ERROR 11 after 2-block split l = %d r= %d x = %d y= %d  c = %d N = %d \n", l, r, x, y, c, N);
+//
+//
+//				root = merge(merge(merge(merge(head, rear), middle), front), tail);
+//				if (root->groupSize != N) printf("ERROR 12  after 2-block swap l = %d r= %d  x = %d y = %d merge %d !=  N %d\n", l, r, x, y, root->groupSize, N);
+//				//else printf(" ans = %d  v = %d\n", ans, v);
+//			}
+//		}
+//
+//
+//	} while (1);
+//}
 
 void main()
 {
 	SmtpNode* front, * rear, * head, * middle, * tail, * newOne;
 	int cmd, p, k, l, r, x, y;
 	unsigned long long totalTime;
-	printf("RAND_MAX = %d", RAND_MAX);
-	unitTestOnInitialTreap();
 
+	// testing entry
+	// unitTestOnInitialTreap();
 
 	scanf("%d %d", &N, &Q);
 	// Create N nodes associated with random priority
@@ -234,12 +417,6 @@ void main()
 	root = recursiveConstruct(0, N-1);
 	root->priority = RAND_MAX;
 	root->groupSize = recursiveAssignChildrenPriority(root, &totalTime );
-
-	if (root->groupSize != N) printf("ERROR 1");
-unsigned long long to = 0;
-for (int i = 0; i < N; i++)
-	to += array[i].time;
-if (to != root->groupTime) printf("ERROR 1");
 
 	for (int i = 0; i < Q; i++)
 	{
