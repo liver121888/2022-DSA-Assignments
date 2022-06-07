@@ -186,9 +186,13 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 	return node->groupSize;
 }
 
-// testing function; uncomment it to activate it
+// // testing function; uncomment it to activate it
 //void unitTestOnInitialTreap()
 //{
+//
+//	SmtpNode* front, * rear;
+//	SmtpNode* tail, * middle, * head, *newOne;
+//
 //	do
 //	{
 //		printf("\n*** Specify element number N (-1:quit) = ");
@@ -213,9 +217,83 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 //			to += array[i].time;
 //		if (to != root->groupTime) printf("\nERROR 1");
 //
+//		printf("\n*** Insert and Remove tests (-1:quit ) = ");
+//		scanf("%d", &Q);
+//		if (Q != 1)
+//		{
+//			int p; 
+//			unsigned long long time;
+//			int insert = 0, retire = 0;
+//			int oldN = N;
+//			for (int i = 0; i < Q; i++)
+//			{
+//				if (rand() % 2 == 0)
+//				{
+//					p = 1 + rand() % N; 
+//					// insert
+//					newOne = malloc(sizeof(SmtpNode));
+//					newOne->priority = (int)(MY_RAND_MAX * (float)(rand()) / RAND_MAX);
+//					newOne->left = newOne->right = 0;
+//					newOne->groupSize = 1;
+//					time = rand() % 1000;
+//					newOne->groupTime = newOne->time = time;
+//
+//					if (p == 0) root = merge(newOne, root);
+//					else if (p == N) root = merge(root, newOne);
+//					else
+//					{
+//						split(root, p, &front, &rear);
+//						root = merge(merge(front, newOne), rear);
+//					}
+//					N = N + 1;
+//					totalTime += time;
+//					insert++;
+//				}
+//				else
+//				{
+//					p = 1 + rand() % N;
+//					if (p == N)
+//					{
+//						split(root, p - 1, &front, &rear);
+//						root = front;
+//						time = rear->time;
+//					}
+//					else if (p == 1)
+//					{
+//						split(root, p, &front, &rear);
+//						root = rear;
+//						time = front->time;
+//					}
+//					else
+//					{
+//						split(root, p, &front, &tail);
+//						split(front, p - 1, &head, &middle);
+//						root = merge(head, tail);
+//						time = middle->time;
+//					}
+//					N = N - 1;
+//					totalTime -= time;
+//					retire++;
+//				}
+//
+//
+//			}
+//				if (root->groupSize != N )
+//					printf("\n ERROR -1 after insert-remove oldN= %d Q=%d I=%d R=%d Size=%d != N=%d\n",oldN, Q,insert, retire,root->groupSize,N);
+//				else
+//					printf("\n PASS!  insert-remove oldN= %d Q=%d I=%d R=%d Size=%d = N=%d\n", oldN, Q, insert, retire, root->groupSize, N);
+//
+//				if (root->groupTime != totalTime) 
+//					printf("\n ERROR -1 after insert-remove oldN= %d Q=%d I=%d R=%d Group Time=%d != answer =%d\n", oldN, Q, insert, retire, root->groupTime, totalTime);
+//				else
+//					printf("\n PASS!  insert-remove oldN= %d Q=%d I=%d R=%d Group Time=%d = answer =%d\n", oldN, Q, insert, retire, root->groupTime, totalTime);
+//		}
+//
+//
+//
+//
 //		printf("\n***　Number of single split-merge tests (-1:quit ) = ");
 //		scanf("%d", &Q);
-//		SmtpNode* front, * rear;
 //		if (Q != -1)
 //		{
 //			for (int i = 0; i < Q; i++)
@@ -239,7 +317,6 @@ int recursiveAssignChildrenPriority(SmtpNode* node, unsigned long long *total)
 //				if (totalTime != root->groupTime) printf("\nERROR 7 after merge ");
 //			}
 //		}
-//		SmtpNode* tail, *middle, *head;
 //
 //		printf("\n*** Times of print tests (-1:quit ) = ");
 //		scanf("%d", &Q);
@@ -404,7 +481,7 @@ void main()
 	unsigned long long totalTime;
 
 	// testing entry
-	// unitTestOnInitialTreap();
+	//unitTestOnInitialTreap();
 
 	scanf("%d %d", &N, &Q);
 	// Create N nodes associated with random priority
