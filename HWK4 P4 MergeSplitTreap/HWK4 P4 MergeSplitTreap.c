@@ -7,7 +7,8 @@
 typedef struct smtpNode
 {
 	int priority;
-	int time;
+	//int time;
+	unsigned long long time;
 	unsigned long long groupTime;
 	int groupSize; // 
 	struct smtpNode* left;
@@ -16,7 +17,7 @@ typedef struct smtpNode
 
 
 int N, Q;
-int TimeLimit;
+unsigned long long TimeLimit;
 SmtpNode* array;
 SmtpNode* root;
 
@@ -489,7 +490,7 @@ void main()
 	for (int i = 0; i < N; i++)
 	{
 		array[i].left = array[i].right = 0;
-		scanf("%d", &array[i].time);
+		scanf("%I64u" , &(array[i].time) );
 	}
 
 	root = recursiveConstruct(0, N-1);
@@ -507,7 +508,7 @@ void main()
 			newOne->priority = (int)( MY_RAND_MAX * (float)(rand() )/ RAND_MAX );
 			newOne->left = newOne->right = 0;
 			newOne->groupSize = 1;
-			scanf("%d %d", &p, &newOne->time);
+			scanf("%d %I64u", &p, &newOne->time);
 			newOne->groupTime = newOne->time;
 
 			if (p == 0) root = merge(newOne, root);
@@ -561,7 +562,7 @@ void main()
 			root = merge(merge( merge(merge(head, rear), middle), front) , tail);
 			break;
 		case 5: // trim times (boundary conditions of l = 1 and r = N can be check for efficient code)
-			scanf("%d %d %d ", &l, &r, &TimeLimit);
+			scanf("%d %d %I64u", &l, &r, &TimeLimit);
 			split(root, r, &front, &tail);
 			split(front, l - 1, &head, &middle);
 			recursiveSuppressTime(middle);
@@ -570,24 +571,24 @@ void main()
 		case 6: // Print group time information
 			scanf("%d %d", &l, &r);
 			if( l == 1 && r == N)
-				printf("%d\n", root->groupTime);
+				printf("%I64u\n", root->groupTime);
 			else if (l == 1)
 			{
 				split(root, r, &front, &tail);
-				printf("%d\n", front->groupTime);
+				printf("%I64u\n", front->groupTime);
 				root = merge(front, tail);
 			} 
 			else if (r == N)
 			{
 				split(root, l - 1, &front, &tail);
-				printf("%d\n", tail->groupTime);
+				printf("%I64u\n", tail->groupTime);
 				root = merge(front, tail);
 			}
 			else
 			{
 				split(root, r, &front, &tail);
 				split(front, l - 1, &head, &middle);
-				printf("%d\n", middle->groupTime);
+				printf("%I64u\n", middle->groupTime);
 				root = merge(merge(head, middle), tail);
 			}
 			break;
