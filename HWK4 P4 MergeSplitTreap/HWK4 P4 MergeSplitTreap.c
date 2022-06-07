@@ -1,4 +1,5 @@
 ﻿#define _CRT_SECURE_NO_DEPRECATE
+#define MY_RAND_MAX 500000
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -415,7 +416,8 @@ void main()
 	}
 
 	root = recursiveConstruct(0, N-1);
-	root->priority = RAND_MAX;
+ 
+	root->priority = 4 * N;
 	root->groupSize = recursiveAssignChildrenPriority(root, &totalTime );
 
 	for (int i = 0; i < Q; i++)
@@ -425,7 +427,8 @@ void main()
 		{
 		case 1: // add a new server to location p with boot time k
 			newOne = malloc(sizeof(SmtpNode));
-			newOne->priority = rand() * 2; newOne->left = newOne->right = 0;
+			newOne->priority = (int)( MY_RAND_MAX * (float)(rand() )/ RAND_MAX );
+			newOne->left = newOne->right = 0;
 			newOne->groupSize = 1;
 			scanf("%d %d", &p, &newOne->time);
 			newOne->groupTime = newOne->time;
