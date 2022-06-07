@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<time.h>
 
 typedef struct smtpNode
 {
@@ -480,6 +481,28 @@ void main()
 	SmtpNode* front, * rear, * head, * middle, * tail, * newOne;
 	int cmd, p, k, l, r, x, y;
 	unsigned long long totalTime;
+
+	//clock_t start = clock();
+
+	//array = malloc(sizeof(SmtpNode) * 100000);
+	//for (int i = 0; i < 100000; i++)
+	//	array[i].time = rand();
+
+
+	//clock_t end = clock();
+	//float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+	//printf("\n once time = %f", seconds);
+	//free(array);
+
+	//start = clock();
+	//for (int i = 0; i < 100000; i++)
+	//{
+	//	SmtpNode* nn = malloc(sizeof(SmtpNode));
+	//	nn->time = rand();
+	//}
+	//end = clock();
+	//seconds = (float)(end - start) / CLOCKS_PER_SEC;
+	//printf("\n multiple time = %f", seconds);
 
 	// testing entry
 	//unitTestOnInitialTreap();
