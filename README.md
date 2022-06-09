@@ -11,4 +11,4 @@ Scores:
 
 ![](./figure/capture.png)
 
-The master branch is my work, while FC new branch is from my dad (he also found the course interesting)
+The master branch is my work, while FC new branch is from my dad (he also found the course interesting).
