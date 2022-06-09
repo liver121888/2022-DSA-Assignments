@@ -7,7 +7,7 @@ Also some other related topic, such as radix sort, bucket sort, KMP, Rabin-Karp.
 
 We implement these data structures in C.
 
-Score:
+Scores:
 
 ![](./figure/capture.png)
 
