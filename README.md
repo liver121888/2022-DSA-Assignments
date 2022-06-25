@@ -12,3 +12,5 @@ Scores:
 ![](./figure/capture.png)
 
 The master branch is my work, while FC new branch is from my dad (he also found the course interesting).
+
+Some of the project we have Nick's work, which is one of my classmates.
